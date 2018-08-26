@@ -41,6 +41,7 @@ release = u'v1.0.0a1+2018.04'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
 
