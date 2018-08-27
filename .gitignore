@@ -100,3 +100,6 @@ Session.vim
 *~
 tags
 [._]*.un~
+
+# Sphinx generated documentation
+docs/*.rst

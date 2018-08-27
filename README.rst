@@ -16,7 +16,17 @@ for notes on how to deploy the project on a live system.
 Prerequisites
 ~~~~~~~~~~~~~
 
-What things you need to install the software and how to install them
+You will require the following tools for the installation:
+
+- Git >= 1.5.3
+- Python >= 3.5
+
+You will also require at least the following Python packages:
+
+- `Pip <https://pypi.org/project/pip/>`__
+- `Setuptools <https://pypi.org/project/setuptools/>`__
+
+What other things you need to install the software and how to install them
 
 ::
 
@@ -24,6 +34,26 @@ What things you need to install the software and how to install them
 
 Installing
 ~~~~~~~~~~
+
+To install the development version of the package, first clone the Git
+repository, and the Git submodules inside it:
+
+::
+
+   $ git clone --recurse-submodules https://github.com/fi-muni-video-699/implementation-system.git
+
+Next, install the package using Python:
+
+::
+
+   $ python setup.py install
+
+If you wish to run tests, and build the documentation, use Pip to download
+additional Python packages specified in the ``requirements.txt`` file:
+
+::
+
+   $ pip install -r requirements.txt
 
 A step by step series of examples that tell you how to get a development
 env running
@@ -109,7 +139,7 @@ License
 -------
 
 This project is licensed under the MIT License - see the
-`LICENSE.md <LICENSE.md>`__ file for details
+`LICENSE <LICENSE>`__ file for details
 
 Acknowledgments
 ---------------

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from .context import video699
-
 import unittest
 
+import video699
 
-class SampleTestSuite(unittest.TestCase):
-    """Advanced test cases."""
+
+class TestSample(unittest.TestCase):
+    """This is a sample test.
+
+    """
 
     def test_tautology(self):
         self.assertTrue(video699)
