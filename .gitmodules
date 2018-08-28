@@ -1,3 +1,3 @@
 [submodule "implementation-screens"]
 	path = video699/system/screen_detector/annotated
-  url = https://github.com/fi-muni-video-699/implementation-screens.git
+  url = https://github.com/video699/implementation-screens.git
