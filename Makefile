@@ -1,6 +1,9 @@
+SHELL=/bin/bash -O extglob
+
 .PHONY: init develop test docs
 
 init:
+	pip install .
 	pip install -r requirements.txt
 
 develop:
@@ -12,5 +15,7 @@ test: init develop
 	python setup.py test
 
 docs:
+	rm -f docs/!(index).rst
+	rm -r -f docs/_build/html
 	sphinx-apidoc -o docs video699
 	make -C docs html

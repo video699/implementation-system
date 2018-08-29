@@ -3,98 +3,206 @@
 import unittest
 
 from dateutil.parser import parse
-from video699.system.screen_detector.annotated import HumanAnnotationScreenDetector
+from video699.stub import VideoStub, FrameStub
+from video699.annotated import AnnotatedScreenDetector
 
 
-def _screen_ids_at(datetime_str):
-    """Detects ids of screens in the room 123 of the example institution at a given date, and time.
-
-    Parameters
-    ----------
-    datetime_str : str
-        A specification of date, and time in the ISO 8601 format.
-
-    Returns
-    -------
-    screen_ids : set of str
-        A set of the ids of detected lit projection screens.
-    """
-    datetime = parse(datetime_str)
-    frame = None  # TODO: Use a Frame object
-    screen_detector = HumanAnnotationScreenDetector('example', '123', datetime)
-    screens = screen_detector.detect(frame)
-    screen_ids = {
-        screen[0] for screen in screens  # TODO: Use a ScreenABC object
-    }
-    return screen_ids
+INSTITUTION_ID = 'example'
+ROOM_ID = '123'
 
 
-class TestHumanAnnotationScreenDetector(unittest.TestCase):
-    """Tests the HumanAnnotationScreenDetector class from system.screen_detectors.annotated module.
+class TestAnnotatedScreenDetector(unittest.TestCase):
+    """Tests the AnnotatedScreenDetector class from system.screen_detectors.annotated module.
 
-    We test the ability of the class to correctly read, and interpret the example XML dataset.
+    Tests the ability of the class to correctly read, and interpret the example XML dataset.
 
     """
+    def setUp(self):
+        self.screen_detector = AnnotatedScreenDetector(INSTITUTION_ID, ROOM_ID)
 
-    def test_before_earliest(self):
-        """No screen should be detected before the earliest date, and time.
+    def test_no_screens_before_earliest_datetime(self):
+        datetime = parse('2017-12-31T23:59:59+00:00')
+        video = VideoStub(datetime)
+        frame = FrameStub(video)
+        screens = set(self.screen_detector(frame))
+        self.assertEqual(screens, set())
 
-        """
-        screen_ids = _screen_ids_at('2017-12-31T23:59:59+00:00')
-        self.assertEqual(screen_ids, set())
+    def test_screens_at_earliest_datetime(self):
+        datetime = parse('2018-01-01T00:00:00+00:00')
+        video = VideoStub(datetime)
+        frame = FrameStub(video)
+        self.assertEqual(
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector(frame)
+            ]),
+            set([
+                (
+                    'no_from_no_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'early_from_no_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'equal_from_no_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_early_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_equal_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_late_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+            ]),
+        )
 
-    def test_at_earliest(self):
-        screen_ids = _screen_ids_at('2018-01-01T00:00:00+00:00')
-        self.assertEqual(screen_ids, {
-            'no_from_no_until',
-            'early_from_no_until',
-            'equal_from_no_until',
-            'no_from_early_until',
-            'no_from_equal_until',
-            'no_from_late_until'
-        })
+    def test_screens_after_earliest_datetime(self):
+        datetime = parse('2018-01-01T00:00:01+00:00')
+        video = VideoStub(datetime)
+        frame = FrameStub(video)
+        self.assertEqual(
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector(frame)
+            ]),
+            set([
+                (
+                    'no_from_no_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'early_from_no_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'equal_from_no_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'late_from_no_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_early_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_equal_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_late_until',
+                    parse('2018-01-01T00:00:00+00:00')
+                ),
+            ]),
+        )
 
-    def test_after_earliest(self):
-        screen_ids = _screen_ids_at('2018-01-01T00:00:01+00:00')
-        self.assertEqual(screen_ids, {
-            'no_from_no_until',
-            'early_from_no_until',
-            'equal_from_no_until',
-            'late_from_no_until',
-            'no_from_early_until',
-            'no_from_equal_until',
-            'no_from_late_until'
-        })
+    def test_screens_before_latest_datetime(self):
+        datetime = parse('2018-02-28T23:59:59+00:00')
+        video = VideoStub(datetime)
+        frame = FrameStub(video)
+        self.assertEqual(
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector(frame)
+            ]),
+            set([
+                (
+                    'no_from_no_until',
+                    parse('2018-02-01T00:00:00+00:00')
+                ),
+                (
+                    'early_from_no_until',
+                    parse('2018-02-01T00:00:00+00:00')
+                ),
+                (
+                    'equal_from_no_until',
+                    parse('2018-02-01T00:00:00+00:00')
+                ),
+                (
+                    'late_from_no_until',
+                    parse('2018-02-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_equal_until',
+                    parse('2018-02-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_late_until',
+                    parse('2018-02-01T00:00:00+00:00')
+                ),
+            ]),
+        )
 
-    def test_before_latest(self):
-        screen_ids = _screen_ids_at('2018-02-28T23:59:59+00:00')
-        self.assertEqual(screen_ids, {
-            'no_from_no_until',
-            'early_from_no_until',
-            'equal_from_no_until',
-            'late_from_no_until',
-            'no_from_equal_until',
-            'no_from_late_until',
-        })
+    def test_screens_at_latest_datetime(self):
+        datetime = parse('2018-03-01T00:00:00+00:00')
+        video = VideoStub(datetime)
+        frame = FrameStub(video)
+        self.assertEqual(
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector(frame)
+            ]),
+            set([
+                (
+                    'no_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'early_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'equal_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'late_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_late_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+            ]),
+        )
 
-    def test_at_latest(self):
-        screen_ids = _screen_ids_at('2018-03-01T00:00:00+00:00')
-        self.assertEqual(screen_ids, {
-            'no_from_no_until',
-            'early_from_no_until',
-            'equal_from_no_until',
-            'late_from_no_until',
-            'no_from_late_until',
-        })
-
-    def test_after_latest(self):
-        screen_ids = _screen_ids_at('2018-03-01T00:00:01+00:00')
-        self.assertEqual(screen_ids, {
-            'no_from_no_until',
-            'early_from_no_until',
-            'equal_from_no_until',
-            'late_from_no_until',
-        })
+    def test_screens_after_latest_datetime(self):
+        datetime = parse('2018-03-01T00:00:01+00:00')
+        video = VideoStub(datetime)
+        frame = FrameStub(video)
+        self.assertEqual(
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector(frame)
+            ]),
+            set([
+                (
+                    'no_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'early_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'equal_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'late_from_no_until',
+                    parse('2018-03-01T00:00:00+00:00')
+                ),
+            ]),
+        )
 
 
 if __name__ == '__main__':

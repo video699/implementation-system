@@ -42,11 +42,11 @@ repository, and the Git submodules inside it:
 
    $ git clone --recurse-submodules https://github.com/fi-muni-video-699/implementation-system.git
 
-Next, install the package using Python:
+Next, install the package using Pip:
 
 ::
 
-   $ python setup.py install
+   $ python install .
 
 If you wish to run tests, and build the documentation, use Pip to download
 additional Python packages specified in the ``requirements.txt`` file:

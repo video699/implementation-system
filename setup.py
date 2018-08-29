@@ -9,11 +9,10 @@ setup(
     name='video699',
     packages=[
         'video699',
-        'video699.system',
-        'video699.system.screen_detector',
+        'video699.coordinate_map',
     ],
     package_data={
-        'video699.system.screen_detector': [
+        'video699.system': [
             'annotated',
         ],
     },
@@ -28,6 +27,8 @@ setup(
     },
     install_requires=[
         "lxml~=4.2.4",
+        "numpy~=1.15.1",
+        "opencv-python~=3.4.2",
         "python-dateutil~=2.7.3",
     ],
     long_description=long_description,
