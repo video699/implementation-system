@@ -22,6 +22,39 @@ RESOURCES_PATHNAME = os.path.join(os.path.dirname(__file__), 'annotated')
 DATASET_PATHNAME = os.path.join(RESOURCES_PATHNAME, 'dataset.xml')
 
 
+class _CameraAnnotations(object):
+    """Human annotations associated with a single camcoder.
+
+    Parameters
+    ----------
+    camera_id : str
+        An identifier of a camcoder in a room. The identifier is unique in the room.
+    name : str
+        A name of the camcoder.
+    width : int
+        The width of the captured video in pixels.
+    height : int
+        The height of the captured video in pixels.
+
+    Attributes
+    ----------
+    camera_id : str
+        An identifier of a camcoder in a room. The identifier is unique in the room.
+    name : str
+        A name of the camcoder.
+    width : int
+        The width of the captured video in pixels.
+    height : int
+        The height of the captured video in pixels.
+    """
+
+    def __init__(self, camera_id, name, width, height):
+        self.camera_id = camera_id
+        self.name = name
+        self.width = width
+        self.height = height
+
+
 class _ScreenAnnotations(object):
     """Human annotations associated with a single projection screen.
 
@@ -29,8 +62,12 @@ class _ScreenAnnotations(object):
     ----------
     screen_id : str
         An identifier of a projection screen in a room. The identifier is unique in the room.
-    positions : sequence of _ScreenPosition
-        Human-annotated positions of the projection screen at various dates, and times.
+    name : str
+        A description of the projection screen.
+    positions : dict of (str, sequence of _ScreenPosition)
+        A map between camcoder identifiers, and human-annotated positions of the projection screen
+        in a room at various dates, and times. The positions are sorted by dates, and times in
+        ascending order.
     installed_from : datetime or None, optional
         The date, and time that marks the screen's installation. If None, or unspecified, then the
         screen is assumed to be installed at the earliest date and time for which the position of
@@ -39,17 +76,17 @@ class _ScreenAnnotations(object):
         The date, and time that marks the screen's removal. If None, or unspecified, then the screen
         is assumed to be present at any point since the date, and time specified by the (possibly
         inferred) `installed_from` attribute.
-    name : str or None, optional
-        A description of the projection screen. If None or unspecified, no description of the screen
-        is known.
 
     Attributes
     ----------
     screen_id : str
         An identifier of a projection screen in a room. The identifier is unique in the room.
-    positions : sequence of _ScreenPosition
-        Human-annotated positions of the projection screen at various dates, and times. The
-        positions are sorted by dates, and times in ascending order.
+    name : str
+        A description of the projection screen.
+    positions : dict of (str, sequence of _ScreenPosition)
+        A map between camcoder identifiers, and human-annotated positions of the projection screen
+        in a room at various dates, and times. The positions are sorted by dates, and times in
+        ascending order.
     installed_from : datetime or None
         The date, and time that marks the screen's installation. None if and only if no
         human-annotated positions exist.
@@ -57,18 +94,22 @@ class _ScreenAnnotations(object):
         The date, and time that marks the screen's removal. If None, then the screen is assumed to
         be present at any point since the date, and time specified by the (possibly inferred)
         `installed_from` attribute.
-    name : str or None
-        A description of the projection screen. If None, no description of the screen is known.
     """
-    def __init__(self, screen_id, positions, installed_from=None, installed_until=None, name=None):
+    def __init__(self, screen_id, name, positions, installed_from=None, installed_until=None):
         self.screen_id = screen_id
         self.name = name
-        if installed_from is None and positions:
-            self.installed_from = positions[0].datetime
-        else:
-            self.installed_from = installed_from
+        if installed_from is None:
+            try:
+                installed_from = min(
+                    position_sequence[0].datetime
+                    for position_sequence in positions.values()
+                    if position_sequence
+                )
+            except ValueError:
+                pass  # There were no recorded positions
+        self.installed_from = installed_from
         self.installed_until = installed_until
-        self.positions = sorted(positions)
+        self.positions = positions
 
 
 @total_ordering
@@ -120,6 +161,8 @@ class AnnotatedScreen(ScreenABC):
     ----------
     screen_id : str
         An identifier of a projection screen in a room. The identifier is unique in the room.
+    name : str
+        A description of the projection screen.
     datetime : aware datetime
         The human annotation certifies that at this date, and time, this projection screen was
         located at the given coordinates.
@@ -127,14 +170,13 @@ class AnnotatedScreen(ScreenABC):
         A frame containing the projection screen.
     coordinates : CoordinateMapABC
         A map between frame and screen coordinates.
-    name : str or None, optional
-        A description of the projection screen. If None or unspecified, no description of the screen
-        is known.
 
     Attributes
     ----------
     screen_id : str
         An identifier of a projection screen in a room. The identifier is unique in the room.
+    name : str
+        A description of the projection screen.
     datetime : aware datetime
         The human annotation certifies that at this date, and time, this projection screen was
         located at the given coordinates.
@@ -142,9 +184,6 @@ class AnnotatedScreen(ScreenABC):
         A frame containing the projection screen.
     coordinates : CoordinateMapABC
         A map between frame and screen coordinates.
-    name : str or None, optional
-        A description of the projection screen. If None or unspecified, no description of the screen
-        is known.
     """
 
     @property
@@ -155,12 +194,12 @@ class AnnotatedScreen(ScreenABC):
     def coordinates(self):
         return self._coordinates
 
-    def __init__(self, screen_id, datetime, frame, coordinates, name):
+    def __init__(self, screen_id, name, datetime, frame, coordinates):
         self.screen_id = screen_id
+        self.name = name
         self.datetime = datetime
         self._frame = frame
         self._coordinates = coordinates
-        self.name = name
 
 
 class AnnotatedScreenDetector(ScreenDetectorABC):
@@ -172,6 +211,8 @@ class AnnotatedScreenDetector(ScreenDetectorABC):
         A institution identifier. The identifier is globally unique.
     room_id : str
         A room identifier. The identifier is unique in the institution.
+    camera_id : str
+        A camcoder identifier. The identifier is unique in the room.
 
     Parameters
     ----------
@@ -179,30 +220,56 @@ class AnnotatedScreenDetector(ScreenDetectorABC):
         A institution identifier. The identifier is globally unique.
     room_id : str
         A room identifier. The identifier is unique in the institution.
+    camera_id : str
+        A camcoder identifier. The identifier is unique in the room.
     """
 
-    _dataset = None
+    _camera_annotations = None
+    _screen_annotations = None
 
-    def __init__(self, institution_id, room_id):
+    def __init__(self, institution_id, room_id, camera_id):
         self._init_dataset()
-        assert institution_id in self._dataset, \
-            'Institution "{}" not found in the projection screen dataset'.format(institution_id)
-        assert room_id in self._dataset[institution_id], \
-            'Room "{}" not found in the projection screen dataset'.format(room_id)
+        assert institution_id in self._screen_annotations, \
+            'Institution "{1}" not found in the projection screen dataset'.format(institution_id)
+        assert room_id in self._screen_annotations[institution_id], \
+            'Room "{2}" not found in the projection screen dataset for institution "{1}"'.format(
+                institution_id,
+                room_id,
+            )
+        assert camera_id in self._camera_annotations[institution_id][room_id], \
+            'Camera "{3}" not found in the projection screen dataset for institution "{1}", ' \
+            'room "{2}"'.format(
+                institution_id,
+                room_id,
+                camera_id,
+            )
         self.institution_id = institution_id
         self.room_id = room_id
+        self.camera_id = camera_id
 
     @classmethod
     def _init_dataset(cls):
         """Reads human annotations from an XML database, converts them into objects and sorts them.
 
         """
-        if cls._dataset is not None:
+        if cls._camera_annotations is not None and cls._screen_annotations is not None:
             return
         LOGGER.debug('Loading dataset from {}'.format(DATASET_PATHNAME))
         institutions = etree.parse(DATASET_PATHNAME)
         institutions.xinclude()
-        cls._dataset = {
+        cls._camera_annotations = {
+            institution.attrib['id']: {
+                room.attrib['id']: {
+                    camera.attrib['id']: _CameraAnnotations(
+                        camera_id=camera.attrib['id'],
+                        name=camera.attrib['name'],
+                        width=int(camera.attrib['width']),
+                        height=int(camera.attrib['height']),
+                    ) for camera in room.findall('./cameras/camera')
+                } for room in institution.findall('./rooms/room')
+            } for institution in institutions.findall('./institution')
+        }
+        cls._screen_annotations = {
             institution.attrib['id']: {
                 room.attrib['id']: [
                     _ScreenAnnotations(
@@ -214,29 +281,31 @@ class AnnotatedScreenDetector(ScreenDetectorABC):
                         installed_until=parse(
                             screen.attrib['until']
                         ) if 'until' in screen.attrib else None,
-                        positions=[
-                            _ScreenPosition(
-                                coordinates=Quadrangle(
-                                    top_left=(
-                                        int(position.attrib['x0']),
-                                        int(position.attrib['y0']),
+                        positions={
+                            positions.attrib['camera']: sorted([
+                                _ScreenPosition(
+                                    coordinates=Quadrangle(
+                                        top_left=(
+                                            int(position.attrib['x0']),
+                                            int(position.attrib['y0']),
+                                        ),
+                                        top_right=(
+                                            int(position.attrib['x1']),
+                                            int(position.attrib['y1']),
+                                        ),
+                                        btm_left=(
+                                            int(position.attrib['x2']),
+                                            int(position.attrib['y2']),
+                                        ),
+                                        btm_right=(
+                                            int(position.attrib['x3']),
+                                            int(position.attrib['y3']),
+                                        ),
                                     ),
-                                    top_right=(
-                                        int(position.attrib['x1']),
-                                        int(position.attrib['y1']),
-                                    ),
-                                    btm_left=(
-                                        int(position.attrib['x2']),
-                                        int(position.attrib['y2']),
-                                    ),
-                                    btm_right=(
-                                        int(position.attrib['x3']),
-                                        int(position.attrib['y3']),
-                                    ),
-                                ),
-                                datetime=parse(position.attrib['datetime']),
-                            ) for position in screen.findall('./positions/position')
-                        ],
+                                    datetime=parse(position.attrib['datetime']),
+                                ) for position in positions.findall('./position')
+                            ]) for positions in screen.findall('./positions')
+                        }
                     ) for screen in room.findall('./screens/screen')
                 ] for room in institution.findall('./rooms/room')
             } for institution in institutions.findall('./institution')
@@ -255,21 +324,20 @@ class AnnotatedScreenDetector(ScreenDetectorABC):
         screens : iterable of AnnotatedScreen
             An iterable of detected lit projection screens.
         """
-        for screen in self._dataset[self.institution_id][self.room_id]:
-            if not screen.positions:
+        for screen in self._screen_annotations[self.institution_id][self.room_id]:
+            if (self.camera_id not in screen.positions) or (not screen.positions[self.camera_id]):
                 continue
-            earliest_position = screen.positions[0]
+            positions = screen.positions[self.camera_id]
+            earliest_position = positions[0]
             if frame.datetime < max(screen.installed_from, earliest_position):
                 continue
             if screen.installed_until is not None and frame.datetime >= screen.installed_until:
                 continue
-            closest_position = screen.positions[
-                bisect(screen.positions, frame.datetime) - 1
-            ]
+            closest_position = positions[bisect(positions, frame.datetime) - 1]
             yield AnnotatedScreen(
                 screen_id=screen.screen_id,
+                name=screen.name,
                 datetime=closest_position.datetime,
                 frame=frame,
                 coordinates=closest_position.coordinates,
-                name=screen.name,
             )

@@ -9,6 +9,7 @@ from video699.annotated import AnnotatedScreenDetector
 
 INSTITUTION_ID = 'example'
 ROOM_ID = '123'
+CAMERA_ID = 'xm2'
 
 
 class TestAnnotatedScreenDetector(unittest.TestCase):
@@ -18,7 +19,11 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
 
     """
     def setUp(self):
-        self.screen_detector = AnnotatedScreenDetector(INSTITUTION_ID, ROOM_ID)
+        self.screen_detector = AnnotatedScreenDetector(
+            institution_id=INSTITUTION_ID,
+            room_id=ROOM_ID,
+            camera_id=CAMERA_ID,
+        )
 
     def test_no_screens_before_earliest_datetime(self):
         datetime = parse('2017-12-31T23:59:59+00:00')
