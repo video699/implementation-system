@@ -64,7 +64,7 @@ class FrameABC(ABC):
         The video containing the frame.
     number : int or None
         The frame number, i.e. the position of the frame in the video. If None, then the frame
-        number is unknown.
+        number is unknown. Frame indexing is one-based, i.e. the first frame has number 1.
     image : array_like or None
         The image data of the frame. If None, then no image data for the frame are available.
     datetime : aware datetime
@@ -89,7 +89,7 @@ class FrameABC(ABC):
     @property
     def datetime(self):
         if self.video.fps is not None:
-            return self.video.datetime + timedelta(seconds=self.number / self.video.fps)
+            return self.video.datetime + timedelta(seconds=(self.number - 1) / self.video.fps)
         return self.video.datetime
 
 
