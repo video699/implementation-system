@@ -1,1 +1,3 @@
 include LICENSE
+recursive-include test *.py
+include test/coordinate_map/test_quadrangle/sample_frame_image.png
