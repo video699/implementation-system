@@ -7,7 +7,7 @@ systems based on a quadrangle specifying the screen corners in the video frame c
 
 from math import sqrt
 
-from cv2 import BORDER_REPLICATE, getPerspectiveTransform, warpPerspective
+import cv2 as cv
 import numpy as np
 
 from ..interface import CoordinateMapABC
@@ -16,28 +16,28 @@ from ..interface import CoordinateMapABC
 class Quadrangle(CoordinateMapABC):
     """A map between a video frame and projection screen coordinate systems based on a quadrangle.
 
-    The quadrangle specifies the screen corners in the video frame coordinate system.
+    The quadrangle specifies the screen corners in a video frame coordinate system.
 
     Parameters
     ----------
     top_left : (scalar, scalar)
-        The top left corner of the quadrangle in the video frame coordinate system.
+        The top left corner of the quadrangle in a video frame coordinate system.
     top_right : (scalar, scalar)
-        The top right corner of the quadrangle in the video frame coordinate system.
+        The top right corner of the quadrangle in a video frame coordinate system.
     btm_left : (scalar, scalar)
-        The bottom left corner of the quadrangle in the video frame coordinate system.
+        The bottom left corner of the quadrangle in a video frame coordinate system.
     btm_right : (scalar, scalar)
-        The bottom right corner of the quadrangle in the video frame coordinate system.
+        The bottom right corner of the quadrangle in a video frame coordinate system.
 
     Attributes
     ----------
     width : int
-        The width of the screen in the screen coordinate space.
+        The width of the screen in a screen coordinate system.
     height : int
-        The height of the screen in the screen coordinate space.
+        The height of the screen in a screen coordinate system.
     transform : 3 x 3 ndarray
-        The perspective transform matrix from the frame coordinate space to the screen coordinate
-        space in Homogeneous coordinates.
+        The perspective transform matrix from a frame coordinate system to a screen coordinate
+        system in Homogeneous coordinates.
     """
 
     def __init__(self, top_left, top_right, btm_left, btm_right):
@@ -66,7 +66,7 @@ class Quadrangle(CoordinateMapABC):
                 (max_width - 1, max_height - 1),
             ],
         )
-        self._transform = getPerspectiveTransform(frame_coordinates, screen_coordinates)
+        self._transform = cv.getPerspectiveTransform(frame_coordinates, screen_coordinates)
 
     @property
     def width(self):
@@ -81,9 +81,9 @@ class Quadrangle(CoordinateMapABC):
         return self._transform
 
     def __call__(self, frame_image):
-        return warpPerspective(
+        return cv.warpPerspective(
             frame_image,
             self.transform,
             (self.width, self.height),
-            borderMode=BORDER_REPLICATE,
+            borderMode=cv.BORDER_REPLICATE,
         )
