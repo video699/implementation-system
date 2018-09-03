@@ -14,7 +14,7 @@ setup(
         'video699.frame',
     ],
     package_data={
-        'video699.system': [
+        'video699.screen': [
             'annotated',
         ],
     },
