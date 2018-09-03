@@ -10,12 +10,15 @@ setup(
     packages=[
         'video699',
         'video699.coordinate_map',
-        'video699.screen',
         'video699.frame',
+        'video699.screen',
+        'video699.video',
     ],
     package_data={
         'video699.screen': [
-            'annotated',
+            'annotated/LICENSE',
+            'annotated/*.xml',
+            'annotated/*/*.xml',
         ],
     },
     version='v1.0.0a1+2018.04',

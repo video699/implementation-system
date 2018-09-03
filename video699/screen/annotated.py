@@ -311,13 +311,6 @@ class AnnotatedVideo(VideoABC):
         return self._datetime
 
     def __iter__(self):
-        """Produces a single frame.
-
-        Returns
-        -------
-        frames : iterator of ImageFrame
-            A single frame.
-        """
         image = np.zeros((self.height, self.width), dtype=np.uint8)
         frame = ImageFrame(self, 1, image)
         yield frame

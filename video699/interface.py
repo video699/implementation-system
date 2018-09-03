@@ -13,7 +13,7 @@ class VideoABC(ABC):
 
     Attributes
     ----------
-    fps : int
+    fps : scalar
         The framerate of the video in frames per second.
     width : int
         The width of the video.

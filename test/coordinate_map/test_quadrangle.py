@@ -9,8 +9,8 @@ from video699.coordinate_map.quadrangle import Quadrangle
 
 FRAME_IMAGE_PATHNAME = os.path.join(
     os.path.dirname(__file__),
-    "test_quadrangle",
-    "sample_frame_image.png"
+    'test_quadrangle',
+    'sample_frame_image.png'
 )
 
 
