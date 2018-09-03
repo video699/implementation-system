@@ -13,12 +13,12 @@ class VideoABC(ABC):
 
     Attributes
     ----------
-    fps : int or None
-        The framerate of the video in frames per second. If None, then the framerate is unknown.
-    width : int or None
-        The width of the video. If None, then the width is unknown.
-    height : int or None
-        The height of the video. If None, then the height is unknown.
+    fps : int
+        The framerate of the video in frames per second.
+    width : int
+        The width of the video.
+    height : int
+        The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
     """
@@ -62,11 +62,11 @@ class FrameABC(ABC):
     ----------
     video : VideoABC
         The video containing the frame.
-    number : int or None
-        The frame number, i.e. the position of the frame in the video. If None, then the frame
-        number is unknown. Frame indexing is one-based, i.e. the first frame has number 1.
-    image : array_like or None
-        The image data of the frame. If None, then no image data for the frame are available.
+    number : int
+        The frame number, i.e. the position of the frame in the video. Frame
+        indexing is one-based, i.e. the first frame has number 1.
+    image : array_like
+        The image data of the frame.
     datetime : aware datetime
         The date, and time at which the frame was captured.
     """
