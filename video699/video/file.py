@@ -73,6 +73,7 @@ class VideoFile(VideoABC):
         retval, frame_image = self._cap.read()
         if not retval:
             self._is_finished = True
+            self._cap.release()
             raise StopIteration
         self._frame_number += 1
         return ImageFrame(self, self._frame_number, frame_image)
