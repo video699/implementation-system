@@ -45,7 +45,7 @@ class VideoABC(ABC):
 
     @abstractmethod
     def __iter__(self):
-        """Produces an iterator of frames.
+        """Produces an iterator of video frames.
 
         Returns
         -------
@@ -63,10 +63,14 @@ class FrameABC(ABC):
     video : VideoABC
         The video containing the frame.
     number : int
-        The frame number, i.e. the position of the frame in the video. Frame
-        indexing is one-based, i.e. the first frame has number 1.
+        The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
+        i.e. the first frame has number 1.
     image : array_like
         The image data of the frame represented as an OpenCV CV_8UC3 BGR matrix.
+    width : int
+        The width of the image data.
+    height : int
+        The height of the image data.
     datetime : aware datetime
         The date, and time at which the frame was captured.
     """
@@ -85,6 +89,14 @@ class FrameABC(ABC):
     @abstractmethod
     def image(self):
         pass
+
+    @property
+    def width(self):
+        return self.video.width
+
+    @property
+    def height(self):
+        return self.video.height
 
     @property
     def datetime(self):
@@ -143,9 +155,9 @@ class ScreenABC(ABC):
     image : array_like
         The image data of the projection screen represented as an OpenCV CV_8UC3 BGR matrix.
     width : int
-        The width of the screen in the screen coordinate space.
+        The width of the image data.
     height : int
-        The height of the screen in the screen coordinate space.
+        The height of the image data.
     """
 
     @property

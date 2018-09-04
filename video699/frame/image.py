@@ -29,6 +29,10 @@ class ImageFrame(FrameABC):
         indexing is one-based, i.e. the first frame has number 1.
     image : ndarray
         The image data of the frame.
+    width : int
+        The width of the image data.
+    height : int
+        The height of the image data.
     datetime : aware datetime
         The date, and time at which the frame was captured.
     """

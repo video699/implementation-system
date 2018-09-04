@@ -33,6 +33,9 @@ class TestVideoFile(unittest.TestCase):
         video = VideoFile(VIDEO_PATHNAME, VIDEO_DATETIME)
         frame_iterator = video.__iter__()
         frame = next(frame_iterator)
+        self.assertEqual(VIDEO_WIDTH, frame.width)
+        self.assertEqual(VIDEO_HEIGHT, frame.height)
+
         frame_image = frame.image
         height, width, _ = frame_image.shape
         self.assertEqual(VIDEO_WIDTH, width)
