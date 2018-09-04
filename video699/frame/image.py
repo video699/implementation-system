@@ -18,7 +18,7 @@ class ImageFrame(FrameABC):
         The frame number, i.e. the position of the frame in the video. Frame
         indexing is one-based, i.e. the first frame has number 1.
     image : ndarray
-        The image data of the frame.
+        The image data of the frame represented as an OpenCV CV_8UC3 BGR matrix.
 
     Attributes
     ----------

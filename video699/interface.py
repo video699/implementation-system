@@ -66,7 +66,7 @@ class FrameABC(ABC):
         The frame number, i.e. the position of the frame in the video. Frame
         indexing is one-based, i.e. the first frame has number 1.
     image : array_like
-        The image data of the frame.
+        The image data of the frame represented as an OpenCV CV_8UC3 BGR matrix.
     datetime : aware datetime
         The date, and time at which the frame was captured.
     """
@@ -141,7 +141,7 @@ class ScreenABC(ABC):
     coordinates : CoordinateMapABC
         A map between frame and screen coordinates.
     image : array_like
-        The image data of the projection screen.
+        The image data of the projection screen represented as an OpenCV CV_8UC3 BGR matrix.
     width : int
         The width of the screen in the screen coordinate space.
     height : int
