@@ -257,7 +257,7 @@ class _ScreenPosition(object):
             return NotImplemented
 
 
-class AnnotatedVideo(VideoABC):
+class AnnotatedScreenVideo(VideoABC):
     """A video containing a single frame at a given date, and time.
 
     The width, and the height of the video are extracted from XML human annotations. This is a stub
