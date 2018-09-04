@@ -203,3 +203,81 @@ class ScreenDetectorABC(ABC):
             An iterable of detected lit projection screens.
         """
         pass
+
+
+class DocumentABC(ABC):
+    """An abstract text document.
+
+    Attributes
+    ----------
+    title : str
+        The title of a document.
+
+    author : str
+        The author of a document.
+    """
+
+    @property
+    @abstractmethod
+    def title(self):
+        pass
+
+    @property
+    @abstractmethod
+    def author(self):
+        pass
+
+    @abstractmethod
+    def __iter__(self):
+        """Produces an iterator of document pages.
+
+        Returns
+        -------
+        pages : iterator of PageABC
+            An iterable of the pages of the document.
+        """
+        pass
+
+
+class PageABC(ABC):
+    """An abstract page of a document.
+
+    Attributes
+    ----------
+    document : DocumentABC
+        The document containing the page.
+    number : int
+        The page number, i.e. the position of the page in the document. Frame indexing is one-based,
+        i.e. the first frame has number 1.
+    image : array_like
+        The image data of the page represented as an OpenCV CV_8UC3 BGR matrix.
+    width : int
+        The width of the image data.
+    height : int
+        The height of the image data.
+    """
+
+    @property
+    @abstractmethod
+    def document(self):
+        pass
+
+    @property
+    @abstractmethod
+    def number(self):
+        pass
+
+    @property
+    @abstractmethod
+    def image(self):
+        pass
+
+    @property
+    @abstractmethod
+    def width(self):
+        pass
+
+    @property
+    @abstractmethod
+    def height(self):
+        pass
