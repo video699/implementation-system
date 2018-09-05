@@ -10,6 +10,7 @@ setup(
     packages=[
         'video699',
         'video699.coordinate_map',
+        'video699.document',
         'video699.frame',
         'video699.screen',
         'video699.video',
@@ -34,6 +35,7 @@ setup(
         "lxml~=4.2.4",
         "numpy~=1.15.1",
         "opencv-python~=3.4.2",
+        "PyMuPDF~=1.13.18",
         "python-dateutil~=2.7.3",
     ],
     long_description=long_description,
