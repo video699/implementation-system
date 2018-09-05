@@ -32,7 +32,7 @@ class TestVideoFile(unittest.TestCase):
 
     def test_reads_frame(self):
         video = VideoFile(VIDEO_PATHNAME, VIDEO_DATETIME)
-        frame_iterator = video.__iter__()
+        frame_iterator = iter(video)
         frame = next(frame_iterator)
         self.assertEqual(VIDEO_WIDTH, frame.width)
         self.assertEqual(VIDEO_HEIGHT, frame.height)
@@ -62,7 +62,7 @@ class TestVideoFile(unittest.TestCase):
 
     def test_produces_single_frame(self):
         video = VideoFile(VIDEO_PATHNAME, VIDEO_DATETIME)
-        frame_iterator = video.__iter__()
+        frame_iterator = iter(video)
         next(frame_iterator)
         with self.assertRaises(StopIteration):
             next(frame_iterator)

@@ -32,7 +32,7 @@ class TestPDFDocument(unittest.TestCase):
         self.assertEqual(DOCUMENT_AUTHOR, self.document.author)
 
     def test_reads_two_pages(self):
-        page_iterator = self.document.__iter__()
+        page_iterator = iter(self.document)
         next(page_iterator)
         next(page_iterator)
         with self.assertRaises(StopIteration):
@@ -46,7 +46,7 @@ class TestPDFDocumentPage(unittest.TestCase):
 
     def setUp(self):
         self.document = PDFDocument(DOCUMENT_PATHNAME)
-        page_iterator = self.document.__iter__()
+        page_iterator = iter(self.document)
         self.first_page = next(page_iterator)
         self.second_page = next(page_iterator)
         self.first_page_image = self.first_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)

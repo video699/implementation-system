@@ -101,4 +101,4 @@ class PDFDocument(DocumentABC):
         return self._author
 
     def __iter__(self):
-        return self._pages.__iter__()
+        return iter(self._pages)

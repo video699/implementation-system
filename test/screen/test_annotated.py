@@ -27,7 +27,7 @@ class TestAnnotatedScreenVideo(unittest.TestCase):
     def test_produces_single_frame(self):
         datetime = parse('2018-01-01T00:00:00+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
-        frame_iterator = video.__iter__()
+        frame_iterator = iter(video)
         next(frame_iterator)
         with self.assertRaises(StopIteration):
             next(frame_iterator)
@@ -44,14 +44,14 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
     def test_no_screens_before_earliest_datetime(self):
         datetime = parse('2017-12-31T23:59:59+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
-        frame = next(video.__iter__())
+        frame = next(iter(video))
         screens = set(self.screen_detector(frame))
         self.assertEqual(screens, set())
 
     def test_screens_at_earliest_datetime(self):
         datetime = parse('2018-01-01T00:00:00+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
-        frame = next(video.__iter__())
+        frame = next(iter(video))
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
@@ -88,7 +88,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
     def test_screens_after_earliest_datetime(self):
         datetime = parse('2018-01-01T00:00:01+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
-        frame = next(video.__iter__())
+        frame = next(iter(video))
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
@@ -129,7 +129,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
     def test_screens_before_latest_datetime(self):
         datetime = parse('2018-02-28T23:59:59+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
-        frame = next(video.__iter__())
+        frame = next(iter(video))
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
@@ -166,7 +166,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
     def test_screens_at_latest_datetime(self):
         datetime = parse('2018-03-01T00:00:00+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
-        frame = next(video.__iter__())
+        frame = next(iter(video))
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
@@ -199,7 +199,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
     def test_screens_after_latest_datetime(self):
         datetime = parse('2018-03-01T00:00:01+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
-        frame = next(video.__iter__())
+        frame = next(iter(video))
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
