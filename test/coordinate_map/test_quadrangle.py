@@ -18,6 +18,7 @@ class TestQuadrangle(unittest.TestCase):
     """Tests the ability of the Quadrangle class to map image data in a frame coordinate system.
 
     """
+
     def setUp(self):
         self.frame_image = cv.imread(FRAME_IMAGE_PATHNAME)
 

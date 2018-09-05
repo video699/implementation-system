@@ -23,6 +23,7 @@ class TestVideoFile(unittest.TestCase):
     """Tests the ability of the VideoFile class to read a RLE-encoded video file.
 
     """
+
     def test_video_properties(self):
         video = VideoFile(VIDEO_PATHNAME, VIDEO_DATETIME)
         self.assertEqual(VIDEO_FPS, video.fps)
@@ -42,6 +43,7 @@ class TestVideoFile(unittest.TestCase):
         self.assertEqual(VIDEO_HEIGHT, height)
 
         blue, green, red = cv.split(frame_image)
+
         self.assertEqual(0, blue[282, 144])
         self.assertEqual(0, green[282, 144])
         self.assertEqual(0, red[282, 144])

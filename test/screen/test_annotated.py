@@ -17,6 +17,7 @@ class TestAnnotatedScreenVideo(unittest.TestCase):
     """Tests the ability of the AnnotatedScreenVideo class to detect its dimensions and produce frames.
 
     """
+
     def test_video_dimensions(self):
         datetime = parse('2018-01-01T00:00:00+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
@@ -36,6 +37,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
     """Tests the ability of the AnnotatedScreenDetector class to read the example XML dataset.
 
     """
+
     def setUp(self):
         self.screen_detector = AnnotatedScreenDetector(INSTITUTION_ID, ROOM_ID, CAMERA_ID)
 
