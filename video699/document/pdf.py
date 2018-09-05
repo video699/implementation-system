@@ -4,11 +4,16 @@
 
 """
 
+from functools import lru_cache
+
 import cv2 as cv
 import fitz
 import numpy as np
 
 from ..interface import DocumentABC, PageABC
+
+
+PAGE_IMAGE_LRU_CACHE_MAXSIZE = 1024
 
 
 class PDFDocumentPage(PageABC):
@@ -47,6 +52,7 @@ class PDFDocumentPage(PageABC):
     def number(self):
         return self._page.number + 1
 
+    @lru_cache(maxsize=PAGE_IMAGE_LRU_CACHE_MAXSIZE, typed=False)
     def image(self, width, height):
         zoom_x = width / self._default_width
         zoom_y = height / self._default_height
