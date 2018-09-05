@@ -37,6 +37,11 @@ class VideoFile(VideoABC, Iterator):
         The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
+
+    Raises
+    ------
+    OSError
+        If the video file cannot be opened by OpenCV.
     """
 
     def __init__(self, pathname, datetime):
