@@ -5,10 +5,11 @@
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from datetime import timedelta
 
 
-class VideoABC(ABC):
+class VideoABC(ABC, Iterable):
     """An abstract video.
 
     Attributes
@@ -46,6 +47,10 @@ class VideoABC(ABC):
     @abstractmethod
     def __iter__(self):
         """Produces an iterator of video frames.
+
+        Note
+        ----
+        In general, it is not possible to iterate repeatedly over the video frames.
 
         Returns
         -------
@@ -205,7 +210,7 @@ class ScreenDetectorABC(ABC):
         pass
 
 
-class DocumentABC(ABC):
+class DocumentABC(ABC, Iterable):
     """An abstract text document.
 
     Attributes
@@ -230,6 +235,10 @@ class DocumentABC(ABC):
     @abstractmethod
     def __iter__(self):
         """Produces an iterator of document pages.
+
+        Note
+        ----
+        It is possible to iterate repeatedly over the document pages.
 
         Returns
         -------

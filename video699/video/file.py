@@ -4,13 +4,15 @@
 
 """
 
+from collections.abc import Iterator
+
 import cv2 as cv
 
 from ..interface import VideoABC
 from ..frame.image import ImageFrame
 
 
-class VideoFile(VideoABC):
+class VideoFile(VideoABC, Iterator):
     """A video read from a video file.
 
     Note
