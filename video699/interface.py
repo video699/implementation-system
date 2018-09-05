@@ -258,12 +258,6 @@ class PageABC(ABC):
     number : int
         The page number, i.e. the position of the page in the document. Frame indexing is one-based,
         i.e. the first frame has number 1.
-    image : array_like
-        The image data of the page represented as an OpenCV CV_8UC3 BGR matrix.
-    width : int
-        The width of the image data.
-    height : int
-        The height of the image data.
     """
 
     @property
@@ -276,17 +270,20 @@ class PageABC(ABC):
     def number(self):
         pass
 
-    @property
     @abstractmethod
-    def image(self):
-        pass
+    def image(self, width, height):
+        """Returns the image data of the document page at the specified dimensions.
 
-    @property
-    @abstractmethod
-    def width(self):
-        pass
+        Parameters
+        ----------
+        width : int
+            The width of the image data.
+        height : int
+            The height of the image data.
 
-    @property
-    @abstractmethod
-    def height(self):
+        Returns
+        -------
+        image : array_like
+            The image data of the page represented as an OpenCV CV_8UC3 BGR matrix.
+        """
         pass
