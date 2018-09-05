@@ -365,7 +365,7 @@ class AnnotatedScreen(ScreenABC):
 
 
 class AnnotatedScreenDetector(ScreenDetectorABC):
-    """A screen detector that maps video frames to iterables of screens based on human annotations.
+    """A screen detector that maps video frames to iterables of screens using XML human annotations.
 
     Parameters
     ----------
