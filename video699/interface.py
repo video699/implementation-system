@@ -216,10 +216,9 @@ class DocumentABC(ABC, Iterable):
 
     Attributes
     ----------
-    title : str
+    title : str or None
         The title of a document.
-
-    author : str
+    author : str or None
         The author of a document.
     """
 
