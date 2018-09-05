@@ -2,6 +2,7 @@
 
 """This module defines interfaces, and abstract base classes.
 
+The use of MAY, and MUST in the docstrings follows RFC 2119.
 """
 
 from abc import ABC, abstractmethod
@@ -50,7 +51,7 @@ class VideoABC(ABC, Iterable):
 
         Note
         ----
-        In general, it is not possible to iterate repeatedly over the video frames.
+        It MAY be possible to iterate repeatedly over all video frames.
 
         Returns
         -------
@@ -238,7 +239,7 @@ class DocumentABC(ABC, Iterable):
 
         Note
         ----
-        It is possible to iterate repeatedly over the document pages.
+        It MUST be possible to iterate repeatedly over all document pages.
 
         Returns
         -------
