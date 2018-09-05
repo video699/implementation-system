@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage{tikz}
+\usepackage[
+  pdftitle = {Example\ title},
+  pdfauthor = {Example\ author},
+]{hyperref}
+\pagestyle{empty}
+\begin{document}
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}
+\fill [color=red] (0,0) -- (8,0) -- (8,8) -- (0,8) -- (0,0);
+\end{tikzpicture}
+\end{center}
+\caption{A rectangle}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}
+\fill [color=green] (0,0) -- (8,0) -- (4, 6.9282);
+\end{tikzpicture}
+\end{center}
+\caption{A triangle}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}
+\fill [color=blue] (0,0) circle (4cm);
+\end{tikzpicture}
+\end{center}
+\caption{A circle}
+\end{figure}
+
+\end{document}
