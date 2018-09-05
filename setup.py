@@ -26,10 +26,10 @@ setup(
     description='System for lecture slide page retrieval based on lecture recordings',
     author='Vit Novotny',
     author_email='witiko@mail.muni.cz',
-    url='https://pypi.org/project/video699-system/',
+    url='https://pypi.org/project/video699/',
     project_urls={
-        'Source': 'https://github.com/fi-muni-video-699/implementation-system',
-        'Tracker': 'https://github.com/fi-muni-video-699/implementation-system/issues',
+        'Source': 'https://github.com/video-699/implementation-system',
+        'Tracker': 'https://github.com/video-699/implementation-system/issues',
     },
     install_requires=[
         "lxml~=4.2.4",
