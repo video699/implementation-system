@@ -40,6 +40,7 @@ setup(
         'opencv-python~=3.4.2',
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',
+        'pyxdg~=0.26',
     ],
     long_description=long_description,
     classifiers=[
