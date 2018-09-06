@@ -71,11 +71,11 @@ def _init_dataset():
                                         int(position.attrib['x1']),
                                         int(position.attrib['y1']),
                                     ),
-                                    btm_left=(
+                                    bottom_left=(
                                         int(position.attrib['x2']),
                                         int(position.attrib['y2']),
                                     ),
-                                    btm_right=(
+                                    bottom_right=(
                                         int(position.attrib['x3']),
                                         int(position.attrib['y3']),
                                     ),

@@ -116,11 +116,39 @@ class ConvexQuadrangleABC(ABC):
 
     Attributes
     ----------
+    top_left : (scalar, scalar)
+        The top left corner of the quadrangle in a video frame coordinate system.
+    top_right : (scalar, scalar)
+        The top right corner of the quadrangle in a video frame coordinate system.
+    bottom_left : (scalar, scalar)
+        The bottom left corner of the quadrangle in a video frame coordinate system.
+    bottom_right : (scalar, scalar)
+        The bottom right corner of the quadrangle in a video frame coordinate system.
     width : int
         The width of the screen in the screen coordinate space.
     height : int
         The height of the screen in the screen coordinate space.
     """
+
+    @property
+    @abstractmethod
+    def top_left(self):
+        pass
+
+    @property
+    @abstractmethod
+    def top_right(self):
+        pass
+
+    @property
+    @abstractmethod
+    def bottom_left(self):
+        pass
+
+    @property
+    @abstractmethod
+    def bottom_right(self):
+        pass
 
     @property
     @abstractmethod
@@ -130,6 +158,38 @@ class ConvexQuadrangleABC(ABC):
     @property
     @abstractmethod
     def height(self):
+        pass
+
+    @abstractmethod
+    def distance(self, other):
+        """The minimum distance between two convex quadrangles.
+
+        Parameters
+        ----------
+        other : ConvexQuadrangleABC
+            The other convex quadrangle.
+
+        Returns
+        -------
+        distance : scalar
+            The minumum distance between self, and the other convex quadrangle.
+        """
+        pass
+
+    @abstractmethod
+    def intersection_area(self, other):
+        """The area of the intersection of two convex quadrangles.
+
+        Parameters
+        ----------
+        other : ConvexQuadrangleABC
+            The other convex quadrangle.
+
+        Returns
+        -------
+        intersection_area : scalar
+            The area of the intersection of self, and the other convex quadrangle.
+        """
         pass
 
     @abstractmethod

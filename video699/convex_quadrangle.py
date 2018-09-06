@@ -5,16 +5,38 @@ systems based on a quadrangle specifying the screen corners in the video frame c
 
 """
 
-from math import sqrt
-
 import cv2 as cv
 import numpy as np
+from shapely.geometry import Point, Polygon
 
 from .configuration import CONFIGURATION
 from .interface import ConvexQuadrangleABC
 
 
 BORDER_MODE = cv.__dict__[CONFIGURATION['ConvexQuadrangle']['border_mode']]
+
+
+def _polygon(quadrangle):
+    """Returns a shapely representation of a convex quadrangle.
+
+    Parameters
+    ----------
+    quadrangle : ConvexQuadrangleABC
+        A convex quadrangle.
+
+    Returns
+    -------
+    polygon : shapely.geometry.Polygon
+        A shapely representation of the convex quadrangle.
+    """
+    if isinstance(quadrangle, ConvexQuadrangle) and '_polygon' in quadrangle.__dict__:
+        return quadrangle._polygon
+    return Polygon([
+        quadrangle.top_left,
+        quadrangle.top_right,
+        quadrangle.bottom_right,
+        quadrangle.bottom_left,
+    ])
 
 
 class ConvexQuadrangle(ConvexQuadrangleABC):
@@ -28,13 +50,21 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         The top left corner of the quadrangle in a video frame coordinate system.
     top_right : (scalar, scalar)
         The top right corner of the quadrangle in a video frame coordinate system.
-    btm_left : (scalar, scalar)
+    bottom_left : (scalar, scalar)
         The bottom left corner of the quadrangle in a video frame coordinate system.
-    btm_right : (scalar, scalar)
+    bottom_right : (scalar, scalar)
         The bottom right corner of the quadrangle in a video frame coordinate system.
 
     Attributes
     ----------
+    top_left : (scalar, scalar)
+        The top left corner of the quadrangle in a video frame coordinate system.
+    top_right : (scalar, scalar)
+        The top right corner of the quadrangle in a video frame coordinate system.
+    bottom_left : (scalar, scalar)
+        The bottom left corner of the quadrangle in a video frame coordinate system.
+    bottom_right : (scalar, scalar)
+        The bottom right corner of the quadrangle in a video frame coordinate system.
     width : int
         The width of the screen in a screen coordinate system.
     height : int
@@ -44,12 +74,18 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         system in Homogeneous coordinates.
     """
 
-    def __init__(self, top_left, top_right, btm_left, btm_right):
-        top_width = sqrt(((btm_left[0] - btm_right[0])**2) + ((btm_left[1] - btm_right[1])**2))
-        btm_width = sqrt(((top_left[0] - top_right[0])**2) + ((top_left[1] - top_right[1])**2))
-        left_height = sqrt(((top_left[0] - btm_left[0])**2) + ((top_left[1] - btm_left[1])**2))
-        right_height = sqrt(((top_right[0] - btm_right[0])**2) + ((top_right[1] - btm_right[1])**2))
-        max_width = max(int(top_width), int(btm_width))
+    def __init__(self, top_left, top_right, bottom_left, bottom_right):
+        self._top_left = Point(top_left)
+        self._top_right = Point(top_right)
+        self._bottom_left = Point(bottom_left)
+        self._bottom_right = Point(bottom_right)
+        self._polygon = _polygon(self)
+
+        top_width = self._top_left.distance(self._top_right)
+        bottom_width = self._bottom_left.distance(self._bottom_right)
+        left_height = self._top_left.distance(self._bottom_left)
+        right_height = self._top_right.distance(self._bottom_right)
+        max_width = max(int(top_width), int(bottom_width))
         max_height = max(int(left_height), int(right_height))
         self._width = max_width
         self._height = max_height
@@ -58,8 +94,8 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
             [
                 top_left,
                 top_right,
-                btm_left,
-                btm_right,
+                bottom_left,
+                bottom_right,
             ],
         )
         screen_coordinates = np.float32(
@@ -73,6 +109,22 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         self._transform = cv.getPerspectiveTransform(frame_coordinates, screen_coordinates)
 
     @property
+    def top_left(self):
+        return self._top_left.coords[0]
+
+    @property
+    def top_right(self):
+        return self._top_right.coords[0]
+
+    @property
+    def bottom_left(self):
+        return self._bottom_left.coords[0]
+
+    @property
+    def bottom_right(self):
+        return self._bottom_right.coords[0]
+
+    @property
     def width(self):
         return self._width
 
@@ -83,6 +135,18 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
     @property
     def transform(self):
         return self._transform
+
+    def distance(self, other):
+        if isinstance(other, ConvexQuadrangleABC):
+            distance = self._polygon.distance(_polygon(other))
+            return distance
+        return NotImplemented
+
+    def intersection_area(self, other):
+        if isinstance(other, ConvexQuadrangleABC):
+            intersection = self._polygon.intersection(_polygon(other))
+            return intersection.area
+        return NotImplemented
 
     def __call__(self, frame_image):
         return cv.warpPerspective(

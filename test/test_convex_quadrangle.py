@@ -22,12 +22,95 @@ class TestConvexQuadrangle(unittest.TestCase):
     def setUp(self):
         self.frame_image = cv.imread(FRAME_IMAGE_PATHNAME)
 
+    def test_corner_coordinates(self):
+        top_left = (0, 2)
+        top_right = (2, 2)
+        bottom_left = (0, 0)
+        bottom_right = (2, 0)
+        quadrangle = ConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
+        self.assertEqual(top_left, quadrangle.top_left)
+        self.assertEqual(top_right, quadrangle.top_right)
+        self.assertEqual(bottom_left, quadrangle.bottom_left)
+        self.assertEqual(bottom_right, quadrangle.bottom_right)
+
+    def test_intersection_area_and_distance_of_equal_quadrangles(self):
+        quadrangle = ConvexQuadrangle(
+            top_left=(0, 2),
+            top_right=(2, 2),
+            bottom_left=(0, 0),
+            bottom_right=(2, 0),
+        )
+        distance = 0
+        intersection_area = 4
+        self.assertEqual(distance, quadrangle.distance(quadrangle))
+        self.assertEqual(intersection_area, quadrangle.intersection_area(quadrangle))
+
+    def test_intersection_area_and_distance_of_crossing_quadrangles(self):
+        first_quadrangle = ConvexQuadrangle(
+            top_left=(0, 2),
+            top_right=(2, 2),
+            bottom_left=(0, 0),
+            bottom_right=(2, 0),
+        )
+        second_quadrangle = ConvexQuadrangle(
+            top_left=(-1, 1),
+            top_right=(1, 1),
+            bottom_left=(-1, -1),
+            bottom_right=(1, -1),
+        )
+        distance = 0
+        intersection_area = 1
+        self.assertEqual(distance, first_quadrangle.distance(second_quadrangle))
+        self.assertEqual(distance, second_quadrangle.distance(first_quadrangle))
+        self.assertEqual(intersection_area, first_quadrangle.intersection_area(second_quadrangle))
+        self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
+
+    def test_intersection_area_and_distance_of_touching_quadrangles(self):
+        first_quadrangle = ConvexQuadrangle(
+            top_left=(0, 2),
+            top_right=(2, 2),
+            bottom_left=(0, 0),
+            bottom_right=(2, 0),
+        )
+        second_quadrangle = ConvexQuadrangle(
+            top_left=(-2, 0),
+            top_right=(0, 0),
+            bottom_left=(-2, -2),
+            bottom_right=(0, -2),
+        )
+        distance = 0
+        intersection_area = 0
+        self.assertEqual(distance, first_quadrangle.distance(second_quadrangle))
+        self.assertEqual(distance, second_quadrangle.distance(first_quadrangle))
+        self.assertEqual(intersection_area, first_quadrangle.intersection_area(second_quadrangle))
+        self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
+
+    def test_intersection_area_and_distance_of_disjoint_quadrangles(self):
+        first_quadrangle = ConvexQuadrangle(
+            top_left=(0, 2),
+            top_right=(2, 2),
+            bottom_left=(0, 0),
+            bottom_right=(2, 0),
+        )
+        second_quadrangle = ConvexQuadrangle(
+            top_left=(-4, 0),
+            top_right=(-2, 0),
+            bottom_left=(-4, -4),
+            bottom_right=(-2, -4),
+        )
+        distance = 2
+        intersection_area = 0
+        self.assertEqual(distance, first_quadrangle.distance(second_quadrangle))
+        self.assertEqual(distance, second_quadrangle.distance(first_quadrangle))
+        self.assertEqual(intersection_area, first_quadrangle.intersection_area(second_quadrangle))
+        self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
+
     def test_red_screen(self):
         coordinate_map = ConvexQuadrangle(
             top_left=(50, 210),
             top_right=(30, 55),
-            btm_left=(300, 250),
-            btm_right=(300, 20),
+            bottom_left=(300, 250),
+            bottom_right=(300, 20),
         )
         screen_image = coordinate_map(self.frame_image)
         height, width, _ = screen_image.shape
@@ -59,8 +142,8 @@ class TestConvexQuadrangle(unittest.TestCase):
         coordinate_map = ConvexQuadrangle(
             top_left=(95, 385),
             top_right=(560, 360),
-            btm_left=(75, 440),
-            btm_right=(570, 450),
+            bottom_left=(75, 440),
+            bottom_right=(570, 450),
         )
         screen_image = coordinate_map(self.frame_image)
         height, width, _ = screen_image.shape
@@ -88,12 +171,12 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(0, green[int((height - 1) / 2), (width - 1) - int((height - 1) / 4)])
         self.assertEqual(0, red[int((height - 1) / 2), (width - 1) - int((height - 1) / 4)])
 
-    def test_green_blue(self):
+    def test_blue_screen(self):
         coordinate_map = ConvexQuadrangle(
             top_left=(462, 112),
             top_right=(580, 120),
-            btm_left=(460, 300),
-            btm_right=(600, 160),
+            bottom_left=(460, 300),
+            bottom_right=(600, 160),
         )
         screen_image = coordinate_map(self.frame_image)
         height, width, _ = screen_image.shape
