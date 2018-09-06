@@ -245,16 +245,14 @@ class _ScreenPosition(object):
             return self.datetime == other.datetime
         elif isinstance(other, datetime):
             return self.datetime == other
-        else:
-            return NotImplemented
+        return NotImplemented
 
     def __lt__(self, other):
         if isinstance(other, _ScreenPosition):
             return self.datetime < other.datetime
         elif isinstance(other, datetime):
             return self.datetime < other
-        else:
-            return NotImplemented
+        return NotImplemented
 
 
 class AnnotatedScreenVideo(VideoABC):
