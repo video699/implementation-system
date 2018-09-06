@@ -9,7 +9,6 @@ setup(
     name='video699',
     packages=[
         'video699',
-        'video699.coordinate_map',
         'video699.document',
         'video699.frame',
         'video699.screen',

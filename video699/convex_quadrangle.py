@@ -10,15 +10,15 @@ from math import sqrt
 import cv2 as cv
 import numpy as np
 
-from ..configuration import CONFIGURATION
-from ..interface import CoordinateMapABC
+from .configuration import CONFIGURATION
+from .interface import ConvexQuadrangleABC
 
 
-BORDER_MODE = cv.__dict__[CONFIGURATION['Quadrangle']['border_mode']]
+BORDER_MODE = cv.__dict__[CONFIGURATION['ConvexQuadrangle']['border_mode']]
 
 
-class Quadrangle(CoordinateMapABC):
-    """A map between a video frame and projection screen coordinate systems based on a quadrangle.
+class ConvexQuadrangle(ConvexQuadrangleABC):
+    """A convex quadrangle specifying a map between video frame and projection screen coordinates.
 
     The quadrangle specifies the screen corners in a video frame coordinate system.
 

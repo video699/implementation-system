@@ -111,8 +111,8 @@ class FrameABC(ABC):
         return self.video.datetime
 
 
-class CoordinateMapABC(ABC):
-    """An abstract map between a video frame and projection screen coordinate systems.
+class ConvexQuadrangleABC(ABC):
+    """A convex quadrangle specifying a map between video frame and projection screen coordinates.
 
     Attributes
     ----------
@@ -156,7 +156,7 @@ class ScreenABC(ABC):
     ----------
     frame : FrameABC
         A frame containing the projection screen.
-    coordinates : CoordinateMapABC
+    coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
     image : array_like
         The image data of the projection screen represented as an OpenCV CV_8UC3 BGR matrix.

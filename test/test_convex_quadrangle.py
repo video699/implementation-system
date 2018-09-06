@@ -4,18 +4,18 @@ import os
 import unittest
 
 import cv2 as cv
-from video699.coordinate_map.quadrangle import Quadrangle
+from video699.convex_quadrangle import ConvexQuadrangle
 
 
 FRAME_IMAGE_PATHNAME = os.path.join(
     os.path.dirname(__file__),
-    'test_quadrangle',
+    'test_convex_quadrangle',
     'sample_frame_image.png',
 )
 
 
-class TestQuadrangle(unittest.TestCase):
-    """Tests the ability of the Quadrangle class to map image data in a frame coordinate system.
+class TestConvexQuadrangle(unittest.TestCase):
+    """Tests the ability of the ConvexQuadrangle class to map image data in frame coordinate system.
 
     """
 
@@ -23,7 +23,7 @@ class TestQuadrangle(unittest.TestCase):
         self.frame_image = cv.imread(FRAME_IMAGE_PATHNAME)
 
     def test_red_screen(self):
-        coordinate_map = Quadrangle(
+        coordinate_map = ConvexQuadrangle(
             top_left=(50, 210),
             top_right=(30, 55),
             btm_left=(300, 250),
@@ -56,7 +56,7 @@ class TestQuadrangle(unittest.TestCase):
         self.assertEqual(0, red[int((height - 1) / 8), int((width - 1) / 2)])
 
     def test_green_screen(self):
-        coordinate_map = Quadrangle(
+        coordinate_map = ConvexQuadrangle(
             top_left=(95, 385),
             top_right=(560, 360),
             btm_left=(75, 440),
@@ -89,7 +89,7 @@ class TestQuadrangle(unittest.TestCase):
         self.assertEqual(0, red[int((height - 1) / 2), (width - 1) - int((height - 1) / 4)])
 
     def test_green_blue(self):
-        coordinate_map = Quadrangle(
+        coordinate_map = ConvexQuadrangle(
             top_left=(462, 112),
             top_right=(580, 120),
             btm_left=(460, 300),

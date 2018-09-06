@@ -14,7 +14,7 @@ from dateutil.parser import parse
 from lxml import etree
 import numpy as np
 
-from ..coordinate_map.quadrangle import Quadrangle
+from ..convex_quadrangle import ConvexQuadrangle
 from ..frame.image import ImageFrame
 from ..interface import ScreenABC, ScreenDetectorABC, VideoABC
 
@@ -62,7 +62,7 @@ def _init_dataset():
                     positions={
                         positions.attrib['camera']: sorted([
                             _ScreenPosition(
-                                coordinates=Quadrangle(
+                                coordinates=ConvexQuadrangle(
                                     top_left=(
                                         int(position.attrib['x0']),
                                         int(position.attrib['y0']),
@@ -221,7 +221,7 @@ class _ScreenPosition(object):
 
     Parameters
     ----------
-    coordinates : CoordinateMapABC
+    coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
     datetime : aware datetime
         The human annotation certifies that at this date, and time, the lit projection screen was
@@ -229,7 +229,7 @@ class _ScreenPosition(object):
 
     Attributes
     ----------
-    coordinates : CoordinateMapABC
+    coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
     datetime : aware datetime
         The human annotation certifies that at this date, and time, the lit projection screen was
@@ -330,7 +330,7 @@ class AnnotatedScreen(ScreenABC):
         located at the given coordinates.
     frame : FrameABC
         A frame containing the projection screen.
-    coordinates : CoordinateMapABC
+    coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
 
     Attributes
@@ -344,7 +344,7 @@ class AnnotatedScreen(ScreenABC):
         located at the given coordinates.
     frame : FrameABC
         A frame containing the projection screen.
-    coordinates : CoordinateMapABC
+    coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
     """
 
