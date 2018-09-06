@@ -33,6 +33,51 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(bottom_left, quadrangle.bottom_left)
         self.assertEqual(bottom_right, quadrangle.bottom_right)
 
+    def test_equality(self):
+        first_quadrangle = ConvexQuadrangle(
+            top_left=(0, 2),
+            top_right=(2, 2),
+            bottom_left=(0, 0),
+            bottom_right=(2, 0),
+        )
+        second_quadrangle = ConvexQuadrangle(
+            top_left=(0, 2),
+            top_right=(2, 2),
+            bottom_left=(0, 0),
+            bottom_right=(2, 0),
+        )
+        third_quadrangle = ConvexQuadrangle(
+            top_left=(-1, 1),
+            top_right=(1, 1),
+            bottom_left=(-1, -1),
+            bottom_right=(1, -1),
+        )
+        self.assertTrue(first_quadrangle == second_quadrangle)
+        self.assertFalse(first_quadrangle == third_quadrangle)
+
+    def test_ordering(self):
+        first_quadrangle = ConvexQuadrangle(
+            top_left=(0, 2),
+            top_right=(2, 2),
+            bottom_left=(0, 0),
+            bottom_right=(2, 0),
+        )
+        second_quadrangle = ConvexQuadrangle(
+            top_left=(-1, 1),
+            top_right=(1, 1),
+            bottom_left=(-1, -1),
+            bottom_right=(1, -1),
+        )
+        third_quadrangle = ConvexQuadrangle(
+            top_left=(-2, 0),
+            top_right=(0, 0),
+            bottom_left=(-2, -2),
+            bottom_right=(0, -2),
+        )
+        self.assertTrue(first_quadrangle > second_quadrangle)
+        self.assertTrue(second_quadrangle > third_quadrangle)
+        self.assertTrue(first_quadrangle > third_quadrangle)
+
     def test_intersection_area_and_distance_of_equal_quadrangles(self):
         quadrangle = ConvexQuadrangle(
             top_left=(0, 2),

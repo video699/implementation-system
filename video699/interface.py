@@ -8,6 +8,7 @@ The use of MAY, and MUST in the docstrings follows RFC 2119.
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from datetime import timedelta
+from functools import total_ordering
 
 
 class VideoABC(ABC, Iterable):
@@ -111,6 +112,7 @@ class FrameABC(ABC):
         return self.video.datetime
 
 
+@total_ordering
 class ConvexQuadrangleABC(ABC):
     """A convex quadrangle specifying a map between video frame and projection screen coordinates.
 
@@ -207,6 +209,46 @@ class ConvexQuadrangleABC(ABC):
             Image data in the projection screen coordinate system.
         """
         pass
+
+    def __eq__(self, other):
+        """Returns whether two convex quadrangles are equal.
+
+        Parameters
+        ----------
+        other : ConvexQuadrangleABC
+            The other convex quadrangle.
+
+        Returns
+        -------
+        equals : bool
+            Whether self equals other convex quadrangle.
+        """
+        if isinstance(other, ConvexQuadrangleABC):
+            return self.top_left == other.top_left \
+                and self.top_right == other.top_right \
+                and self.bottom_left == other.bottom_left \
+                and self.bottom_right == other.bottom_right
+        return NotImplemented
+
+    def __lt__(self, other):
+        """Returns whether all coordinates of a convex quadrangle's corners are less that another's.
+
+        Parameters
+        ----------
+        other : ConvexQuadrangleABC
+            The other convex quadrangle.
+
+        Returns
+        -------
+        equals : bool
+            Whether all coordinates of self's corners are less that the other convex quadrangle's.
+        """
+        if isinstance(other, ConvexQuadrangleABC):
+            return self.top_left < other.top_left \
+                and self.top_right < other.top_right \
+                and self.bottom_left < other.bottom_left \
+                and self.bottom_right < other.bottom_right
+        return NotImplemented
 
 
 class ScreenABC(ABC):
