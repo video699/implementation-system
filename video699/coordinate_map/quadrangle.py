@@ -14,7 +14,7 @@ from ..configuration import CONFIGURATION
 from ..interface import CoordinateMapABC
 
 
-BORDER_MODE = CONFIGURATION['Quadrangle']['border_mode']
+BORDER_MODE = cv.__dict__[CONFIGURATION['Quadrangle']['border_mode']]
 
 
 class Quadrangle(CoordinateMapABC):
@@ -89,5 +89,5 @@ class Quadrangle(CoordinateMapABC):
             frame_image,
             self.transform,
             (self.width, self.height),
-            borderMode=cv.__dict__[BORDER_MODE],
+            borderMode=BORDER_MODE,
         )
