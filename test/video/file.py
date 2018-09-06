@@ -11,7 +11,7 @@ from video699.video.file import VideoFile
 VIDEO_PATHNAME = os.path.join(
     os.path.dirname(__file__),
     'test_file',
-    'sample_video_file.mov'
+    'sample_video_file.mov',
 )
 VIDEO_FPS = 25
 VIDEO_WIDTH = 640

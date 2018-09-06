@@ -11,7 +11,7 @@ from video699.document.pdf import PDFDocument
 DOCUMENT_PATHNAME = os.path.join(
     os.path.dirname(__file__),
     'test_pdf',
-    'sample_pdf_document.pdf'
+    'sample_pdf_document.pdf',
 )
 DOCUMENT_TITLE = 'Example title'
 DOCUMENT_AUTHOR = 'Example author'
