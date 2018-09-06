@@ -2,7 +2,7 @@
 
 from setuptools import setup
 
-with open("README.rst", "r") as f:
+with open('README.rst', 'r') as f:
     long_description = f.read()
 
 setup(
@@ -35,28 +35,28 @@ setup(
         'Tracker': 'https://github.com/video-699/implementation-system/issues',
     },
     install_requires=[
-        "lxml~=4.2.4",
-        "numpy~=1.15.1",
-        "opencv-python~=3.4.2",
-        "PyMuPDF~=1.13.18",
-        "python-dateutil~=2.7.3",
+        'lxml~=4.2.4',
+        'numpy~=1.15.1',
+        'opencv-python~=3.4.2',
+        'PyMuPDF~=1.13.18',
+        'python-dateutil~=2.7.3',
     ],
     long_description=long_description,
     classifiers=[
-        "Development Status :: 4 - Alpha",
-        "Environment :: Console",
-        "Intended Audience :: End Users/Desktop",
-        "Intended Audience :: Information Technology",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Topic :: Education",
-        "Topic :: Multimedia :: Video :: Conversion",
-        "Topic :: Scientific/Engineering :: Image Recognition",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Utilities",
+        'Development Status :: 4 - Alpha',
+        'Environment :: Console',
+        'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: Education',
+        'Topic :: Multimedia :: Video :: Conversion',
+        'Topic :: Scientific/Engineering :: Image Recognition',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Utilities',
     ],
 )
