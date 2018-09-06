@@ -10,10 +10,12 @@ import cv2 as cv
 import fitz
 import numpy as np
 
+from ..configuration import CONFIGURATION
 from ..interface import DocumentABC, PageABC
 
 
-PAGE_IMAGE_LRU_CACHE_MAXSIZE = 1024
+LRU_CACHE_MAXSIZE = CONFIGURATION['PDFDocumentPage'].getint('lru_cache_maxsize')
+DOWNSCALING_INTERPOLATION = CONFIGURATION['PDFDocumentPage']['downscaling_interpolation']
 
 
 class PDFDocumentPage(PageABC):
@@ -52,15 +54,24 @@ class PDFDocumentPage(PageABC):
     def number(self):
         return self._page.number + 1
 
-    @lru_cache(maxsize=PAGE_IMAGE_LRU_CACHE_MAXSIZE, typed=False)
+    @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
     def image(self, width, height):
         zoom_x = width / self._default_width
         zoom_y = height / self._default_height
         zoom_matrix = fitz.Matrix(zoom_x, zoom_y)
         pixmap = self._page.getPixmap(zoom_matrix, alpha=False)
-        rgb_image = np.frombuffer(pixmap.samples, dtype=np.uint8).reshape((pixmap.h, pixmap.w, 3))
+        rgb_image = np.frombuffer(
+            pixmap.samples,
+            dtype=np.uint8,
+        ).reshape(
+            (pixmap.h, pixmap.w, 3),
+        )
         bgr_image = cv.cvtColor(rgb_image, cv.COLOR_BGR2RGB)
-        bgr_image_downscaled = cv.resize(bgr_image, (width, height), cv.INTER_AREA)
+        bgr_image_downscaled = cv.resize(
+            bgr_image,
+            (width, height),
+            cv.__dict__[DOWNSCALING_INTERPOLATION],
+        )
         return bgr_image_downscaled
 
 

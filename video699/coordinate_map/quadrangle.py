@@ -10,7 +10,11 @@ from math import sqrt
 import cv2 as cv
 import numpy as np
 
+from ..configuration import CONFIGURATION
 from ..interface import CoordinateMapABC
+
+
+BORDER_MODE = CONFIGURATION['Quadrangle']['border_mode']
 
 
 class Quadrangle(CoordinateMapABC):
@@ -85,5 +89,5 @@ class Quadrangle(CoordinateMapABC):
             frame_image,
             self.transform,
             (self.width, self.height),
-            borderMode=cv.BORDER_REPLICATE,
+            borderMode=cv.__dict__[BORDER_MODE],
         )

@@ -16,6 +16,9 @@ setup(
         'video699.video',
     ],
     package_data={
+        'video699': [
+            'configuration/default.ini',
+        ],
         'video699.screen': [
             'annotated/LICENSE',
             'annotated/*.xml',
