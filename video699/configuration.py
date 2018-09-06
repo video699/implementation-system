@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module loads configuration from files, environmental variables, and command-line options.
+"""This module loads the default configuration and provides it to the rest of the package.
 
 """
 
