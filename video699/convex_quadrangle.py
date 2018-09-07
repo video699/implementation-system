@@ -17,29 +17,6 @@ CONFIGURATION = get_configuration()['ConvexQuadrangle']
 BORDER_MODE = cv.__dict__[CONFIGURATION['border_mode']]
 
 
-def _polygon(quadrangle):
-    """Returns a shapely representation of a convex quadrangle.
-
-    Parameters
-    ----------
-    quadrangle : ConvexQuadrangleABC
-        A convex quadrangle.
-
-    Returns
-    -------
-    polygon : shapely.geometry.Polygon
-        A shapely representation of the convex quadrangle.
-    """
-    if isinstance(quadrangle, ConvexQuadrangle) and '_polygon' in quadrangle.__dict__:
-        return quadrangle._polygon
-    return Polygon([
-        quadrangle.top_left,
-        quadrangle.top_right,
-        quadrangle.bottom_right,
-        quadrangle.bottom_left,
-    ])
-
-
 class ConvexQuadrangle(ConvexQuadrangleABC):
     """A convex quadrangle specifying a map between video frame and projection screen coordinates.
 
@@ -80,7 +57,7 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         self._top_right = Point(top_right)
         self._bottom_left = Point(bottom_left)
         self._bottom_right = Point(bottom_right)
-        self._polygon = _polygon(self)
+        self._polygon = Polygon([top_left, top_right, bottom_right, bottom_left])
 
         top_width = self._top_left.distance(self._top_right)
         bottom_width = self._bottom_left.distance(self._bottom_right)
@@ -137,15 +114,18 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
     def transform(self):
         return self._transform
 
-    def distance(self, other):
-        if isinstance(other, ConvexQuadrangleABC):
-            distance = self._polygon.distance(_polygon(other))
-            return distance
-        return NotImplemented
-
     def intersection_area(self, other):
         if isinstance(other, ConvexQuadrangleABC):
-            intersection = self._polygon.intersection(_polygon(other))
+            if isinstance(other, ConvexQuadrangle):
+                other_polygon = other._polygon
+            else:
+                other_polygon = Polygon([
+                    other.top_left,
+                    other.top_right,
+                    other.bottom_right,
+                    other.bottom_left,
+                ])
+            intersection = self._polygon.intersection(other_polygon)
             return intersection.area
         return NotImplemented
 

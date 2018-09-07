@@ -163,22 +163,6 @@ class ConvexQuadrangleABC(ABC):
         pass
 
     @abstractmethod
-    def distance(self, other):
-        """The minimum distance between two convex quadrangles.
-
-        Parameters
-        ----------
-        other : ConvexQuadrangleABC
-            The other convex quadrangle.
-
-        Returns
-        -------
-        distance : scalar
-            The minumum distance between self, and the other convex quadrangle.
-        """
-        pass
-
-    @abstractmethod
     def intersection_area(self, other):
         """The area of the intersection of two convex quadrangles.
 

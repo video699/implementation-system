@@ -78,19 +78,17 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertTrue(second_quadrangle > third_quadrangle)
         self.assertTrue(first_quadrangle > third_quadrangle)
 
-    def test_intersection_area_and_distance_of_equal_quadrangles(self):
+    def test_intersection_area_of_equal_quadrangles(self):
         quadrangle = ConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
             bottom_right=(2, 0),
         )
-        distance = 0
         intersection_area = 4
-        self.assertEqual(distance, quadrangle.distance(quadrangle))
         self.assertEqual(intersection_area, quadrangle.intersection_area(quadrangle))
 
-    def test_intersection_area_and_distance_of_crossing_quadrangles(self):
+    def test_intersection_area_of_crossing_quadrangles(self):
         first_quadrangle = ConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
@@ -103,14 +101,11 @@ class TestConvexQuadrangle(unittest.TestCase):
             bottom_left=(-1, -1),
             bottom_right=(1, -1),
         )
-        distance = 0
         intersection_area = 1
-        self.assertEqual(distance, first_quadrangle.distance(second_quadrangle))
-        self.assertEqual(distance, second_quadrangle.distance(first_quadrangle))
         self.assertEqual(intersection_area, first_quadrangle.intersection_area(second_quadrangle))
         self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
 
-    def test_intersection_area_and_distance_of_touching_quadrangles(self):
+    def test_intersection_area_of_touching_quadrangles(self):
         first_quadrangle = ConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
@@ -123,14 +118,11 @@ class TestConvexQuadrangle(unittest.TestCase):
             bottom_left=(-2, -2),
             bottom_right=(0, -2),
         )
-        distance = 0
         intersection_area = 0
-        self.assertEqual(distance, first_quadrangle.distance(second_quadrangle))
-        self.assertEqual(distance, second_quadrangle.distance(first_quadrangle))
         self.assertEqual(intersection_area, first_quadrangle.intersection_area(second_quadrangle))
         self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
 
-    def test_intersection_area_and_distance_of_disjoint_quadrangles(self):
+    def test_intersection_area_of_disjoint_quadrangles(self):
         first_quadrangle = ConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
@@ -143,10 +135,7 @@ class TestConvexQuadrangle(unittest.TestCase):
             bottom_left=(-4, -4),
             bottom_right=(-2, -4),
         )
-        distance = 2
         intersection_area = 0
-        self.assertEqual(distance, first_quadrangle.distance(second_quadrangle))
-        self.assertEqual(distance, second_quadrangle.distance(first_quadrangle))
         self.assertEqual(intersection_area, first_quadrangle.intersection_area(second_quadrangle))
         self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
 
