@@ -5,6 +5,7 @@
 """
 
 from functools import lru_cache
+from logging import getLogger
 
 import cv2 as cv
 import fitz
@@ -14,6 +15,7 @@ from ..configuration import get_configuration
 from ..interface import DocumentABC, PageABC
 
 
+LOGGER = getLogger(__name__)
 CONFIGURATION = get_configuration()['PDFDocumentPage']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
 DOWNSCALING_INTERPOLATION = cv.__dict__[CONFIGURATION['downscaling_interpolation']]
@@ -34,8 +36,8 @@ class PDFDocumentPage(PageABC):
     document : DocumentABC
         The document containing the page.
     number : int
-        The page number, i.e. the position of the page in the document. Frame indexing is one-based,
-        i.e. the first frame has number 1.
+        The page number, i.e. the position of the page in the document. Page indexing is one-based,
+        i.e. the first page has number 1.
     """
 
     def __init__(self, document, page):
@@ -99,6 +101,7 @@ class PDFDocument(DocumentABC):
             raise ValueError('The pathname "{}" does not specify a PDF document'.format(pathname))
         self._title = self._document.metadata['title']
         self._author = self._document.metadata['author']
+        LOGGER.debug('Loading PDF document {}'.format(pathname))
         self._pages = [PDFDocumentPage(self, page) for page in self._document]
 
     @property

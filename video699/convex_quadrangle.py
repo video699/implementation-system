@@ -47,7 +47,7 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         The width of the screen in a screen coordinate system.
     height : int
         The height of the screen in a screen coordinate system.
-    transform : 3 x 3 ndarray
+    transform : 3 x 3 np.ndarray
         The perspective transform matrix from a frame coordinate system to a screen coordinate
         system in Homogeneous coordinates.
     """

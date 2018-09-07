@@ -7,10 +7,10 @@
 from bisect import bisect
 from datetime import datetime
 from functools import total_ordering
-import logging
+from logging import getLogger
 import os
 
-from dateutil.parser import parse
+from dateutil.parser import parse as datetime_parse
 from lxml import etree
 import numpy as np
 
@@ -19,7 +19,7 @@ from ..frame.image import ImageFrame
 from ..interface import ScreenABC, ScreenDetectorABC, VideoABC
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = getLogger(__name__)
 RESOURCES_PATHNAME = os.path.join(os.path.dirname(__file__), 'annotated')
 DATASET_PATHNAME = os.path.join(RESOURCES_PATHNAME, 'dataset.xml')
 CAMERA_ANNOTATIONS = None
@@ -32,7 +32,7 @@ def _init_dataset():
     """
     global CAMERA_ANNOTATIONS
     global SCREEN_ANNOTATIONS
-    LOGGER.debug('Loading dataset from {}'.format(DATASET_PATHNAME))
+    LOGGER.debug('Loading dataset {}'.format(DATASET_PATHNAME))
     institutions = etree.parse(DATASET_PATHNAME)
     institutions.xinclude()
     CAMERA_ANNOTATIONS = {
@@ -53,10 +53,10 @@ def _init_dataset():
                 _ScreenAnnotations(
                     screen_id=screen.attrib['id'],
                     name=screen.attrib['name'],
-                    installed_from=parse(
+                    installed_from=datetime_parse(
                         screen.attrib['from']
                     ) if 'from' in screen.attrib else None,
-                    installed_until=parse(
+                    installed_until=datetime_parse(
                         screen.attrib['until']
                     ) if 'until' in screen.attrib else None,
                     positions={
@@ -80,7 +80,7 @@ def _init_dataset():
                                         int(position.attrib['y3']),
                                     ),
                                 ),
-                                datetime=parse(position.attrib['datetime']),
+                                datetime=datetime_parse(position.attrib['datetime']),
                             ) for position in positions.findall('./position')
                         ]) for positions in screen.findall('./positions')
                     }
@@ -96,7 +96,7 @@ def _assert_key_exists(institution_id, room_id, camera_id):
     Attributes
     ----------
     institution_id : str
-        A institution identifier. The identifier is globally unique.
+        A institution identifier. The identifier is unique in the dataset.
     room_id : str
         A room identifier. The identifier is unique in the institution.
     camera_id : str

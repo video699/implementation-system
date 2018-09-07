@@ -1,3 +1,6 @@
 [submodule "implementation-screens"]
-  path = video699/screen/annotated
-  url = https://github.com/video699/implementation-screens.git
+	path = video699/screen/annotated
+	url = https://github.com/video699/implementation-screens.git
+[submodule "video699/annotation"]
+	path = video699/video/annotated
+	url = git@github.com:video699/implementation-videos.git

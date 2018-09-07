@@ -7,7 +7,7 @@ init:
 	pip install -r requirements.txt
 
 develop:
-	python setup.py develop
+	pip install -e .
 
 test: init develop
 	python setup.py check

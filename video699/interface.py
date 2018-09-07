@@ -117,12 +117,12 @@ class FrameABC(ABC):
 
     def __eq__(self, other):
         if isinstance(other, FrameABC) and self.video == other.video:
-            return self.frame_number == other.frame_number
+            return self.number == other.number
         return NotImplemented
 
     def __lt__(self, other):
         if isinstance(other, FrameABC) and self.video == other.video:
-            return self.frame_number < other.frame_number
+            return self.number < other.number
         return NotImplemented
 
 
@@ -332,8 +332,8 @@ class PageABC(ABC):
     document : DocumentABC
         The document containing the page.
     number : int
-        The page number, i.e. the position of the page in the document. Frame indexing is one-based,
-        i.e. the first frame has number 1.
+        The page number, i.e. the position of the page in the document. Page indexing is one-based,
+        i.e. the first page has number 1.
     """
 
     @property

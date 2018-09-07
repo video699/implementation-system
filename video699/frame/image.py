@@ -37,6 +37,11 @@ class ImageFrame(FrameABC):
         The date, and time at which the frame was captured.
     """
 
+    def __init__(self, video, number, image):
+        self._video = video
+        self._number = number
+        self._image = image
+
     @property
     def video(self):
         return self._video
@@ -48,8 +53,3 @@ class ImageFrame(FrameABC):
     @property
     def image(self):
         return self._image
-
-    def __init__(self, video, number, image):
-        self._video = video
-        self._number = number
-        self._image = image
