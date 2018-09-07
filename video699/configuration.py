@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module loads the default configuration and provides it to the rest of the package.
+"""This module loads the package configuration from standard XDG directories.
 
 """
 
@@ -19,6 +19,17 @@ DEFAULT_CONFIGURATION_PATHNAME = os.path.join(
 )
 LOGGER = getLogger(__name__)
 RESOURCE_NAME = 'video699'
+
+
+def get_configuration():
+    """Returns the package configuration.
+
+    Returns
+    -------
+    configuration : ConfigParser
+        The package configuration.
+    """
+    return CONFIGURATION
 
 
 for pathname in reversed(list(load_config_paths(RESOURCE_NAME)) + [DEFAULT_CONFIGURATION_PATHNAME]):

@@ -10,14 +10,13 @@ import cv2 as cv
 import fitz
 import numpy as np
 
-from ..configuration import CONFIGURATION
+from ..configuration import get_configuration
 from ..interface import DocumentABC, PageABC
 
 
-LRU_CACHE_MAXSIZE = CONFIGURATION['PDFDocumentPage'].getint('lru_cache_maxsize')
-DOWNSCALING_INTERPOLATION = cv.__dict__[
-    CONFIGURATION['PDFDocumentPage']['downscaling_interpolation']
-]
+CONFIGURATION = get_configuration()['PDFDocumentPage']
+LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
+DOWNSCALING_INTERPOLATION = cv.__dict__[CONFIGURATION['downscaling_interpolation']]
 
 
 class PDFDocumentPage(PageABC):

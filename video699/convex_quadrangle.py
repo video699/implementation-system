@@ -9,11 +9,12 @@ import cv2 as cv
 import numpy as np
 from shapely.geometry import Point, Polygon
 
-from .configuration import CONFIGURATION
+from .configuration import get_configuration
 from .interface import ConvexQuadrangleABC
 
 
-BORDER_MODE = cv.__dict__[CONFIGURATION['ConvexQuadrangle']['border_mode']]
+CONFIGURATION = get_configuration()['ConvexQuadrangle']
+BORDER_MODE = cv.__dict__[CONFIGURATION['border_mode']]
 
 
 def _polygon(quadrangle):
