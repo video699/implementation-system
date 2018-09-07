@@ -40,7 +40,7 @@ repository, and the Git submodules inside it:
 
 ::
 
-   $ git clone --recurse-submodules https://github.com/fi-muni-video-699/implementation-system.git
+   $ git clone --recurse-submodules https://github.com/video-699/implementation-system.git
 
 Next, install the package using Pip:
 
