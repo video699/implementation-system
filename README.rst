@@ -1,8 +1,8 @@
 video699 – Aligns lecture recordings with study materials
 =========================================================
 
-.. image:: https://circleci.com/gh/fi-muni-video-699/implementation-system/tree/master.svg?style=shield
-    :target: https://circleci.com/gh/fi-muni-video-699/implementation-system/tree/master
+.. image:: https://circleci.com/gh/video699/implementation-system/tree/master.svg?style=shield
+    :target: https://circleci.com/gh/video699/implementation-system/tree/master
 
 One Paragraph of project description goes here
 
@@ -40,7 +40,7 @@ repository, and the Git submodules inside it:
 
 ::
 
-   $ git clone --recurse-submodules https://github.com/video-699/implementation-system.git
+   $ git clone --recurse-submodules https://github.com/video699/implementation-system.git
 
 Next, install the package using Pip:
 
