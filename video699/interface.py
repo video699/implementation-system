@@ -62,6 +62,7 @@ class VideoABC(ABC, Iterable):
         pass
 
 
+@total_ordering
 class FrameABC(ABC):
     """An abstract frame of a video.
 
@@ -110,6 +111,19 @@ class FrameABC(ABC):
         if self.video.fps is not None:
             return self.video.datetime + timedelta(seconds=(self.number - 1) / self.video.fps)
         return self.video.datetime
+
+    def __hash__(self):
+        return hash((self.video, self.number))
+
+    def __eq__(self, other):
+        if isinstance(other, FrameABC) and self.video == other.video:
+            return self.frame_number == other.frame_number
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, FrameABC) and self.video == other.video:
+            return self.frame_number < other.frame_number
+        return NotImplemented
 
 
 @total_ordering
@@ -195,18 +209,6 @@ class ConvexQuadrangleABC(ABC):
         pass
 
     def __eq__(self, other):
-        """Returns whether two convex quadrangles are equal.
-
-        Parameters
-        ----------
-        other : ConvexQuadrangleABC
-            The other convex quadrangle.
-
-        Returns
-        -------
-        equals : bool
-            Whether self equals other convex quadrangle.
-        """
         if isinstance(other, ConvexQuadrangleABC):
             return self.top_left == other.top_left \
                 and self.top_right == other.top_right \
@@ -215,18 +217,6 @@ class ConvexQuadrangleABC(ABC):
         return NotImplemented
 
     def __lt__(self, other):
-        """Returns whether all coordinates of a convex quadrangle's corners are less that another's.
-
-        Parameters
-        ----------
-        other : ConvexQuadrangleABC
-            The other convex quadrangle.
-
-        Returns
-        -------
-        equals : bool
-            Whether all coordinates of self's corners are less that the other convex quadrangle's.
-        """
         if isinstance(other, ConvexQuadrangleABC):
             return self.top_left < other.top_left \
                 and self.top_right < other.top_right \
