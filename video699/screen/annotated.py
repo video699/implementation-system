@@ -27,7 +27,7 @@ SCREEN_ANNOTATIONS = None
 
 
 def _init_dataset():
-    """Reads human annotations from an XML database, converts them into objects and sorts them.
+    """Reads human annotations from an XML dataset, converts them into objects and sorts them.
 
     """
     global CAMERA_ANNOTATIONS
