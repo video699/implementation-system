@@ -713,7 +713,7 @@ class AnnotatedSampledVideoScreen(ScreenABC):
         ----
         When a projection screen :math:`s` shows a document page :math:`p`, we write :math:`s\approx
         p`.  When a single logical document page is split across several document pages :math:`p`
-        and the projection screen :math:`s` shows the same logical page as :math:`p`, we write
+        and a projection screen :math:`s` shows the same logical page as :math:`p`, we write
         :math:`s\sim p`. A document page :math:`p` is matching a projection screen :math:`s` if and
         only if :math:`s\approx p\lor (\nexists p'(s\approx p') \land s \sim p)`.
 
