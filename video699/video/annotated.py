@@ -284,7 +284,7 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
     @property
     def pathname(self):
         pathname = os.path.join(
-            self.document.video.dirname,
+            self.document.video.pathname,
             self.filename,
         )
         return pathname
@@ -340,7 +340,7 @@ class AnnotatedSampledVideoDocument(DocumentABC):
     @property
     def pathname(self):
         pathname = os.path.join(
-            self.video.dirname,
+            self.video.pathname,
             self.filename,
         )
         return pathname
@@ -440,7 +440,7 @@ class AnnotatedSampledVideoFrame(FrameABC):
     @property
     def pathname(self):
         pathname = os.path.join(
-            self.video.dirname,
+            self.video.pathname,
             self.filename,
         )
         return pathname
@@ -510,6 +510,9 @@ class AnnotatedSampledVideo(VideoABC):
     dirname : str
         The pathname of the directory, where the frames, documents, and XML human annotations
         associated with the video are stored.
+    pathname : str
+        The full pathname of the directory, where the frames, documents, and XML human annotations
+        associated with the video are stored.
     filename : str
         The filename of the video file.
     num_frames : int
@@ -558,6 +561,14 @@ class AnnotatedSampledVideo(VideoABC):
                 document_annotations.filename,
             ) for document_annotations in DOCUMENT_ANNOTATIONS[uri].values()
         )
+
+    @property
+    def pathname(self):
+        pathname = os.path.join(
+            RESOURCES_PATHNAME,
+            self.dirname,
+        )
+        return pathname
 
     @property
     def fps(self):
