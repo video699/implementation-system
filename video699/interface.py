@@ -231,7 +231,7 @@ class ScreenABC(ABC):
     Attributes
     ----------
     frame : FrameABC
-        A frame containing the projection screen.
+        A video frame containing the projection screen.
     coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
     image : array_like

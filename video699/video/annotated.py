@@ -18,7 +18,7 @@ import numpy as np
 from ..convex_quadrangle import ConvexQuadrangle
 from ..document.image import ImagePage
 from ..frame.image import ImageFrame
-from ..interface import VideoABC, FrameABC, DocumentABC, PageABC
+from ..interface import VideoABC, FrameABC, ScreenABC, ScreenDetectorABC, DocumentABC, PageABC
 
 
 LOGGER = getLogger(__name__)
@@ -26,8 +26,9 @@ RESOURCES_PATHNAME = os.path.join(os.path.dirname(__file__), 'annotated')
 DATASET_PATHNAME = os.path.join(RESOURCES_PATHNAME, 'dataset.xml')
 DOCUMENT_ANNOTATIONS = None
 FRAME_ANNOTATIONS = None
-# VIDEO_ANNOTATIONS = None
+VIDEO_ANNOTATIONS = None
 VIDEOS = None
+SCREENS = None
 URI_REGEX = re.compile(
     r'https?://is\.muni\.cz/auth/el/(?P<faculty>\d+)/(?P<term>[^/]+)/(?P<course>[^/]+)/um/vi/'
     r'\?videomuni=(?P<filename>[^-]+-(?P<room>[^-]+)'
@@ -43,6 +44,7 @@ def _init_dataset():
     global FRAME_ANNOTATIONS
     global VIDEO_ANNOTATIONS
     global VIDEOS
+    global SCREENS
     LOGGER.debug('Loading dataset {}'.format(DATASET_PATHNAME))
     videos = etree.parse(DATASET_PATHNAME)
     videos.xinclude()
@@ -66,57 +68,65 @@ def _init_dataset():
             int(frame.attrib['number']): _FrameAnnotations(
                 filename=frame.attrib['filename'],
                 number=int(frame.attrib['number']),
+                screens=[
+                    _ScreenAnnotations(
+                        coordinates=ConvexQuadrangle(
+                            top_left=(
+                                int(screen.attrib['x0']),
+                                int(screen.attrib['y0']),
+                            ),
+                            top_right=(
+                                int(screen.attrib['x1']),
+                                int(screen.attrib['y1']),
+                            ),
+                            bottom_left=(
+                                int(screen.attrib['x2']),
+                                int(screen.attrib['y2']),
+                            ),
+                            bottom_right=(
+                                int(screen.attrib['x3']),
+                                int(screen.attrib['y3']),
+                            ),
+                        ),
+                        condition=screen.attrib['condition'],
+                        keyrefs={
+                            keyref.text: _KeyRefAnnotations(
+                                key=keyref.text,
+                                similarity=keyref.attrib['similarity'],
+                            ) for keyref in screen.findall('./keyrefs/keyref')
+                        },
+                        vgg256=VGG256Features(*json.loads(screen.attrib['vgg256'])),
+                    ) for screen in frame.findall('./screens/screen')
+                ],
                 vgg256=VGG256Features(*json.loads(frame.attrib['vgg256'])),
             ) for frame in video.findall('./frames/frame')
         } for video in videos.findall('./video')
     }
     VIDEO_ANNOTATIONS = {
-        video.attrib['uri']: {
-            'uri': video.attrib['uri'],
-            'dirname': video.attrib['dirname'],
-            'fps': int(video.attrib['fps']),
-            'width': int(video.attrib['width']),
-            'height': int(video.attrib['height']),
-            'frames': {
-                int(frame.attrib['number']): {
-                    'vgg256': VGG256Features(*json.loads(frame.attrib['vgg256'])),
-                    'filename': frame.attrib['filename'],
-                    'screens': [
-                        {
-                            'vgg256': VGG256Features(*json.loads(screen.attrib['vgg256'])),
-                            'coordinates': ConvexQuadrangle(
-                                top_left=(
-                                    int(screen.attrib['x0']),
-                                    int(screen.attrib['y0']),
-                                ),
-                                top_right=(
-                                    int(screen.attrib['x1']),
-                                    int(screen.attrib['y1']),
-                                ),
-                                bottom_left=(
-                                    int(screen.attrib['x2']),
-                                    int(screen.attrib['y2']),
-                                ),
-                                bottom_right=(
-                                    int(screen.attrib['x3']),
-                                    int(screen.attrib['y3']),
-                                ),
-                            ),
-                            'condition': screen.attrib['condition'],
-                            'keyrefs': {
-                                keyref.text: keyref.attrib['similarity']
-                                for keyref in screen.findall('./keyrefs/keyref')
-                            },
-                        } for screen in frame.findall('./screens/screen')
-                    ]
-                } for frame in video.findall('./frames/frame')
-            }
-        } for video in videos.findall('./video')
+        video.attrib['uri']: _VideoAnnotations(
+            uri=video.attrib['uri'],
+            dirname=video.attrib['dirname'],
+            fps=int(video.attrib['fps']),
+            width=int(video.attrib['width']),
+            height=int(video.attrib['height']),
+        ) for video in videos.findall('./video')
     }
-    VIDEOS = set(
-        AnnotatedSampledVideo(video_annotations["uri"])
+    VIDEOS = {
+        video_annotations.uri: AnnotatedSampledVideo(video_annotations.uri)
         for video_annotations in VIDEO_ANNOTATIONS.values()
-    )
+    }
+    SCREENS = {
+        video.uri: {
+            frame.number: [
+                AnnotatedSampledVideoScreen(
+                    frame,
+                    screen_index,
+                )
+                for screen_index, _
+                in enumerate(FRAME_ANNOTATIONS[video.uri][frame.number].screens)
+            ] for frame in video._frames
+        } for video in VIDEOS.values()
+    }
 
 
 def get_videos():
@@ -127,7 +137,7 @@ def get_videos():
     videos : iterator of AnnotatedSampledVideo
         All videos from a XML dataset.
     """
-    return iter(VIDEOS)
+    return iter(VIDEOS.values())
 
 
 class VGG256Features(object):
@@ -168,14 +178,14 @@ class _DocumentAnnotations(object):
     filename : str
         The filename of the corresponding PDF document. The filename is unique in the video.
     pages : dict of (str, _PageAnnotations)
-        A map between page keys, and human-annotations associated with the pages of the document.
+        A map between page keys, and human annotations associated with the pages of the document.
 
     Attributes
     ----------
     filename : str
         The filename of the corresponding PDF document. The filename is unique in the video.
     pages : dict of (str, _PageAnnotations)
-        A map between page keys, and human-annotations associated with the pages of the document.
+        A map between page keys, and human annotations associated with the pages of the document.
     """
 
     def __init__(self, filename, pages):
@@ -198,7 +208,7 @@ class _PageAnnotations(object):
         The filename of the corresponding document page image. The filename is unique in the video
         associated with the document.
     vgg256 : VGG256Features
-        256-dimensional feature vectors obtained by feeding the page image into VGG ConvNets.
+        256-dimensional feature vectors obtained by feeding the page image data into VGG ConvNets.
 
     Attributes
     ----------
@@ -212,7 +222,7 @@ class _PageAnnotations(object):
         The filename of the corresponding document page image. The filename is unique in the video
         associated with the document.
     vgg256 : VGG256Features
-        256-dimensional feature vectors obtained by feeding the page image into VGG ConvNets.
+        256-dimensional feature vectors obtained by feeding the page image data into VGG ConvNets.
     """
 
     def __init__(self, key, number, filename, vgg256):
@@ -248,7 +258,7 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
     key : str
         A page identifier. The identifier is unique in the video associated with the document.
     vgg256 : VGG256Features
-        256-dimensional feature vectors obtained by feeding the page image into VGG ConvNets.
+        256-dimensional feature vectors obtained by feeding the page image data into VGG ConvNets.
     """
 
     def __init__(self, document, key):
@@ -349,8 +359,10 @@ class _FrameAnnotations(object):
     number : int
         The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
         i.e. the first frame has number 1. The frame number is unique in the video.
+    screens : list of _ScreenAnnotations
+        A list of human annotations associated with the lit projection screens in the frame.
     vgg256 : VGG256Features
-        256-dimensional feature vectors obtained by feeding the frame image into VGG ConvNets.
+        256-dimensional feature vectors obtained by feeding the frame image data into VGG ConvNets.
 
     Attributes
     ----------
@@ -359,13 +371,16 @@ class _FrameAnnotations(object):
     number : int
         The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
         i.e. the first frame has number 1. The frame number is unique in the video.
+    screens : list of _ScreenAnnotations
+        A list of human annotations associated with the lit projection screens in the frame.
     vgg256 : VGG256Features
-        256-dimensional feature vectors obtained by feeding the frame image into VGG ConvNets.
+        256-dimensional feature vectors obtained by feeding the frame image data into VGG ConvNets.
     """
 
-    def __init__(self, filename, number, vgg256):
+    def __init__(self, filename, number, screens, vgg256):
         self.filename = filename
         self.number = number
+        self.screens = screens
         self.vgg256 = vgg256
 
 
@@ -401,7 +416,7 @@ class AnnotatedSampledVideoFrame(FrameABC):
     datetime : aware datetime
         The date, and time at which the frame was captured.
     vgg256 : VGG256Features
-        256-dimensional feature vectors obtained by feeding the frame image into VGG ConvNets.
+        256-dimensional feature vectors obtained by feeding the frame image data into VGG ConvNets.
     """
 
     def __init__(self, video, number):
@@ -433,6 +448,46 @@ class AnnotatedSampledVideoFrame(FrameABC):
     @property
     def image(self):
         return self._frame.image
+
+
+class _VideoAnnotations(object):
+    """Human annotations associated with a single video.
+
+    Parameters
+    ----------
+    uri : str
+        The URI of the video file. The URI is unique in the dataset.
+    dirname : str
+        The pathname of the directory, where the frames, documents, and XML human annotations
+        associated with the video are stored.
+    fps : scalar
+        The framerate of the video in frames per second.
+    width : int
+        The width of the video.
+    height : int
+        The height of the video.
+
+    Attributes
+    ----------
+    uri : str
+        The URI of the video file. The URI is unique in the dataset.
+    dirname : str
+        The pathname of the directory, where the frames, documents, and XML human annotations
+        associated with the video are stored.
+    fps : scalar
+        The framerate of the video in frames per second.
+    width : int
+        The width of the video.
+    height : int
+        The height of the video.
+    """
+
+    def __init__(self, uri, dirname, fps, width, height):
+        self.uri = uri
+        self.dirname = dirname
+        self.fps = fps
+        self.width = width
+        self.height = height
 
 
 class AnnotatedSampledVideo(VideoABC):
@@ -477,10 +532,10 @@ class AnnotatedSampledVideo(VideoABC):
         )
 
         video_annotations = VIDEO_ANNOTATIONS[uri]
-        self.dirname = video_annotations['dirname']
-        self._fps = video_annotations['fps']
-        self._width = video_annotations['width']
-        self._height = video_annotations['height']
+        self.dirname = video_annotations.dirname
+        self._fps = video_annotations.fps
+        self._width = video_annotations.width
+        self._height = video_annotations.height
 
         self._frames = sorted([
             AnnotatedSampledVideoFrame(
@@ -514,6 +569,195 @@ class AnnotatedSampledVideo(VideoABC):
 
     def __iter__(self):
         return iter(self._frames)
+
+
+class _KeyRefAnnotations(object):
+    """Human annotations describing a document page shown in a lit projection screen.
+
+    Parameters
+    ----------
+    key : str
+        An identifier of a page in a document. The identifier is unique in the video associated with
+        the document.
+    similarity : str
+        The similarity between  what is shown in the projection screen, and the document page. The
+        following values are legal:
+
+        - `full` specifies that there is a 1:1 correspondence between what is shown in the
+          projection screen, and the document page.
+        - `incremental` specifies that in a document attached to the ancestor video, a single
+          logical page is split across multiple physical pages and incrementally uncovered; the
+          slide and the frame correspond to the same logical page, but not the same physical page.
+
+    Attributes
+    ----------
+    key : str
+        An identifier of a page in a document. The identifier is unique in the video associated with
+        the document.
+    similarity : str
+        The similarity between  what is shown in the projection screen, and the document page. The
+        following values are legal:
+
+        - `full` specifies that there is a 1:1 correspondence between what is shown in the
+          projection screen, and the document page.
+        - `incremental` specifies that in a document attached to the ancestor video, a single
+          logical page is split across multiple physical pages and incrementally uncovered; the
+          slide and the frame correspond to the same logical page, but not the same physical page.
+
+    """
+
+    def __init__(self, key, similarity):
+        self.key = key
+        self.similarity = similarity
+
+
+class _ScreenAnnotations(object):
+    """Human annotations associated with a single lit projection screen in a frame of a video.
+
+    Parameters
+    ----------
+    coordinates : ConvexQuadrangleABC
+        A map between frame and screen coordinates.
+    condition : str
+        The condition of what is being shown in the screen. The following values are legal:
+
+        - `pristine` specifies that there is no significant degradation beyond photon noise.
+        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+          screen.
+        - `obstacle` specifies that a part of the screen or the projector light is partially
+          obscured by either a physical obstacle, or by a different GUI window.
+
+    keyrefs : dict of (str, _KeyRefAnnotations)
+        A map between document page keys, and human annotations specifying the relationship between
+        the projection screen, and the document pages.
+    vgg256 : VGG256Features
+        256-dimensional feature vectors obtained by feeding the screen image data into VGG ConvNets.
+
+    Attributes
+    ----------
+    coordinates : ConvexQuadrangleABC
+        A map between frame and screen coordinates.
+    condition : str
+        The condition of what is being shown in the screen. The following values are legal:
+
+        - `pristine` specifies that there is no significant degradation beyond photon noise.
+        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+          screen.
+        - `obstacle` specifies that a part of the screen or the projector light is partially
+          obscured by either a physical obstacle, or by a different GUI window.
+
+    keyrefs : dict of (str, _KeyRefAnnotations)
+        A map between document page keys, and human annotations specifying the relationship between
+        the projection screen, and the document pages.
+    vgg256 : VGG256Features
+        256-dimensional feature vectors obtained by feeding the screen image data into VGG ConvNets.
+    """
+
+    def __init__(self, coordinates, condition, keyrefs, vgg256):
+        self.coordinates = coordinates
+        self.condition = condition
+        self.keyrefs = keyrefs
+        self.vgg256 = vgg256
+
+
+class AnnotatedSampledVideoScreen(ScreenABC):
+    """A projection screen extracted from XML human annotations.
+
+    Parameters
+    ----------
+    frame : FrameABC
+        A video frame containing the projection screen.
+    screen_index : int
+        The index of the projection screen in the human annotations for the video frame. Screen
+        indexing is zero-based, i.e. the first screen in the human annotations has index 0.
+
+    Attributes
+    ----------
+    frame : FrameABC
+        A video frame containing the projection screen.
+    coordinates : ConvexQuadrangleABC
+        A map between frame and screen coordinates.
+    vgg256 : VGG256Features
+        256-dimensional feature vectors obtained by feeding the screen image data into VGG ConvNets.
+    """
+
+    def __init__(self, frame, screen_index):
+        self._frame = frame
+        self._screen_index = screen_index
+
+        screen_annotations = FRAME_ANNOTATIONS[frame.video.uri][frame.number].screens[screen_index]
+        self._coordinates = screen_annotations.coordinates
+        self.vgg256 = screen_annotations.vgg256
+
+    @property
+    def frame(self):
+        return self._frame
+
+    @property
+    def coordinates(self):
+        return self._coordinates
+
+    def matching_pages(self):
+        r"""Returns an iterable of document pages matching the screen based on human annotations.
+
+        Note
+        ----
+        When a projection screen :math:`s` shows a document page :math:`p`, we write :math:`s\approx
+        p`.  When a single logical document page is split across several document pages :math:`p`
+        and the projection screen :math:`s` shows the same logical page as :math:`p`, we write
+        :math:`s\sim p`. A document page :math:`p` is matching a projection screen :math:`s` if and
+        only if :math:`s\approx p\lor (\nexists p'(s\approx p') \land s \sim p)`.
+
+        Returns
+        -------
+        matching_pages : iterable of AnnotatedSampledVideoDocumentPage
+            An iterable of document pages matching the projection screen based on human annotations.
+        """
+        screen_annotations = FRAME_ANNOTATIONS[self._frame.video.uri].screens[self._screen_index]
+        keyrefs = screen_annotations.keyrefs
+        full_matches = [keyref.key for keyref in keyrefs if keyref.similarity == 'full']
+        if full_matches:
+            return full_matches
+        incremental_matches = [keyref.key for keyref in keyrefs]
+        return incremental_matches
+
+
+class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
+    """A screen detector that maps an annotated video frame to screens using XML human annotations.
+
+    Parameters
+    ----------
+    conditions : set of str, optional
+        A set of admissible conditions of a screen. The following condition strings are legal:
+
+        - `pristine` specifies that there is no significant degradation beyond photon noise.
+        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+          screen.
+        - `obstacle` specifies that a part of the screen or the projector light is partially
+          obscured by either a physical obstacle, or by a different GUI window.
+
+        Screens with inadmissible conditions will not be detected.
+    """
+
+    def __init__(self, conditions=set(['pristine', 'windowed', 'obstacle'])):
+        self._conditions = conditions
+
+    def __call__(self, frame):
+        """Converts an annotated frame to screens using the closest available human annotations.
+
+        Parameters
+        ----------
+        frame : FrameABC
+            A frame of a video.
+
+        Returns
+        -------
+        screens : iterable of AnnotatedSampledVideoScreen
+            An iterable of detected lit projection screens.
+        """
+        if not isinstance(frame, AnnotatedSampledVideoFrame):
+            return ()
+        return SCREENS[frame.video.uri][frame.number]
 
 
 _init_dataset()

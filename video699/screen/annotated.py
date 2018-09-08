@@ -327,7 +327,7 @@ class AnnotatedScreen(ScreenABC):
         The human annotation certifies that at this date, and time, this projection screen was
         located at the given coordinates.
     frame : FrameABC
-        A frame containing the projection screen.
+        A video frame containing the projection screen.
     coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
 
@@ -341,7 +341,7 @@ class AnnotatedScreen(ScreenABC):
         The human annotation certifies that at this date, and time, this projection screen was
         located at the given coordinates.
     frame : FrameABC
-        A frame containing the projection screen.
+        A video frame containing the projection screen.
     coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
     """
@@ -363,7 +363,7 @@ class AnnotatedScreen(ScreenABC):
 
 
 class AnnotatedScreenDetector(ScreenDetectorABC):
-    """A screen detector that maps video frames to iterables of screens using XML human annotations.
+    """A screen detector that maps a video frame to screens using XML human annotations.
 
     Parameters
     ----------
@@ -391,7 +391,7 @@ class AnnotatedScreenDetector(ScreenDetectorABC):
         self.camera_id = camera_id
 
     def __call__(self, frame):
-        """Converts a frame to an iterable of screens using the closest available human annotations.
+        """Converts a frame to screens using the closest available human annotations.
 
         Parameters
         ----------
