@@ -2,6 +2,7 @@
 
 import unittest
 
+import cv2 as cv
 from dateutil.parser import parse as datetime_parse
 from video699.video.annotated import get_videos
 
@@ -24,6 +25,7 @@ VIDEO_FRAME_NUMBERS = (
     2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 24000, 30000, 40000, 60000,
     62000, 64000, 66000, 68000, 78000, 80000, 82000, 84000, 86000, 88000, 90000,
 )
+VGG256_SHAPE = (256,)
 
 
 class TestAnnotatedSampledVideo(unittest.TestCase):
@@ -47,3 +49,36 @@ class TestAnnotatedSampledVideo(unittest.TestCase):
 
     def test_video_produces_n_frames(self):
         self.assertEqual(len(VIDEO_FRAME_NUMBERS), len(list(iter(self.video))))
+
+
+class TestAnnotatedSampledVideoFrame(unittest.TestCase):
+    """Tests the ability of the AnnotatedSampledVideoFrame class to read human annotations.
+
+    """
+
+    def setUp(self):
+        video = VIDEOS[VIDEO_URI]
+        frame_iterator = iter(video)
+        self.first_frame = next(frame_iterator)
+        self.second_frame = next(frame_iterator)
+
+    def test_frame_numbers(self):
+        self.assertTrue(VIDEO_FRAME_NUMBERS[0], self.first_frame.number)
+        self.assertTrue(VIDEO_FRAME_NUMBERS[1], self.second_frame.number)
+
+    def test_frame_image(self):
+        frame_image = self.first_frame.image
+        height, width, _ = frame_image.shape
+        self.assertEqual(VIDEO_WIDTH, width)
+        self.assertEqual(VIDEO_HEIGHT, height)
+
+        blue, green, red = cv.split(frame_image)
+        self.assertTrue(red[90, 490] > blue[90, 490] and red[90, 490] > green[90, 490])
+        self.assertTrue(green[190, 340] > red[190, 340] and green[190, 340] > blue[190, 340])
+        self.assertTrue(blue[50, 320] > red[50, 320] and blue[50, 320] > green[50, 320])
+
+    def test_vgg256_dimensions(self):
+        self.assertEqual(VGG256_SHAPE, self.first_frame.vgg256.imagenet.shape)
+        self.assertEqual(VGG256_SHAPE, self.first_frame.vgg256.imagenet_and_places2.shape)
+        self.assertEqual(VGG256_SHAPE, self.second_frame.vgg256.imagenet.shape)
+        self.assertEqual(VGG256_SHAPE, self.second_frame.vgg256.imagenet_and_places2.shape)
