@@ -106,6 +106,7 @@ def _init_dataset():
         video.attrib['uri']: _VideoAnnotations(
             uri=video.attrib['uri'],
             dirname=video.attrib['dirname'],
+            num_frames=int(video.attrib['frames']),
             fps=int(video.attrib['fps']),
             width=int(video.attrib['width']),
             height=int(video.attrib['height']),
@@ -460,6 +461,8 @@ class _VideoAnnotations(object):
     dirname : str
         The pathname of the directory, where the frames, documents, and XML human annotations
         associated with the video are stored.
+    num_frames : int
+        The total number of frames in the original video file.
     fps : scalar
         The framerate of the video in frames per second.
     width : int
@@ -474,6 +477,8 @@ class _VideoAnnotations(object):
     dirname : str
         The pathname of the directory, where the frames, documents, and XML human annotations
         associated with the video are stored.
+    num_frames : int
+        The total number of frames in the original video file.
     fps : scalar
         The framerate of the video in frames per second.
     width : int
@@ -482,9 +487,10 @@ class _VideoAnnotations(object):
         The height of the video.
     """
 
-    def __init__(self, uri, dirname, fps, width, height):
+    def __init__(self, uri, dirname, fps, num_frames, width, height):
         self.uri = uri
         self.dirname = dirname
+        self.num_frames = num_frames
         self.fps = fps
         self.width = width
         self.height = height
@@ -507,6 +513,8 @@ class AnnotatedSampledVideo(VideoABC):
         associated with the video are stored.
     filename : str
         The filename of the video file.
+    num_frames : int
+        The total number of frames in the original video file.
     fps : scalar
         The framerate of the video in frames per second.
     width : int
@@ -533,6 +541,7 @@ class AnnotatedSampledVideo(VideoABC):
 
         video_annotations = VIDEO_ANNOTATIONS[uri]
         self.dirname = video_annotations.dirname
+        self.num_frames = video_annotations.num_frames
         self._fps = video_annotations.fps
         self._width = video_annotations.width
         self._height = video_annotations.height
