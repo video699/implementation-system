@@ -56,7 +56,7 @@ class TestPDFDocumentPage(unittest.TestCase):
         self.assertEqual(self.document, self.first_page.document)
         self.assertEqual(self.document, self.second_page.document)
 
-    def test_number(self):
+    def test_page_number(self):
         self.assertEqual(1, self.first_page.number)
         self.assertEqual(2, self.second_page.number)
 
