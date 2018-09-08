@@ -6,7 +6,7 @@
 
 from functools import lru_cache
 
-from ..interface import PageABC
+from ..interface import DocumentABC, PageABC
 from ..configuration import get_configuration
 
 import cv2 as cv
@@ -17,8 +17,8 @@ LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
 RESCALING_INTERPOLATION = cv.__dict__[CONFIGURATION['rescaling_interpolation']]
 
 
-class ImagePage(PageABC):
-    """A page of a document represented by a NumPy matrix containing image data.
+class ImageDocumentPage(PageABC):
+    """A document page represented by a NumPy matrix containing image data.
 
     Parameters
     ----------
@@ -56,3 +56,43 @@ class ImagePage(PageABC):
     def image(self, width, height):
         image_rescaled = cv.resize(self._image, (width, height), RESCALING_INTERPOLATION)
         return image_rescaled
+
+
+class ImageDocument(DocumentABC):
+    """A document that consists of pages represented by NumPy matrices containing image data.
+
+    Parameters
+    ----------
+    page_images : iterable of array_like
+        The image data of the individual pages represented as OpenCV CV_8UC3 BGR matrices.
+    title : str or None, optional
+        The title of a document. `None` when unspecified.
+    author : str or None, optional
+        The author of a document. `None` when unspecified.
+
+    Attributes
+    ----------
+    title : str or None
+        The title of a document.
+    author : str or None
+        The author of a document.
+    """
+
+    def __init__(self, page_images, title=None, author=None):
+        self._title = title
+        self._author = author
+        self._pages = [
+            ImageDocumentPage(self, page_number + 1, page_image)
+            for page_number, page_image in enumerate(page_images)
+        ]
+
+    @property
+    def title(self):
+        pass
+
+    @property
+    def author(self):
+        pass
+
+    def __iter__(self):
+        return iter(self._pages)

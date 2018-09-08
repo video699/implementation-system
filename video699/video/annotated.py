@@ -16,7 +16,7 @@ from lxml import etree
 import numpy as np
 
 from ..convex_quadrangle import ConvexQuadrangle
-from ..document.image import ImagePage
+from ..document.image import ImageDocumentPage
 from ..frame.image import ImageFrame
 from ..interface import VideoABC, FrameABC, ScreenABC, ScreenDetectorABC, DocumentABC, PageABC
 
@@ -271,7 +271,7 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
         self.vgg256 = page_annotations.vgg256
 
         page_image = cv.imread(self.pathname)
-        self._page = ImagePage(document, number, page_image)
+        self._page = ImageDocumentPage(document, number, page_image)
 
     @property
     def document(self):
