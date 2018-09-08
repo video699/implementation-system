@@ -4,7 +4,7 @@ import os
 import unittest
 
 import cv2 as cv
-from dateutil.parser import parse
+from dateutil.parser import parse as datetime_parse
 from video699.video.file import VideoFile
 
 
@@ -16,7 +16,7 @@ VIDEO_PATHNAME = os.path.join(
 VIDEO_FPS = 25
 VIDEO_WIDTH = 640
 VIDEO_HEIGHT = 480
-VIDEO_DATETIME = parse('2018-01-01T00:00:00+00:00')
+VIDEO_DATETIME = datetime_parse('2018-01-01T00:00:00+00:00')
 
 
 class TestVideoFile(unittest.TestCase):
