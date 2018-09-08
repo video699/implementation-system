@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module implements a page of a document represented by a NumPy matrix containing image data.
+"""This module implements a document represented by image files containing the individual pages.
 
 """
 
@@ -17,7 +17,7 @@ LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
 RESCALING_INTERPOLATION = cv.__dict__[CONFIGURATION['rescaling_interpolation']]
 
 
-class ImageDocumentPage(PageABC):
+class ImageFileDocumentPage(PageABC):
     """A document page represented by a NumPy matrix containing image data.
 
     Parameters
@@ -27,8 +27,8 @@ class ImageDocumentPage(PageABC):
     number : int
         The page number, i.e. the position of the page in the document. Page indexing is one-based,
         i.e. the first page has number 1.
-    image : ndarray
-        The image data of the page represented as an OpenCV CV_8UC3 BGR matrix.
+    image_pathname : str
+        The pathname of the image files containing the document page.
 
     Attributes
     ----------
@@ -39,10 +39,10 @@ class ImageDocumentPage(PageABC):
         i.e. the first page has number 1.
     """
 
-    def __init__(self, document, number, image):
+    def __init__(self, document, number, image_pathname):
         self._document = document
         self._number = number
-        self._image = image
+        self._image_pathname = image_pathname
 
     @property
     def document(self):
@@ -54,17 +54,18 @@ class ImageDocumentPage(PageABC):
 
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
     def image(self, width, height):
-        image_rescaled = cv.resize(self._image, (width, height), RESCALING_INTERPOLATION)
+        image = cv.imread(self._image_pathname)
+        image_rescaled = cv.resize(image, (width, height), RESCALING_INTERPOLATION)
         return image_rescaled
 
 
-class ImageDocument(DocumentABC):
+class ImageFileDocument(DocumentABC):
     """A document that consists of pages represented by NumPy matrices containing image data.
 
     Parameters
     ----------
-    page_images : iterable of array_like
-        The image data of the individual pages represented as OpenCV CV_8UC3 BGR matrices.
+    image_pathnames : iterable of str
+        The pathnames of the image files containing the individual pages in the document.
     title : str or None, optional
         The title of a document. `None` when unspecified.
     author : str or None, optional
@@ -78,12 +79,12 @@ class ImageDocument(DocumentABC):
         The author of a document.
     """
 
-    def __init__(self, page_images, title=None, author=None):
+    def __init__(self, image_pathnames, title=None, author=None):
         self._title = title
         self._author = author
         self._pages = [
-            ImageDocumentPage(self, page_number + 1, page_image)
-            for page_number, page_image in enumerate(page_images)
+            ImageFileDocumentPage(self, page_number + 1, image_pathname)
+            for page_number, image_pathname in enumerate(image_pathnames)
         ]
 
     @property

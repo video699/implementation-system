@@ -5,36 +5,32 @@ import unittest
 
 import cv2 as cv
 
-from video699.document.image import ImageDocument
+from video699.document.image_file import ImageFileDocument
 
 
-RESOURCES_PATHNAME = os.path.join(os.path.dirname(__file__), 'test_image')
+RESOURCES_PATHNAME = os.path.join(os.path.dirname(__file__), 'test_image_file')
 FIRST_PAGE_IMAGE_PATHNAME = os.path.join(RESOURCES_PATHNAME, 'sample_pdf_document_first_page.png')
 SECOND_PAGE_IMAGE_PATHNAME = os.path.join(RESOURCES_PATHNAME, 'sample_pdf_document_second_page.png')
 PAGE_IMAGE_WIDTH = 2550
 PAGE_IMAGE_HEIGHT = 3300
 
 
-class TestImageDocumentPage(unittest.TestCase):
-    """Tests the ability of the ImageDocumentPage class to rescale images and produce page numbers.
+class TestImageFileDocumentPage(unittest.TestCase):
+    """Tests the ability of the ImageFileDocumentPage class to read images and produce page numbers.
 
     """
 
     def setUp(self):
-        page_images = (
-            cv.imread(FIRST_PAGE_IMAGE_PATHNAME),
-            cv.imread(SECOND_PAGE_IMAGE_PATHNAME),
+        image_pathnames = (
+            FIRST_PAGE_IMAGE_PATHNAME,
+            SECOND_PAGE_IMAGE_PATHNAME,
         )
-        self.document = ImageDocument(page_images)
+        self.document = ImageFileDocument(image_pathnames)
         page_iterator = iter(self.document)
         self.first_page = next(page_iterator)
         self.second_page = next(page_iterator)
         self.first_page_image = self.first_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
         self.second_page_image = self.second_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
-
-    def test_document(self):
-        self.assertEqual(self.document, self.first_page.document)
-        self.assertEqual(self.document, self.second_page.document)
 
     def test_page_number(self):
         self.assertEqual(1, self.first_page.number)
