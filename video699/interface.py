@@ -2,9 +2,9 @@
 
 """This module defines interfaces, and abstract base classes.
 
-:: _RFC2119: https://tools.ietf.org/html/rfc2119
-
 The use of MAY, and MUST in the docstrings follows RFC2119_.
+
+.. _RFC2119: https://tools.ietf.org/html/rfc2119
 """
 
 from abc import ABC, abstractmethod
