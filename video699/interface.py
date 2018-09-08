@@ -63,6 +63,15 @@ class VideoABC(ABC, Iterable):
         """
         pass
 
+    def __repr__(self):
+        return '<{classname} {width}x{height}, {fps} fps, {datetime}>'.format(
+            classname=self.__class__.__name__,
+            width=self.width,
+            height=self.height,
+            fps=self.fps,
+            datetime=self.datetime,
+        )
+
 
 @total_ordering
 class FrameABC(ABC):
@@ -126,6 +135,15 @@ class FrameABC(ABC):
         if isinstance(other, FrameABC) and self.video == other.video:
             return self.number < other.number
         return NotImplemented
+
+    def __repr__(self):
+        return '<{classname} frame #{frame_number}, {width}x{height}, {datetime}>'.format(
+            classname=self.__class__.__name__,
+            frame_number=self.number,
+            width=self.width,
+            height=self.height,
+            datetime=self.datetime,
+        )
 
 
 @total_ordering
@@ -226,6 +244,15 @@ class ConvexQuadrangleABC(ABC):
                 and self.bottom_right < other.bottom_right
         return NotImplemented
 
+    def __repr__(self):
+        return '<{classname} {top_left}, {top_right}, {bottom_left}, {bottom_right}>'.format(
+            classname=self.__class__.__name__,
+            top_left=self.top_left,
+            top_right=self.top_right,
+            bottom_left=self.bottom_left,
+            bottom_right=self.bottom_right,
+        )
+
 
 class ScreenABC(ABC):
     """An abstract projection screen shown in a video frame.
@@ -266,6 +293,15 @@ class ScreenABC(ABC):
     def height(self):
         return self.coordinates.height
 
+    def __repr__(self):
+        return '<{classname} {width}x{height}, frame {frame} at {coordinates}>'.format(
+            classname=self.__class__.__name__,
+            width=self.width,
+            height=self.heigth,
+            frame=self.frame,
+            coordinates=self.coordinates,
+        )
+
 
 class ScreenDetectorABC(ABC):
     """An abstract screen detector that maps video frames to lists of screens.
@@ -287,6 +323,11 @@ class ScreenDetectorABC(ABC):
             An iterable of detected lit projection screens.
         """
         pass
+
+    def __repr__(self):
+        return '<{classname}>'.format(
+            classname=self.__class__.__name__,
+        )
 
 
 class DocumentABC(ABC, Iterable):
@@ -324,6 +365,15 @@ class DocumentABC(ABC, Iterable):
             An iterable of the pages of the document.
         """
         pass
+
+    def __repr__(self):
+        formatted_title = ' "{0}"'.format(self.title) if self.title is not None else ''
+        formatted_author = ' "{0}"'.format(self.author) if self.author is not None else ''
+        formatted_author_and_title = ','.join((formatted_title, formatted_author))
+        return '<{classname}{formatted_author_and_title}>'.format(
+            classname=self.__class__.__name__,
+            formatted_author_and_title=formatted_author_and_title,
+        )
 
 
 class PageABC(ABC):
@@ -365,3 +415,11 @@ class PageABC(ABC):
             The image data of the page represented as an OpenCV CV_8UC3 BGR matrix.
         """
         pass
+
+    def __repr__(self):
+        return '<{classname} page #{page_number}, {width}x{height}>'.format(
+            classname=self.__class__.__name__,
+            page_number=self.number,
+            width=self.width,
+            height=self.height,
+        )
