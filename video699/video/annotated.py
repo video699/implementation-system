@@ -135,10 +135,10 @@ def get_videos():
 
     Returns
     -------
-    videos : iterator of AnnotatedSampledVideo
-        All videos from a XML dataset.
+    videos : dict of (str, AnnotatedSampledVideo)
+        A mapping between video file URIs, and all videos from a XML dataset.
     """
-    return iter(VIDEOS.values())
+    return VIDEOS
 
 
 class VGG256Features(object):
