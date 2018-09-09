@@ -136,7 +136,7 @@ def get_videos():
     Returns
     -------
     videos : dict of (str, AnnotatedSampledVideo)
-        A mapping between video file URIs, and all videos from a XML dataset.
+        A map between video file URIs, and all videos from a XML dataset.
     """
     return VIDEOS
 
@@ -525,8 +525,8 @@ class AnnotatedSampledVideo(VideoABC):
         The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
-    documents : set of PDFDocument
-        The documents associated with the video.
+    documents : dict of (str, AnnotatedSampledVideoDocument)
+        A map between PDF document filenames, and the documents associated with the video.
     """
 
     def __init__(self, uri):
@@ -555,12 +555,12 @@ class AnnotatedSampledVideo(VideoABC):
             ) for frame_annotations in FRAME_ANNOTATIONS[uri].values()
         ])
 
-        self.documents = set(
-            AnnotatedSampledVideoDocument(
+        self.documents = {
+            document_annotations.filename: AnnotatedSampledVideoDocument(
                 self,
                 document_annotations.filename,
             ) for document_annotations in DOCUMENT_ANNOTATIONS[uri].values()
-        )
+        }
 
     @property
     def pathname(self):

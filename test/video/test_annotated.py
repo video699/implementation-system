@@ -26,6 +26,10 @@ VIDEO_FRAME_NUMBERS = (
     62000, 64000, 66000, 68000, 78000, 80000, 82000, 84000, 86000, 88000, 90000,
 )
 VGG256_SHAPE = (256,)
+FIRST_DOCUMENT_FILENAME = 'slides01.pdf'
+SECOND_DOCUMENT_FILENAME = 'slides02.pdf'
+FIRST_DOCUMENT_NUM_PAGES = 32
+SECOND_DOCUMENT_NUM_PAGES = 10
 
 
 class TestAnnotatedSampledVideo(unittest.TestCase):
@@ -82,3 +86,18 @@ class TestAnnotatedSampledVideoFrame(unittest.TestCase):
         self.assertEqual(VGG256_SHAPE, self.first_frame.vgg256.imagenet_and_places2.shape)
         self.assertEqual(VGG256_SHAPE, self.second_frame.vgg256.imagenet.shape)
         self.assertEqual(VGG256_SHAPE, self.second_frame.vgg256.imagenet_and_places2.shape)
+
+
+class TestAnnotatedSampledVideoDocument(unittest.TestCase):
+    """Tests the ability of the AnnotatedSampledVideoDocument class to read human annotations.
+
+    """
+
+    def setUp(self):
+        video = VIDEOS[VIDEO_URI]
+        self.first_document = video.documents[FIRST_DOCUMENT_FILENAME]
+        self.second_document = video.documents[SECOND_DOCUMENT_FILENAME]
+
+    def test_reads_n_pages(self):
+        self.assertEqual(FIRST_DOCUMENT_NUM_PAGES, len(list(self.first_document)))
+        self.assertEqual(SECOND_DOCUMENT_NUM_PAGES, len(list(self.second_document)))
