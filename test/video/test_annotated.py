@@ -150,6 +150,43 @@ class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
         self.assertEqual(VGG256_SHAPE, self.second_page.vgg256.imagenet_and_places2.shape)
 
 
+class TestAnnotatedSampledVideoScreenDetector(unittest.TestCase):
+    """Tests the ability of the AnnotatedSampledVideoScreenDetector class to read human annotations.
+
+    """
+
+    def setUp(self):
+        video = VIDEOS[VIDEO_URI]
+        frames = list(video)
+        self.first_frame = frames[0]
+        self.fifth_frame = frames[4]
+        self.twentysecond_frame = frames[21]
+
+    def test_pristine_screen(self):
+        first_screen_detector = AnnotatedSampledVideoScreenDetector()
+        second_screen_detector = AnnotatedSampledVideoScreenDetector(
+            conditions=set(['windowed', 'obstacle']),
+        )
+        self.assertEqual(1, len(list(first_screen_detector(self.first_frame))))
+        self.assertEqual(0, len(list(second_screen_detector(self.first_frame))))
+
+    def test_windowed_screen(self):
+        first_screen_detector = AnnotatedSampledVideoScreenDetector()
+        second_screen_detector = AnnotatedSampledVideoScreenDetector(
+            conditions=set(['pristine', 'obstacle']),
+        )
+        self.assertEqual(2, len(list(first_screen_detector(self.twentysecond_frame))))
+        self.assertEqual(1, len(list(second_screen_detector(self.twentysecond_frame))))
+
+    def test_screen_behind_obstacle(self):
+        first_screen_detector = AnnotatedSampledVideoScreenDetector()
+        second_screen_detector = AnnotatedSampledVideoScreenDetector(
+            conditions=set(['pristine', 'windowed']),
+        )
+        self.assertEqual(1, len(list(first_screen_detector(self.fifth_frame))))
+        self.assertEqual(0, len(list(second_screen_detector(self.fifth_frame))))
+
+
 class TestAnnotatedSampledVideoScreen(unittest.TestCase):
     """Tests the ability of the AnnotatedSampledVideoScreen class to read human annotations.
 

@@ -705,6 +705,15 @@ class AnnotatedSampledVideoScreen(ScreenABC):
         A video frame containing the projection screen.
     coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
+    condition : str
+        The condition of what is being shown in the screen. The following values are legal:
+
+        - `pristine` specifies that there is no significant degradation beyond photon noise.
+        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+          screen.
+        - `obstacle` specifies that a part of the screen or the projector light is partially
+          obscured by either a physical obstacle, or by a different GUI window.
+
     vgg256 : VGG256Features
         256-dimensional feature vectors obtained by feeding the screen image data into VGG ConvNets.
     """
@@ -715,6 +724,7 @@ class AnnotatedSampledVideoScreen(ScreenABC):
 
         screen_annotations = FRAME_ANNOTATIONS[frame.video.uri][frame.number].screens[screen_index]
         self._coordinates = screen_annotations.coordinates
+        self.condition = screen_annotations.condition
         self.vgg256 = screen_annotations.vgg256
 
     @property
@@ -790,7 +800,10 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
         """
         if not isinstance(frame, AnnotatedSampledVideoFrame):
             return ()
-        return SCREENS[frame.video.uri][frame.number]
+        return [
+            screen for screen in SCREENS[frame.video.uri][frame.number]
+            if screen.condition in self._conditions
+        ]
 
 
 _init_dataset()
