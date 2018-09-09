@@ -3,13 +3,10 @@ SHELL=/bin/bash -O extglob
 .PHONY: init develop test docs
 
 init:
-	pip install .
+	pip install -e .
 	pip install -r requirements.txt
 
-develop:
-	pip install -e .
-
-test: init develop
+test: init
 	python setup.py check
 	make docs
 	flake8 docs test video699
