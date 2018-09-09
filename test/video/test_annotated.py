@@ -111,21 +111,38 @@ class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
     def setUp(self):
         video = VIDEOS[VIDEO_URI]
         document = video.documents[FIRST_DOCUMENT_FILENAME]
-        page_iterator = iter(video)
+        page_iterator = iter(document)
         self.first_page = next(page_iterator)
         self.second_page = next(page_iterator)
 
     def test_page_numbers(self):
-        self.assertTrue(1, self.first_page)
-        self.assertTrue(2, self.second_page)
+        self.assertTrue(1, self.first_page.number)
+        self.assertTrue(2, self.second_page.number)
 
     def test_frame_image(self):
-        frame_image = self.first_frame.image
-        height, width, _ = frame_image.shape
-        self.assertEqual(VIDEO_WIDTH, width)
-        self.assertEqual(VIDEO_HEIGHT, height)
+        page_width = 640
+        page_height = 480
+        page_image = self.second_page.image(page_width, page_height)
+        height, width, _ = page_image.shape
+        self.assertEqual(page_width, width)
+        self.assertEqual(page_height, height)
 
-        blue, green, red = cv.split(frame_image)
-        self.assertTrue(red[90, 490] > blue[90, 490] and red[90, 490] > green[90, 490])
-        self.assertTrue(green[190, 340] > red[190, 340] and green[190, 340] > blue[190, 340])
-        self.assertTrue(blue[50, 320] > red[50, 320] and blue[50, 320] > green[50, 320])
+        blue, green, red = cv.split(page_image)
+
+        self.assertEqual(255, blue[50, 260])
+        self.assertEqual(0, green[50, 260])
+        self.assertEqual(0, red[50, 260])
+
+        self.assertEqual(0, blue[270, 300])
+        self.assertEqual(127, green[270, 300])
+        self.assertEqual(0, red[270, 300])
+
+        self.assertEqual(0, blue[100, 540])
+        self.assertEqual(0, green[100, 540])
+        self.assertEqual(255, red[100, 540])
+
+    def test_vgg256_dimensions(self):
+        self.assertEqual(VGG256_SHAPE, self.first_page.vgg256.imagenet.shape)
+        self.assertEqual(VGG256_SHAPE, self.first_page.vgg256.imagenet_and_places2.shape)
+        self.assertEqual(VGG256_SHAPE, self.second_page.vgg256.imagenet.shape)
+        self.assertEqual(VGG256_SHAPE, self.second_page.vgg256.imagenet_and_places2.shape)

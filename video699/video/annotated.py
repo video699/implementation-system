@@ -322,12 +322,12 @@ class AnnotatedSampledVideoDocument(DocumentABC):
         self.filename = filename
 
         document_annotations = DOCUMENT_ANNOTATIONS[video.uri][filename]
-        self._pages = set(
+        self._pages = sorted([
             AnnotatedSampledVideoDocumentPage(
                 self,
                 page_annotations.key,
             ) for page_annotations in document_annotations.pages.values()
-        )
+        ])
 
     @property
     def title(self):
