@@ -12,7 +12,7 @@ from ..configuration import get_configuration
 import cv2 as cv
 
 
-CONFIGURATION = get_configuration()['ImagePage']
+CONFIGURATION = get_configuration()['ImageFileDocumentPage']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
 RESCALING_INTERPOLATION = cv.__dict__[CONFIGURATION['rescaling_interpolation']]
 

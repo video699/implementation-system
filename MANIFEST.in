@@ -2,5 +2,5 @@ include LICENSE
 recursive-include test *.py
 include test/test_convex_quadrangle/sample_frame_image.png
 include test/document/test_pdf/sample_pdf_document.pdf
-include test/document/test_image/sample_pdf_document_*_page.png
+include test/document/test_image_file/sample_pdf_document_*_page.png
 include test/video/test_file/sample_video_file.mov
