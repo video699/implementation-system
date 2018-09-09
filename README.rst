@@ -40,10 +40,7 @@ repository, and the Git submodules inside it:
 
 ::
 
-   $ git clone https://github.com/video-699/implementation-system.git
-   $ cd implementation-system
-   $ git submodule init video699/screen/annotated
-   $ git submodule update
+   $ git clone --recurse-submodules https://github.com/video699/implementation-system.git
 
 Next, install the package using Pip:
 

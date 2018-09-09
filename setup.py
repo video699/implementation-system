@@ -23,6 +23,13 @@ setup(
             'annotated/*.xml',
             'annotated/*/*.xml',
         ],
+        'video699.video': [
+            'annotated/LICENSE',
+            'annotated/*.xml',
+            'annotated/*/*.xml',
+            'annotated/*/*.png',
+            'annotated/*/*.pdf',
+        ],
     },
     version='v1.0.0a1+2018.04',
     description='System for lecture slide page retrieval based on lecture recordings',
