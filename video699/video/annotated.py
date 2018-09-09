@@ -28,6 +28,7 @@ DOCUMENT_ANNOTATIONS = None
 FRAME_ANNOTATIONS = None
 VIDEO_ANNOTATIONS = None
 VIDEOS = None
+PAGES = None
 SCREENS = None
 URI_REGEX = re.compile(
     r'https?://is\.muni\.cz/auth/el/(?P<faculty>\d+)/(?P<term>[^/]+)/(?P<course>[^/]+)/um/vi/'
@@ -44,6 +45,7 @@ def _init_dataset():
     global FRAME_ANNOTATIONS
     global VIDEO_ANNOTATIONS
     global VIDEOS
+    global PAGES
     global SCREENS
     LOGGER.debug('Loading dataset {}'.format(DATASET_PATHNAME))
     videos = etree.parse(DATASET_PATHNAME)
@@ -115,6 +117,13 @@ def _init_dataset():
     VIDEOS = {
         video_annotations.uri: AnnotatedSampledVideo(video_annotations.uri)
         for video_annotations in VIDEO_ANNOTATIONS.values()
+    }
+    PAGES = {
+        video.uri: {
+            page.key: page
+            for document in video.documents.values()
+            for page in document
+        } for video in VIDEOS.values()
     }
     SCREENS = {
         video.uri: {
@@ -732,12 +741,17 @@ class AnnotatedSampledVideoScreen(ScreenABC):
         matching_pages : iterable of AnnotatedSampledVideoDocumentPage
             An iterable of document pages matching the projection screen based on human annotations.
         """
-        screen_annotations = FRAME_ANNOTATIONS[self._frame.video.uri].screens[self._screen_index]
-        keyrefs = screen_annotations.keyrefs
-        full_matches = [keyref.key for keyref in keyrefs if keyref.similarity == 'full']
+        video_uri = self._frame.video.uri
+        frame_number = self._frame.number
+        frame_annotations = FRAME_ANNOTATIONS[video_uri][frame_number]
+        screen_index = self._screen_index
+        screen_annotations = frame_annotations.screens[screen_index]
+        keyrefs = screen_annotations.keyrefs.values()
+        pages = PAGES[self._frame.video.uri]
+        full_matches = [pages[keyref.key] for keyref in keyrefs if keyref.similarity == 'full']
         if full_matches:
             return full_matches
-        incremental_matches = [keyref.key for keyref in keyrefs]
+        incremental_matches = [pages[keyref.key] for keyref in keyrefs]
         return incremental_matches
 
 

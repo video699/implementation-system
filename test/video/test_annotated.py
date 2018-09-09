@@ -4,7 +4,7 @@ import unittest
 
 import cv2 as cv
 from dateutil.parser import parse as datetime_parse
-from video699.video.annotated import get_videos
+from video699.video.annotated import get_videos, AnnotatedSampledVideoScreenDetector
 
 
 VIDEOS = get_videos()
@@ -30,6 +30,8 @@ FIRST_DOCUMENT_FILENAME = 'slides01.pdf'
 SECOND_DOCUMENT_FILENAME = 'slides02.pdf'
 FIRST_DOCUMENT_NUM_PAGES = 32
 SECOND_DOCUMENT_NUM_PAGES = 10
+FIRST_SCREEN_WIDTH = 369
+FIRST_SCREEN_HEIGHT = 283
 
 
 class TestAnnotatedSampledVideo(unittest.TestCase):
@@ -146,3 +148,61 @@ class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
         self.assertEqual(VGG256_SHAPE, self.first_page.vgg256.imagenet_and_places2.shape)
         self.assertEqual(VGG256_SHAPE, self.second_page.vgg256.imagenet.shape)
         self.assertEqual(VGG256_SHAPE, self.second_page.vgg256.imagenet_and_places2.shape)
+
+
+class TestAnnotatedSampledVideoScreen(unittest.TestCase):
+    """Tests the ability of the AnnotatedSampledVideoScreen class to read human annotations.
+
+    """
+
+    def setUp(self):
+        video = VIDEOS[VIDEO_URI]
+        frames = list(video)
+        screen_detector = AnnotatedSampledVideoScreenDetector()
+        first_frame = frames[0]
+        eleventh_frame = frames[10]
+        self.first_screen = next(iter(screen_detector(first_frame)))
+        self.second_screen = next(iter(screen_detector(eleventh_frame)))
+
+    def test_matching_pages(self):
+        self.assertEqual(
+            set([
+                page.key
+                for page in self.first_screen.matching_pages()
+            ]), set([
+                'slides01-02',
+            ])
+        )
+        self.assertEqual(
+            set([
+                page.key
+                for page in self.second_screen.matching_pages()
+            ]), set([
+                'slides02-04',
+            ])
+        )
+
+    def test_screen_image(self):
+        screen_image = self.first_screen.image
+        height, width, _ = screen_image.shape
+        self.assertTrue(width > height)
+
+        blue, green, red = cv.split(screen_image)
+
+        coordinates = (int(0.23 * height), int(0.85 * width))
+        self.assertTrue(red[coordinates] > green[coordinates])
+        self.assertTrue(red[coordinates] > blue[coordinates])
+
+        coordinates = (int(0.57 * height), int(0.43 * width))
+        self.assertTrue(green[coordinates] > red[coordinates])
+        self.assertTrue(green[coordinates] > blue[coordinates])
+
+        coordinates = (int(0.09 * height), int(0.41 * width))
+        self.assertTrue(blue[coordinates] > red[coordinates])
+        self.assertTrue(blue[coordinates] > green[coordinates])
+
+    def test_vgg256_dimensions(self):
+        self.assertEqual(VGG256_SHAPE, self.first_screen.vgg256.imagenet.shape)
+        self.assertEqual(VGG256_SHAPE, self.first_screen.vgg256.imagenet_and_places2.shape)
+        self.assertEqual(VGG256_SHAPE, self.second_screen.vgg256.imagenet.shape)
+        self.assertEqual(VGG256_SHAPE, self.second_screen.vgg256.imagenet_and_places2.shape)

@@ -168,9 +168,10 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(0, green[height - 1, width - 1])
         self.assertEqual(255, red[height - 1, width - 1])
 
-        self.assertEqual(0, blue[int((height - 1) / 8), int((width - 1) / 2)])
-        self.assertEqual(0, green[int((height - 1) / 8), int((width - 1) / 2)])
-        self.assertEqual(0, red[int((height - 1) / 8), int((width - 1) / 2)])
+        coordinates = (int((height - 1) / 8), int((width - 1) / 2))
+        self.assertEqual(0, blue[coordinates])
+        self.assertEqual(0, green[coordinates])
+        self.assertEqual(0, red[coordinates])
 
     def test_green_screen(self):
         coordinate_map = ConvexQuadrangle(
@@ -201,9 +202,10 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(255, green[height - 1, width - 1])
         self.assertEqual(0, red[height - 1, width - 1])
 
-        self.assertEqual(0, blue[int((height - 1) / 2), (width - 1) - int((height - 1) / 4)])
-        self.assertEqual(0, green[int((height - 1) / 2), (width - 1) - int((height - 1) / 4)])
-        self.assertEqual(0, red[int((height - 1) / 2), (width - 1) - int((height - 1) / 4)])
+        coordinates = (int((height - 1) / 2), (width - 1) - int((height - 1) / 4))
+        self.assertEqual(0, blue[coordinates])
+        self.assertEqual(0, green[coordinates])
+        self.assertEqual(0, red[coordinates])
 
     def test_blue_screen(self):
         coordinate_map = ConvexQuadrangle(
@@ -234,9 +236,10 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(0, green[height - 1, width - 1])
         self.assertEqual(0, red[height - 1, width - 1])
 
-        self.assertEqual(0, blue[int((height - 1) / 4), int((width - 1) / 4)])
-        self.assertEqual(0, green[int((height - 1) / 4), int((width - 1) / 4)])
-        self.assertEqual(0, red[int((height - 1) / 4), int((width - 1) / 4)])
+        coordinates = (int((height - 1) / 4), int((width - 1) / 4))
+        self.assertEqual(0, blue[coordinates])
+        self.assertEqual(0, green[coordinates])
+        self.assertEqual(0, red[coordinates])
 
 
 if __name__ == '__main__':
