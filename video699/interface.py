@@ -64,7 +64,7 @@ class VideoABC(ABC, Iterable):
         pass
 
     def __repr__(self):
-        return '<{classname} {width}x{height}, {fps} fps, {datetime}>'.format(
+        return '<{classname}, {width}x{height}px, {fps} fps, {datetime}>'.format(
             classname=self.__class__.__name__,
             width=self.width,
             height=self.height,
@@ -137,7 +137,7 @@ class FrameABC(ABC):
         return NotImplemented
 
     def __repr__(self):
-        return '<{classname} frame #{frame_number}, {width}x{height}, {datetime}>'.format(
+        return '<{classname}, frame #{frame_number}, {width}x{height}px, {datetime}>'.format(
             classname=self.__class__.__name__,
             frame_number=self.number,
             width=self.width,
@@ -245,7 +245,7 @@ class ConvexQuadrangleABC(ABC):
         return NotImplemented
 
     def __repr__(self):
-        return '<{classname} {top_left}, {top_right}, {bottom_left}, {bottom_right}>'.format(
+        return '<{classname}, {top_left}, {top_right}, {bottom_left}, {bottom_right}>'.format(
             classname=self.__class__.__name__,
             top_left=self.top_left,
             top_right=self.top_right,
@@ -294,7 +294,7 @@ class ScreenABC(ABC):
         return self.coordinates.height
 
     def __repr__(self):
-        return '<{classname} {width}x{height}, frame {frame} at {coordinates}>'.format(
+        return '<{classname}, {width}x{height}px, frame {frame} at {coordinates}>'.format(
             classname=self.__class__.__name__,
             width=self.width,
             height=self.heigth,
@@ -367,12 +367,12 @@ class DocumentABC(ABC, Iterable):
         pass
 
     def __repr__(self):
-        formatted_title = ' "{0}"'.format(self.title) if self.title is not None else ''
-        formatted_author = ' "{0}"'.format(self.author) if self.author is not None else ''
-        formatted_author_and_title = ','.join((formatted_title, formatted_author))
-        return '<{classname}{formatted_author_and_title}>'.format(
+        formatted_title = ', "{0}"'.format(self.title) if self.title is not None else ''
+        formatted_author = ', "{0}"'.format(self.author) if self.author is not None else ''
+        return '<{classname}{formatted_author}{formatted_title}>'.format(
             classname=self.__class__.__name__,
-            formatted_author_and_title=formatted_author_and_title,
+            formatted_author=formatted_author,
+            formatted_title=formatted_title,
         )
 
 
@@ -417,9 +417,7 @@ class PageABC(ABC):
         pass
 
     def __repr__(self):
-        return '<{classname} page #{page_number}, {width}x{height}>'.format(
+        return '<{classname}, page #{page_number}>'.format(
             classname=self.__class__.__name__,
             page_number=self.number,
-            width=self.width,
-            height=self.height,
         )

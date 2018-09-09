@@ -101,3 +101,31 @@ class TestAnnotatedSampledVideoDocument(unittest.TestCase):
     def test_reads_n_pages(self):
         self.assertEqual(FIRST_DOCUMENT_NUM_PAGES, len(list(self.first_document)))
         self.assertEqual(SECOND_DOCUMENT_NUM_PAGES, len(list(self.second_document)))
+
+
+class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
+    """Tests the ability of the AnnotatedSampledVideoDocumentPage class to read human annotations.
+
+    """
+
+    def setUp(self):
+        video = VIDEOS[VIDEO_URI]
+        document = video.documents[FIRST_DOCUMENT_FILENAME]
+        page_iterator = iter(video)
+        self.first_page = next(page_iterator)
+        self.second_page = next(page_iterator)
+
+    def test_page_numbers(self):
+        self.assertTrue(1, self.first_page)
+        self.assertTrue(2, self.second_page)
+
+    def test_frame_image(self):
+        frame_image = self.first_frame.image
+        height, width, _ = frame_image.shape
+        self.assertEqual(VIDEO_WIDTH, width)
+        self.assertEqual(VIDEO_HEIGHT, height)
+
+        blue, green, red = cv.split(frame_image)
+        self.assertTrue(red[90, 490] > blue[90, 490] and red[90, 490] > green[90, 490])
+        self.assertTrue(green[190, 340] > red[190, 340] and green[190, 340] > blue[190, 340])
+        self.assertTrue(blue[50, 320] > red[50, 320] and blue[50, 320] > green[50, 320])
