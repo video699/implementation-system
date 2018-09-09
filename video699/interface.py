@@ -416,6 +416,19 @@ class PageABC(ABC):
         """
         pass
 
+    def __hash__(self):
+        return hash((self.document, self.number))
+
+    def __eq__(self, other):
+        if isinstance(other, PageABC) and self.document == other.document:
+            return self.number == other.number
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, PageABC) and self.document == other.document:
+            return self.number < other.number
+        return NotImplemented
+
     def __repr__(self):
         return '<{classname}, page #{page_number}>'.format(
             classname=self.__class__.__name__,
