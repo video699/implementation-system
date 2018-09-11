@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""This module loads the package configuration from standard XDG directories.
+"""This module loads the package configuration files from standard XDG directories.
 
 """
 
@@ -12,13 +12,22 @@ from xdg.BaseDirectory import load_config_paths
 
 
 CONFIGURATION = ConfigParser()
-DEFAULT_CONFIGURATION_PATHNAME = os.path.join(
+RESOURCE_NAME = 'video699'
+DEFAULT_CONFIGURATION_FILE_PATHNAME = os.path.join(
     os.path.dirname(__file__),
     'configuration',
     'default.ini',
 )
+WORKING_DIRECTORY_CONFIGURATION_FILE_PATHNAME = os.path.join(
+    '.',
+    '{}.ini'.format(RESOURCE_NAME),
+)
+CONFIGURATION_FILE_PATHNAMES = [
+    WORKING_DIRECTORY_CONFIGURATION_FILE_PATHNAME,
+    *reversed(list(load_config_paths(RESOURCE_NAME))),
+    DEFAULT_CONFIGURATION_FILE_PATHNAME,
+]
 LOGGER = getLogger(__name__)
-RESOURCE_NAME = 'video699'
 
 
 def get_configuration():
@@ -32,7 +41,10 @@ def get_configuration():
     return CONFIGURATION
 
 
-for pathname in reversed(list(load_config_paths(RESOURCE_NAME)) + [DEFAULT_CONFIGURATION_PATHNAME]):
+for pathname in CONFIGURATION_FILE_PATHNAMES:
     LOGGER.debug("Reading configuration file {}".format(pathname))
-    with open(pathname) as f:
-        CONFIGURATION.read_file(f)
+    try:
+        with open(pathname) as f:
+            CONFIGURATION.read_file(f)
+    except OSError as err:
+        LOGGER.debug("Failed to read configuration file {0}: {1}".format(pathname, err))
