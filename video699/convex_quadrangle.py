@@ -9,12 +9,10 @@ import cv2 as cv
 import numpy as np
 from shapely.geometry import Point, Polygon
 
-from .configuration import get_configuration
 from .interface import ConvexQuadrangleABC
 
 
-CONFIGURATION = get_configuration()['ConvexQuadrangle']
-BORDER_MODE = cv.__dict__[CONFIGURATION['border_mode']]
+COLOR_TRANSPARENT = (0, 0, 0, 0)
 
 
 class ConvexQuadrangle(ConvexQuadrangleABC):
@@ -134,5 +132,6 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
             frame_image,
             self.transform,
             (self.width, self.height),
-            borderMode=BORDER_MODE,
+            borderMode=cv.BORDER_CONSTANT,
+            borderValue=COLOR_TRANSPARENT,
         )

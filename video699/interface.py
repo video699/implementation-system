@@ -219,12 +219,18 @@ class ConvexQuadrangleABC(ABC):
         Parameters
         ----------
         frame_image : array_like
-            Image data in the video frame coordinate system.
+            Image data in the video frame coordinate system as an OpenCV CV_8UC3 RGBA matrix, where
+            the alpha channel (A) denotes the weight of a pixel. Fully transparent pixels, i.e.
+            pixels with zero alpha, SHOULD be completely disregarded in subsequent computation.
 
         Returns
         -------
         screen_image : array_like
-            Image data in the projection screen coordinate system.
+            Image data in the projection screen coordinate system as an OpenCV CV_8UC3 RGBA matrix,
+            where the alpha channel (A) denotes the weight of a pixel. Fully transparent pixels,
+            i.e. pixels with zero alpha, SHOULD be completely disregarded in subsequent computation.
+            Pixels that originate from beyond the boundaries of the frame coordinate system MUST
+            be fully transparent.
         """
         pass
 

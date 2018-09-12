@@ -20,7 +20,8 @@ class TestConvexQuadrangle(unittest.TestCase):
     """
 
     def setUp(self):
-        self.frame_image = cv.imread(FRAME_IMAGE_PATHNAME)
+        frame_image_bgr = cv.imread(FRAME_IMAGE_PATHNAME)
+        self.frame_image = cv.cvtColor(frame_image_bgr, cv.COLOR_BGR2RGBA)
 
     def test_corner_coordinates(self):
         top_left = (0, 2)
@@ -150,28 +151,20 @@ class TestConvexQuadrangle(unittest.TestCase):
         height, width, _ = screen_image.shape
         self.assertTrue(height > width)
 
-        blue, green, red = cv.split(screen_image)
+        red, green, blue, alpha = cv.split(screen_image)
 
-        self.assertEqual(0, blue[0, 0])
-        self.assertEqual(0, green[0, 0])
-        self.assertEqual(255, red[0, 0])
+        screen_corners = ((0, 0), (0, width - 1), (height - 1, 0), (height - 1, width - 1))
+        for coordinates in screen_corners:
+            self.assertEqual(0, blue[coordinates])
+            self.assertEqual(0, green[coordinates])
+            self.assertEqual(255, red[coordinates])
+            self.assertEqual(255, alpha[coordinates])
 
-        self.assertEqual(0, blue[0, width - 1])
-        self.assertEqual(0, green[0, width - 1])
-        self.assertEqual(255, red[0, width - 1])
-
-        self.assertEqual(0, blue[height - 1, 0])
-        self.assertEqual(0, green[height - 1, 0])
-        self.assertEqual(255, red[height - 1, 0])
-
-        self.assertEqual(0, blue[height - 1, width - 1])
-        self.assertEqual(0, green[height - 1, width - 1])
-        self.assertEqual(255, red[height - 1, width - 1])
-
-        coordinates = (int((height - 1) / 8), int((width - 1) / 2))
-        self.assertEqual(0, blue[coordinates])
-        self.assertEqual(0, green[coordinates])
-        self.assertEqual(0, red[coordinates])
+        black_circle_coordinates = (int((height - 1) / 8), int((width - 1) / 2))
+        self.assertEqual(0, blue[black_circle_coordinates])
+        self.assertEqual(0, green[black_circle_coordinates])
+        self.assertEqual(0, red[black_circle_coordinates])
+        self.assertEqual(255, alpha[black_circle_coordinates])
 
     def test_green_screen(self):
         coordinate_map = ConvexQuadrangle(
@@ -184,28 +177,20 @@ class TestConvexQuadrangle(unittest.TestCase):
         height, width, _ = screen_image.shape
         self.assertTrue(width > height)
 
-        blue, green, red = cv.split(screen_image)
+        red, green, blue, alpha = cv.split(screen_image)
 
-        self.assertEqual(0, blue[0, 0])
-        self.assertEqual(255, green[0, 0])
-        self.assertEqual(0, red[0, 0])
+        screen_corners = ((0, 0), (0, width - 1), (height - 1, 0), (height - 1, width - 1))
+        for coordinates in screen_corners:
+            self.assertEqual(0, blue[coordinates])
+            self.assertEqual(255, green[coordinates])
+            self.assertEqual(0, red[coordinates])
+            self.assertEqual(255, alpha[coordinates])
 
-        self.assertEqual(0, blue[0, width - 1])
-        self.assertEqual(255, green[0, width - 1])
-        self.assertEqual(0, red[0, width - 1])
-
-        self.assertEqual(0, blue[height - 1, 0])
-        self.assertEqual(255, green[height - 1, 0])
-        self.assertEqual(0, red[height - 1, 0])
-
-        self.assertEqual(0, blue[height - 1, width - 1])
-        self.assertEqual(255, green[height - 1, width - 1])
-        self.assertEqual(0, red[height - 1, width - 1])
-
-        coordinates = (int((height - 1) / 2), (width - 1) - int((height - 1) / 4))
-        self.assertEqual(0, blue[coordinates])
-        self.assertEqual(0, green[coordinates])
-        self.assertEqual(0, red[coordinates])
+        black_circle_coordinates = (int((height - 1) / 2), (width - 1) - int((height - 1) / 4))
+        self.assertEqual(0, blue[black_circle_coordinates])
+        self.assertEqual(0, green[black_circle_coordinates])
+        self.assertEqual(0, red[black_circle_coordinates])
+        self.assertEqual(255, alpha[black_circle_coordinates])
 
     def test_blue_screen(self):
         coordinate_map = ConvexQuadrangle(
@@ -218,28 +203,43 @@ class TestConvexQuadrangle(unittest.TestCase):
         height, width, _ = screen_image.shape
         self.assertTrue(width > height)
 
-        blue, green, red = cv.split(screen_image)
+        red, green, blue, alpha = cv.split(screen_image)
 
-        self.assertEqual(255, blue[0, 0])
-        self.assertEqual(0, green[0, 0])
-        self.assertEqual(0, red[0, 0])
+        screen_corners = ((0, 0), (0, width - 1), (height - 1, 0), (height - 1, width - 1))
+        for coordinates in screen_corners:
+            self.assertEqual(255, blue[coordinates])
+            self.assertEqual(0, green[coordinates])
+            self.assertEqual(0, red[coordinates])
+            self.assertEqual(255, alpha[coordinates])
 
-        self.assertEqual(255, blue[0, width - 1])
-        self.assertEqual(0, green[0, width - 1])
-        self.assertEqual(0, red[0, width - 1])
+        black_circle_coordinates = (int((height - 1) / 4), int((width - 1) / 4))
+        self.assertEqual(0, blue[black_circle_coordinates])
+        self.assertEqual(0, green[black_circle_coordinates])
+        self.assertEqual(0, red[black_circle_coordinates])
+        self.assertEqual(255, alpha[black_circle_coordinates])
 
-        self.assertEqual(255, blue[height - 1, 0])
-        self.assertEqual(0, green[height - 1, 0])
-        self.assertEqual(0, red[height - 1, 0])
+    def test_out_of_bounds_screen(self):
+        coordinate_map = ConvexQuadrangle(
+            top_left=(-50, 210),
+            top_right=(-30, 55),
+            bottom_left=(700, 250),
+            bottom_right=(700, 20),
+        )
+        screen_image = coordinate_map(self.frame_image)
+        height, width, _ = screen_image.shape
+        self.assertTrue(height > width)
 
-        self.assertEqual(255, blue[height - 1, width - 1])
-        self.assertEqual(0, green[height - 1, width - 1])
-        self.assertEqual(0, red[height - 1, width - 1])
+        red, green, blue, alpha = cv.split(screen_image)
 
-        coordinates = (int((height - 1) / 4), int((width - 1) / 4))
-        self.assertEqual(0, blue[coordinates])
-        self.assertEqual(0, green[coordinates])
-        self.assertEqual(0, red[coordinates])
+        screen_corners = ((0, 0), (0, width - 1), (height - 1, 0), (height - 1, width - 1))
+        for coordinates in screen_corners:
+            self.assertEqual(0, alpha[coordinates])
+
+        red_rectangle_coordinates = (int((height - 1) / 2), int((width - 1) / 4))
+        self.assertEqual(0, blue[red_rectangle_coordinates])
+        self.assertEqual(0, green[red_rectangle_coordinates])
+        self.assertEqual(255, red[red_rectangle_coordinates])
+        self.assertEqual(255, alpha[red_rectangle_coordinates])
 
 
 if __name__ == '__main__':
