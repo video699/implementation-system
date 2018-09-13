@@ -12,20 +12,22 @@ jobs:
           git submodule init
           git submodule update
     - restore_cache:
-        key: implementation-setup-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+        key: implementation-setup-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml" }}
     - run:
         name: "Install dependencies"
         command: |
           if [ -e venv ]; then exit; fi
-          python3 -m venv venv
-          . venv/bin/activate
+          python3 -m venv ~/venv
+          . ~/venv/bin/activate
           make init develop
+          mv ~/venv ./venv
     - save_cache:
-        key: implementation-setup-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+        key: implementation-setup-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml" }}
         paths:
           - venv
     - run:
         name: "Run tests"
         command: |
-          . venv/bin/activate
+          mv ./venv ~/venv
+          . ~/venv/bin/activate
           make test
