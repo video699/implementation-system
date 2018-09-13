@@ -31,23 +31,13 @@ class TestImageFileDocumentPage(unittest.TestCase):
         page_iterator = iter(self.document)
         self.first_page = next(page_iterator)
         self.second_page = next(page_iterator)
-        self.first_page_image = self.first_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
-        self.second_page_image = self.second_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
-        self.page_image_with_wider_aspect_ratio = self.first_page.image(
-            PAGE_IMAGE_WIDTH + PAGE_IMAGE_HORIZONTAL_MARGIN,
-            PAGE_IMAGE_HEIGHT,
-        )
-        self.page_image_with_taller_aspect_ratio = self.first_page.image(
-            PAGE_IMAGE_WIDTH,
-            PAGE_IMAGE_HEIGHT + PAGE_IMAGE_VERTICAL_MARGIN,
-        )
 
     def test_page_number(self):
         self.assertEqual(1, self.first_page.number)
         self.assertEqual(2, self.second_page.number)
 
     def test_first_page_image(self):
-        image = self.first_page_image
+        image = self.first_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
         height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT, height)
@@ -79,7 +69,7 @@ class TestImageFileDocumentPage(unittest.TestCase):
         self.assertEqual(255, alpha[position])
 
     def test_second_page_image(self):
-        image = self.second_page_image
+        image = self.second_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
         height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT, height)
@@ -105,7 +95,10 @@ class TestImageFileDocumentPage(unittest.TestCase):
         self.assertEqual(255, alpha[position])
 
     def test_wider_aspect_ratio(self):
-        image = self.page_image_with_wider_aspect_ratio
+        image = self.first_page.image(
+            PAGE_IMAGE_WIDTH + PAGE_IMAGE_HORIZONTAL_MARGIN,
+            PAGE_IMAGE_HEIGHT,
+        )
         height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH + PAGE_IMAGE_HORIZONTAL_MARGIN, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT, height)
@@ -123,7 +116,10 @@ class TestImageFileDocumentPage(unittest.TestCase):
             self.assertEqual(0, alpha[coordinates])
 
     def test_taller_aspect_ratio(self):
-        image = self.page_image_with_taller_aspect_ratio
+        image = self.first_page.image(
+            PAGE_IMAGE_WIDTH,
+            PAGE_IMAGE_HEIGHT + PAGE_IMAGE_VERTICAL_MARGIN,
+        )
         height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT + PAGE_IMAGE_VERTICAL_MARGIN, height)
