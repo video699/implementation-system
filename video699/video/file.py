@@ -25,9 +25,10 @@ class VideoFileFrame(FrameABC):
         i.e. the first frame has number 1.
     delta : float
         The number of milliseconds elapsed since the beginning of the video.
-    image : ndarray
+    image : array_like
         The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
-        is currently unused and all pistures are fully opaque, i.e. have the maximum alpha of 255.
+        is currently unused and all pixels are fully opaque, i.e. they have the maximum alpha of
+        255.
 
     Attributes
     ----------
@@ -38,8 +39,8 @@ class VideoFileFrame(FrameABC):
         i.e. the first frame has number 1.
     image : array_like
         The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
-        denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD
-        be completely disregarded in subsequent computation.
+        is currently unused and all pixels are fully opaque, i.e. they have the maximum alpha of
+        255.
     width : int
         The width of the image data.
     height : int
@@ -135,13 +136,14 @@ class VideoFile(VideoABC, Iterator):
         if self._is_finished:
             raise StopIteration
         delta = self._cap.get(cv.CAP_PROP_POS_MSEC)
-        retval, frame_image = self._cap.read()
+        retval, bgr_frame_image = self._cap.read()
         if not retval:
             self._is_finished = True
             self._cap.release()
             raise StopIteration
+        rgba_frame_image = cv.cvtColor(bgr_frame_image, cv.COLOR_BGR2RGBA)
         self._frame_number += 1
-        return VideoFileFrame(self, self._frame_number, delta, frame_image)
+        return VideoFileFrame(self, self._frame_number, delta, rgba_frame_image)
 
     def __del__(self):
         self._cap.release()

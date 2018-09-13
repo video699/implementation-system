@@ -17,9 +17,10 @@ class ImageFrame(FrameABC):
     number : int
         The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
         i.e. the first frame has number 1.
-    image : ndarray
+    image : array_like
         The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
-        is currently unused and all pistures are fully opaque, i.e. have the maximum alpha of 255.
+        is currently unused and all pixels are fully opaque, i.e. they have the maximum alpha of
+        255.
 
     Attributes
     ----------
@@ -28,7 +29,7 @@ class ImageFrame(FrameABC):
     number : int
         The frame number, i.e. the position of the frame in the video. Frame
         indexing is one-based, i.e. the first frame has number 1.
-    image : ndarray
+    image : array_like
         The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
         is currently unused and all pixels are fully opaque, i.e. they have the maximum alpha of
         255.
