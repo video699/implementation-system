@@ -416,8 +416,10 @@ class AnnotatedSampledVideoFrame(FrameABC):
     pathname : str
         The full pathname of the corresponding video frame image. The pathname is unique in the
         video.
-    image : array_like
-        The image data of the frame represented as an OpenCV CV_8UC3 BGR matrix.
+    image : ndarray
+        The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        is currently unused and all pixels are fully opaque, i.e. they have the maximum alpha of
+        255.
     width : int
         The width of the image data.
     height : int
@@ -435,8 +437,9 @@ class AnnotatedSampledVideoFrame(FrameABC):
         self.filename = frame_annotations.filename
         self.vgg256 = frame_annotations.vgg256
 
-        frame_image = cv.imread(self.pathname)
-        self._frame = ImageFrame(video, number, frame_image)
+        bgr_frame_image = cv.imread(self.pathname)
+        rgba_frame_image = cv.cvtColor(bgr_frame_image, cv.COLOR_BGR2RGBA)
+        self._frame = ImageFrame(video, number, rgba_frame_image)
 
     @property
     def video(self):

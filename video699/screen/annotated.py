@@ -344,6 +344,14 @@ class AnnotatedScreen(ScreenABC):
         A video frame containing the projection screen.
     coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
+    image : array_like
+        The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        is currently unused and all pixels are fully opaque, i.e. they have the maximum alpha of
+        255.
+    width : int
+        The width of the image data.
+    height : int
+        The height of the image data.
     """
 
     def __init__(self, screen_id, name, datetime, frame, coordinates):

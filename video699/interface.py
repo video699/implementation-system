@@ -85,7 +85,9 @@ class FrameABC(ABC):
         The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
         i.e. the first frame has number 1.
     image : array_like
-        The image data of the frame represented as an OpenCV CV_8UC3 BGR matrix.
+        The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD
+        be completely disregarded in subsequent computation.
     width : int
         The width of the image data.
     height : int
@@ -270,7 +272,9 @@ class ScreenABC(ABC):
     coordinates : ConvexQuadrangleABC
         A map between frame and screen coordinates.
     image : array_like
-        The image data of the projection screen represented as an OpenCV CV_8UC3 BGR matrix.
+        The image data of the projection screen as an OpenCV CV_8UC3 RGBA matrix, where the alpha
+        channel (A) denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero
+        alpha, SHOULD be completely disregarded in subsequent computation.
     width : int
         The width of the image data.
     height : int

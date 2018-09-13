@@ -78,10 +78,22 @@ class TestAnnotatedSampledVideoFrame(unittest.TestCase):
         self.assertEqual(VIDEO_WIDTH, width)
         self.assertEqual(VIDEO_HEIGHT, height)
 
-        blue, green, red = cv.split(frame_image)
-        self.assertTrue(red[90, 490] > blue[90, 490] and red[90, 490] > green[90, 490])
-        self.assertTrue(green[190, 340] > red[190, 340] and green[190, 340] > blue[190, 340])
-        self.assertTrue(blue[50, 320] > red[50, 320] and blue[50, 320] > green[50, 320])
+        red, green, blue, alpha = cv.split(frame_image)
+
+        position = (90, 490)
+        self.assertTrue(red[position] > blue[position])
+        self.assertTrue(red[position] > green[position])
+        self.assertEqual(255, alpha[position])
+
+        position = (190, 340)
+        self.assertTrue(green[position] > red[position])
+        self.assertTrue(green[position] > blue[position])
+        self.assertEqual(255, alpha[position])
+
+        position = (50, 320)
+        self.assertTrue(blue[position] > red[position])
+        self.assertTrue(blue[position] > green[position])
+        self.assertEqual(255, alpha[position])
 
     def test_vgg256_dimensions(self):
         self.assertEqual(VGG256_SHAPE, self.first_frame.vgg256.imagenet.shape)
@@ -230,19 +242,22 @@ class TestAnnotatedSampledVideoScreen(unittest.TestCase):
         height, width, _ = screen_image.shape
         self.assertTrue(width > height)
 
-        blue, green, red = cv.split(screen_image)
+        red, green, blue, alpha = cv.split(screen_image)
 
-        coordinates = (int(0.23 * height), int(0.85 * width))
-        self.assertTrue(red[coordinates] > green[coordinates])
-        self.assertTrue(red[coordinates] > blue[coordinates])
+        position = (int(0.23 * height), int(0.85 * width))
+        self.assertTrue(red[position] > green[position])
+        self.assertTrue(red[position] > blue[position])
+        self.assertEqual(255, alpha[position])
 
-        coordinates = (int(0.57 * height), int(0.43 * width))
-        self.assertTrue(green[coordinates] > red[coordinates])
-        self.assertTrue(green[coordinates] > blue[coordinates])
+        position = (int(0.57 * height), int(0.43 * width))
+        self.assertTrue(green[position] > red[position])
+        self.assertTrue(green[position] > blue[position])
+        self.assertEqual(255, alpha[position])
 
-        coordinates = (int(0.09 * height), int(0.41 * width))
-        self.assertTrue(blue[coordinates] > red[coordinates])
-        self.assertTrue(blue[coordinates] > green[coordinates])
+        position = (int(0.09 * height), int(0.41 * width))
+        self.assertTrue(blue[position] > red[position])
+        self.assertTrue(blue[position] > green[position])
+        self.assertEqual(255, alpha[position])
 
     def test_vgg256_dimensions(self):
         self.assertEqual(VGG256_SHAPE, self.first_screen.vgg256.imagenet.shape)
