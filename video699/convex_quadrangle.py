@@ -45,9 +45,6 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         The width of the screen in a screen coordinate system.
     height : int
         The height of the screen in a screen coordinate system.
-    transform : 3 x 3 np.ndarray
-        The perspective transform matrix from a frame coordinate system to a screen coordinate
-        system in Homogeneous coordinates.
     """
 
     def __init__(self, top_left, top_right, bottom_left, bottom_right):
@@ -82,7 +79,7 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
                 (max_width - 1, max_height - 1),
             ],
         )
-        self._transform = cv.getPerspectiveTransform(frame_coordinates, screen_coordinates)
+        self.transform_matrix = cv.getPerspectiveTransform(frame_coordinates, screen_coordinates)
 
     @property
     def top_left(self):
@@ -108,10 +105,6 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
     def height(self):
         return self._height
 
-    @property
-    def transform(self):
-        return self._transform
-
     def intersection_area(self, other):
         if isinstance(other, ConvexQuadrangleABC):
             if isinstance(other, ConvexQuadrangle):
@@ -127,10 +120,10 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
             return intersection.area
         return NotImplemented
 
-    def __call__(self, frame_image):
+    def transform(self, frame_image):
         return cv.warpPerspective(
             frame_image,
-            self.transform,
+            self.transform_matrix,
             (self.width, self.height),
             borderMode=cv.BORDER_CONSTANT,
             borderValue=COLOR_TRANSPARENT,

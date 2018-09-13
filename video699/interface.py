@@ -213,8 +213,8 @@ class ConvexQuadrangleABC(ABC):
         pass
 
     @abstractmethod
-    def __call__(self, frame_image):
-        """Maps image data in the frame coordinate system to the screen coordinate system.
+    def transform(self, frame_image):
+        """Transforms image data in the frame coordinate system to the screen coordinate system.
 
         Parameters
         ----------
@@ -289,7 +289,7 @@ class ScreenABC(ABC):
 
     @property
     def image(self):
-        return self.coordinates(self.frame.image)
+        return self.coordinates.transform(self.frame.image)
 
     @property
     def width(self):

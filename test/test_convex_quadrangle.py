@@ -147,7 +147,7 @@ class TestConvexQuadrangle(unittest.TestCase):
             bottom_left=(300, 250),
             bottom_right=(300, 20),
         )
-        screen_image = coordinate_map(self.frame_image)
+        screen_image = coordinate_map.transform(self.frame_image)
         height, width, _ = screen_image.shape
         self.assertTrue(height > width)
 
@@ -173,7 +173,7 @@ class TestConvexQuadrangle(unittest.TestCase):
             bottom_left=(75, 440),
             bottom_right=(570, 450),
         )
-        screen_image = coordinate_map(self.frame_image)
+        screen_image = coordinate_map.transform(self.frame_image)
         height, width, _ = screen_image.shape
         self.assertTrue(width > height)
 
@@ -199,7 +199,7 @@ class TestConvexQuadrangle(unittest.TestCase):
             bottom_left=(460, 300),
             bottom_right=(600, 160),
         )
-        screen_image = coordinate_map(self.frame_image)
+        screen_image = coordinate_map.transform(self.frame_image)
         height, width, _ = screen_image.shape
         self.assertTrue(width > height)
 
@@ -225,7 +225,7 @@ class TestConvexQuadrangle(unittest.TestCase):
             bottom_left=(700, 250),
             bottom_right=(700, 20),
         )
-        screen_image = coordinate_map(self.frame_image)
+        screen_image = coordinate_map.transform(self.frame_image)
         height, width, _ = screen_image.shape
         self.assertTrue(height > width)
 
