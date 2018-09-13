@@ -107,6 +107,8 @@ class PDFDocument(DocumentABC):
         The title of a document.
     author : str
         The author of a document.
+    pathname : str
+        The pathname of a PDF document file.
 
     Raises
     ------
@@ -115,6 +117,7 @@ class PDFDocument(DocumentABC):
     """
 
     def __init__(self, pathname):
+        self.pathname = pathname
         self._document = fitz.open(pathname)
         if not self._document.isPDF:
             raise ValueError('The pathname "{}" does not specify a PDF document'.format(pathname))
@@ -133,3 +136,6 @@ class PDFDocument(DocumentABC):
 
     def __iter__(self):
         return iter(self._pages)
+
+    def __hash__(self):
+        return hash(self.pathname)

@@ -4,6 +4,7 @@ import unittest
 
 import cv2 as cv
 from dateutil.parser import parse as datetime_parse
+from video699.document.pdf import PDFDocument
 from video699.video.annotated import get_videos, AnnotatedSampledVideoScreenDetector
 
 
@@ -115,6 +116,17 @@ class TestAnnotatedSampledVideoDocument(unittest.TestCase):
     def test_reads_n_pages(self):
         self.assertEqual(FIRST_DOCUMENT_NUM_PAGES, len(list(self.first_document)))
         self.assertEqual(SECOND_DOCUMENT_NUM_PAGES, len(list(self.second_document)))
+
+    def test_equals_pdf_document(self):
+        image_file_document = self.first_document
+        pdf_document = PDFDocument(self.first_document.pathname)
+        self.assertEqual(pdf_document, image_file_document)
+        self.assertEqual(image_file_document, pdf_document)
+
+        image_file_document_first_page = next(iter(image_file_document))
+        pdf_document_first_page = next(iter(pdf_document))
+        self.assertEqual(pdf_document_first_page, image_file_document_first_page)
+        self.assertEqual(image_file_document_first_page, pdf_document_first_page)
 
 
 class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
