@@ -15,8 +15,8 @@ class ImageFrame(FrameABC):
     video : VideoABC
         The video containing the frame.
     number : int
-        The frame number, i.e. the position of the frame in the video. Frame
-        indexing is one-based, i.e. the first frame has number 1.
+        The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
+        i.e. the first frame has number 1.
     image : ndarray
         The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
         is currently unused and all pistures are fully opaque, i.e. have the maximum alpha of 255.

@@ -5,11 +5,68 @@
 """
 
 from collections.abc import Iterator
+from datetime import timedelta
 
 import cv2 as cv
 
-from ..interface import VideoABC
+from ..interface import VideoABC, FrameABC
 from ..frame.image import ImageFrame
+
+
+class VideoFileFrame(FrameABC):
+    """A frame of a video read from a video file.
+
+    Parameters
+    ----------
+    video : VideoABC
+        The video containing the frame.
+    number : int
+        The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
+        i.e. the first frame has number 1.
+    delta : float
+        The number of milliseconds elapsed since the beginning of the video.
+    image : ndarray
+        The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        is currently unused and all pistures are fully opaque, i.e. have the maximum alpha of 255.
+
+    Attributes
+    ----------
+    video : VideoABC
+        The video containing the frame.
+    number : int
+        The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
+        i.e. the first frame has number 1.
+    image : array_like
+        The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD
+        be completely disregarded in subsequent computation.
+    width : int
+        The width of the image data.
+    height : int
+        The height of the image data.
+    datetime : aware datetime
+        The date, and time at which the frame was captured.
+    """
+
+    def __init__(self, video, number, delta, image):
+        self._frame = ImageFrame(video, number, image)
+        self._delta = timedelta(milliseconds=delta)
+
+    @property
+    def video(self):
+        return self._frame.video
+
+    @property
+    def number(self):
+        return self._frame.number
+
+    @property
+    def image(self):
+        return self._frame.image
+
+    @property
+    def datetime(self):
+        return self.video.datetime + self._delta
 
 
 class VideoFile(VideoABC, Iterator):
@@ -77,13 +134,14 @@ class VideoFile(VideoABC, Iterator):
     def __next__(self):
         if self._is_finished:
             raise StopIteration
+        delta = self._cap.get(cv.CAP_PROP_POS_MSEC)
         retval, frame_image = self._cap.read()
         if not retval:
             self._is_finished = True
             self._cap.release()
             raise StopIteration
         self._frame_number += 1
-        return ImageFrame(self, self._frame_number, frame_image)
+        return VideoFileFrame(self, self._frame_number, delta, frame_image)
 
     def __del__(self):
         self._cap.release()

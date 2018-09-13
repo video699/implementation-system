@@ -121,9 +121,7 @@ class FrameABC(ABC):
 
     @property
     def datetime(self):
-        if self.video.fps is not None:
-            return self.video.datetime + timedelta(seconds=(self.number - 1) / self.video.fps)
-        return self.video.datetime
+        return self.video.datetime + timedelta(seconds=(self.number - 1) / self.video.fps)
 
     def __hash__(self):
         return hash((self.video, self.number))
