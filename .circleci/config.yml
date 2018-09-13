@@ -16,9 +16,9 @@ jobs:
     - run:
         name: "Install dependencies"
         command: |
-          if [ -e venv ]; then exit; fi
-          python3 -m venv ~/venv
+          if [ -e venv ]; then mv ./venv ~/venv; else python3 -m venv ~/venv; fi
           . ~/venv/bin/activate
+          pip install -U pip setuptools
           make init develop
           mv ~/venv ./venv
     - save_cache:
