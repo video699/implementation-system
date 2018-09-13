@@ -12,13 +12,14 @@ import fitz
 import numpy as np
 
 from ..configuration import get_configuration
+from ..common import COLOR_RGBA_TRANSPARENT, rescale_and_keep_aspect_ratio
 from ..interface import DocumentABC, PageABC
 
 
 LOGGER = getLogger(__name__)
 CONFIGURATION = get_configuration()['PDFDocumentPage']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
-DOWNSCALING_INTERPOLATION = cv.__dict__[CONFIGURATION['downscaling_interpolation']]
+DOWNSCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['downscale_interpolation']]
 
 
 class PDFDocumentPage(PageABC):
@@ -44,10 +45,8 @@ class PDFDocumentPage(PageABC):
         self._document = document
         self._page = page
         pixmap = page.getPixmap()
-        # Subtract 1, so that the dimensions of getPixmap(zoom_matrix) in image(self, width, height)
-        # are never less than width x height due to subpixel errors.
-        self._default_width = max(1, pixmap.width - 1)
-        self._default_height = max(1, pixmap.height - 1)
+        self._default_width = pixmap.width
+        self._default_height = pixmap.height
 
     @property
     def document(self):
@@ -59,14 +58,34 @@ class PDFDocumentPage(PageABC):
 
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
     def image(self, width, height):
-        zoom_x = width / self._default_width
-        zoom_y = height / self._default_height
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(self._default_width, self._default_height, width, height)
+        # Subtract 1, so that the dimensions of getPixmap(zoom_matrix) are never less than
+        # rescaled_width x rescaled_height due to subpixel errors.
+        zoom_x = rescaled_width / max(1, self._default_width - 1)
+        zoom_y = rescaled_height / max(1, self._default_height - 1)
         zoom_matrix = fitz.Matrix(zoom_x, zoom_y)
         pixmap = self._page.getPixmap(zoom_matrix, alpha=False)
         rgb_image = np.frombuffer(pixmap.samples, dtype=np.uint8).reshape((pixmap.h, pixmap.w, 3))
-        bgr_image = cv.cvtColor(rgb_image, cv.COLOR_BGR2RGB)
-        bgr_image_downscaled = cv.resize(bgr_image, (width, height), DOWNSCALING_INTERPOLATION)
-        return bgr_image_downscaled
+        rgba_image = cv.cvtColor(rgb_image, cv.COLOR_RGB2RGBA)
+        rgba_image_downscaled = cv.resize(
+            rgba_image,
+            (
+                rescaled_width,
+                rescaled_height,
+            ),
+            DOWNSCALE_INTERPOLATION
+        )
+        rgba_image_downscaled_with_margins = cv.copyMakeBorder(
+            rgba_image_downscaled,
+            top_margin,
+            bottom_margin,
+            left_margin,
+            right_margin,
+            borderType=cv.BORDER_CONSTANT,
+            value=COLOR_RGBA_TRANSPARENT,
+        )
+        return rgba_image_downscaled_with_margins
 
 
 class PDFDocument(DocumentABC):

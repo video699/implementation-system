@@ -17,6 +17,8 @@ DOCUMENT_TITLE = 'Example title'
 DOCUMENT_AUTHOR = 'Example author'
 PAGE_IMAGE_WIDTH = 2550
 PAGE_IMAGE_HEIGHT = 3300
+PAGE_IMAGE_HORIZONTAL_MARGIN = 100
+PAGE_IMAGE_VERTICAL_MARGIN = 200
 
 
 class TestPDFDocument(unittest.TestCase):
@@ -51,6 +53,14 @@ class TestPDFDocumentPage(unittest.TestCase):
         self.second_page = next(page_iterator)
         self.first_page_image = self.first_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
         self.second_page_image = self.second_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
+        self.page_image_with_wider_aspect_ratio = self.first_page.image(
+            PAGE_IMAGE_WIDTH + PAGE_IMAGE_HORIZONTAL_MARGIN,
+            PAGE_IMAGE_HEIGHT,
+        )
+        self.page_image_with_taller_aspect_ratio = self.first_page.image(
+            PAGE_IMAGE_WIDTH,
+            PAGE_IMAGE_HEIGHT + PAGE_IMAGE_VERTICAL_MARGIN,
+        )
 
     def test_document(self):
         self.assertEqual(self.document, self.first_page.document)
@@ -61,46 +71,98 @@ class TestPDFDocumentPage(unittest.TestCase):
         self.assertEqual(2, self.second_page.number)
 
     def test_first_page_image(self):
-        height, width, _ = self.first_page_image.shape
+        image = self.first_page_image
+        height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT, height)
 
-        blue, green, red = cv.split(self.first_page_image)
+        red, green, blue, alpha = cv.split(image)
 
-        self.assertEqual(255, blue[0, 0])
-        self.assertEqual(255, green[0, 0])
-        self.assertEqual(255, red[0, 0])
+        position = (0, 0)
+        self.assertEqual(255, blue[position])
+        self.assertEqual(255, green[position])
+        self.assertEqual(255, red[position])
+        self.assertEqual(255, alpha[position])
 
-        self.assertEqual(0, blue[675, 900])
-        self.assertEqual(0, green[675, 900])
-        self.assertEqual(255, red[675, 900])
+        position = (675, 900)
+        self.assertEqual(0, blue[position])
+        self.assertEqual(0, green[position])
+        self.assertEqual(255, red[position])
+        self.assertEqual(255, alpha[position])
 
-        self.assertEqual(255, blue[2200, 900])
-        self.assertEqual(255, green[2200, 900])
-        self.assertEqual(255, red[2200, 900])
+        position = (2200, 900)
+        self.assertEqual(255, blue[position])
+        self.assertEqual(255, green[position])
+        self.assertEqual(255, red[position])
+        self.assertEqual(255, alpha[position])
 
-        self.assertEqual(0, blue[2200, 1200])
-        self.assertEqual(255, green[2200, 1200])
-        self.assertEqual(0, red[2200, 1200])
+        position = (2200, 1200)
+        self.assertEqual(0, blue[position])
+        self.assertEqual(255, green[position])
+        self.assertEqual(0, red[position])
+        self.assertEqual(255, alpha[position])
 
     def test_second_page_image(self):
-        height, width, _ = self.second_page_image.shape
+        image = self.second_page_image
+        height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT, height)
 
-        blue, green, red = cv.split(self.second_page_image)
+        red, green, blue, alpha = cv.split(image)
 
-        self.assertEqual(255, blue[0, 0])
-        self.assertEqual(255, green[0, 0])
-        self.assertEqual(255, red[0, 0])
+        position = (0, 0)
+        self.assertEqual(255, blue[position])
+        self.assertEqual(255, green[position])
+        self.assertEqual(255, red[position])
+        self.assertEqual(255, alpha[position])
 
-        self.assertEqual(255, blue[1250, 900])
-        self.assertEqual(255, green[1250, 900])
-        self.assertEqual(255, red[1250, 900])
+        position = (1250, 900)
+        self.assertEqual(255, blue[position])
+        self.assertEqual(255, green[position])
+        self.assertEqual(255, red[position])
+        self.assertEqual(255, alpha[position])
 
-        self.assertEqual(255, blue[1250, 1200])
-        self.assertEqual(0, green[1250, 1200])
-        self.assertEqual(0, red[1250, 1200])
+        position = (1250, 1200)
+        self.assertEqual(255, blue[position])
+        self.assertEqual(0, green[position])
+        self.assertEqual(0, red[position])
+        self.assertEqual(255, alpha[position])
+
+    def test_wider_aspect_ratio(self):
+        image = self.page_image_with_wider_aspect_ratio
+        height, width, _ = image.shape
+        self.assertEqual(PAGE_IMAGE_WIDTH + PAGE_IMAGE_HORIZONTAL_MARGIN, width)
+        self.assertEqual(PAGE_IMAGE_HEIGHT, height)
+
+        *_, alpha = cv.split(image)
+        screen_corners = (
+            (0, 0),
+            (0, width - 1),
+            (int((height - 1) / 2), 0),
+            (int((height - 1) / 2), 0),
+            (height - 1, 0),
+            (height - 1, width - 1),
+        )
+        for coordinates in screen_corners:
+            self.assertEqual(0, alpha[coordinates])
+
+    def test_taller_aspect_ratio(self):
+        image = self.page_image_with_taller_aspect_ratio
+        height, width, _ = image.shape
+        self.assertEqual(PAGE_IMAGE_WIDTH, width)
+        self.assertEqual(PAGE_IMAGE_HEIGHT + PAGE_IMAGE_VERTICAL_MARGIN, height)
+
+        *_, alpha = cv.split(image)
+        screen_corners = (
+            (0, 0),
+            (0, int((width - 1) / 2)),
+            (0, width - 1),
+            (height - 1, 0),
+            (height - 1, int((width - 1) / 2)),
+            (height - 1, width - 1),
+        )
+        for coordinates in screen_corners:
+            self.assertEqual(0, alpha[coordinates])
 
 
 if __name__ == '__main__':

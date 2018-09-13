@@ -7,6 +7,7 @@
 from functools import lru_cache
 
 from ..interface import DocumentABC, PageABC
+from ..common import COLOR_RGBA_TRANSPARENT, rescale_and_keep_aspect_ratio
 from ..configuration import get_configuration
 
 import cv2 as cv
@@ -14,7 +15,7 @@ import cv2 as cv
 
 CONFIGURATION = get_configuration()['ImageFileDocumentPage']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
-RESCALING_INTERPOLATION = cv.__dict__[CONFIGURATION['rescaling_interpolation']]
+RESCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['rescale_interpolation']]
 
 
 class ImageFileDocumentPage(PageABC):
@@ -54,9 +55,29 @@ class ImageFileDocumentPage(PageABC):
 
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
     def image(self, width, height):
-        image = cv.imread(self._image_pathname)
-        image_rescaled = cv.resize(image, (width, height), RESCALING_INTERPOLATION)
-        return image_rescaled
+        bgr_image = cv.imread(self._image_pathname)
+        rgba_image = cv.cvtColor(bgr_image, cv.COLOR_BGR2RGBA)
+        original_height, original_width, _ = rgba_image.shape
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, width, height)
+        rgba_image_rescaled = cv.resize(
+            rgba_image,
+            (
+                rescaled_width,
+                rescaled_height,
+            ),
+            RESCALE_INTERPOLATION
+        )
+        rgba_image_rescaled_with_margins = cv.copyMakeBorder(
+            rgba_image_rescaled,
+            top_margin,
+            bottom_margin,
+            left_margin,
+            right_margin,
+            borderType=cv.BORDER_CONSTANT,
+            value=COLOR_RGBA_TRANSPARENT,
+        )
+        return rgba_image_rescaled_with_margins
 
 
 class ImageFileDocument(DocumentABC):

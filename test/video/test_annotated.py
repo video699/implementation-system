@@ -121,7 +121,7 @@ class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
         self.assertTrue(1, self.first_page.number)
         self.assertTrue(2, self.second_page.number)
 
-    def test_frame_image(self):
+    def test_page_image(self):
         page_width = 640
         page_height = 480
         page_image = self.second_page.image(page_width, page_height)
@@ -129,19 +129,25 @@ class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
         self.assertEqual(page_width, width)
         self.assertEqual(page_height, height)
 
-        blue, green, red = cv.split(page_image)
+        red, green, blue, alpha = cv.split(page_image)
 
-        self.assertEqual(255, blue[50, 260])
-        self.assertEqual(0, green[50, 260])
-        self.assertEqual(0, red[50, 260])
+        position = (50, 260)
+        self.assertEqual(255, blue[position])
+        self.assertEqual(0, green[position])
+        self.assertEqual(0, red[position])
+        self.assertEqual(255, alpha[position])
 
-        self.assertEqual(0, blue[270, 300])
-        self.assertEqual(127, green[270, 300])
-        self.assertEqual(0, red[270, 300])
+        position = (270, 300)
+        self.assertEqual(0, blue[position])
+        self.assertEqual(127, green[position])
+        self.assertEqual(0, red[position])
+        self.assertEqual(255, alpha[position])
 
-        self.assertEqual(0, blue[100, 540])
-        self.assertEqual(0, green[100, 540])
-        self.assertEqual(255, red[100, 540])
+        position = (100, 540)
+        self.assertEqual(0, blue[position])
+        self.assertEqual(0, green[position])
+        self.assertEqual(255, red[position])
+        self.assertEqual(255, alpha[position])
 
     def test_vgg256_dimensions(self):
         self.assertEqual(VGG256_SHAPE, self.first_page.vgg256.imagenet.shape)

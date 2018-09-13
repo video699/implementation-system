@@ -418,7 +418,10 @@ class PageABC(ABC):
         Returns
         -------
         image : array_like
-            The image data of the page represented as an OpenCV CV_8UC3 BGR matrix.
+            The image data of the page as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+            denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha,
+            SHOULD be completely disregarded in subsequent computation. Any margins added to the
+            image data, e.g. by keeping the aspect ratio of the page, MUST be fully transparent.
         """
         pass
 

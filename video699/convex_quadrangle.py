@@ -9,10 +9,8 @@ import cv2 as cv
 import numpy as np
 from shapely.geometry import Point, Polygon
 
+from .common import COLOR_RGBA_TRANSPARENT
 from .interface import ConvexQuadrangleABC
-
-
-COLOR_TRANSPARENT = (0, 0, 0, 0)
 
 
 class ConvexQuadrangle(ConvexQuadrangleABC):
@@ -126,5 +124,5 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
             self.transform_matrix,
             (self.width, self.height),
             borderMode=cv.BORDER_CONSTANT,
-            borderValue=COLOR_TRANSPARENT,
+            borderValue=COLOR_RGBA_TRANSPARENT,
         )
