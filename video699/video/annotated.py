@@ -797,7 +797,7 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
     def __init__(self, conditions=set(['pristine', 'windowed', 'obstacle'])):
         self._conditions = conditions
 
-    def __call__(self, frame):
+    def detect(self, frame):
         """Converts an annotated frame to screens using the closest available human annotations.
 
         Parameters

@@ -366,7 +366,7 @@ class ScreenDetectorABC(ABC):
     """
 
     @abstractmethod
-    def __call__(self, frame):
+    def detect(self, frame):
         """Converts a frame to an iterable of detected lit projection screens.
 
         Parameters

@@ -45,7 +45,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         datetime = datetime_parse('2017-12-31T23:59:59+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
         frame = next(iter(video))
-        screens = set(self.screen_detector(frame))
+        screens = set(self.screen_detector.detect(frame))
         self.assertEqual(screens, set())
 
     def test_screens_at_earliest_datetime(self):
@@ -55,7 +55,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector(frame)
+                for screen in self.screen_detector.detect(frame)
             ]),
             set([
                 (
@@ -92,7 +92,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector(frame)
+                for screen in self.screen_detector.detect(frame)
             ]),
             set([
                 (
@@ -133,7 +133,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector(frame)
+                for screen in self.screen_detector.detect(frame)
             ]),
             set([
                 (
@@ -170,7 +170,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector(frame)
+                for screen in self.screen_detector.detect(frame)
             ]),
             set([
                 (
@@ -203,7 +203,7 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         self.assertEqual(
             set([
                 (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector(frame)
+                for screen in self.screen_detector.detect(frame)
             ]),
             set([
                 (

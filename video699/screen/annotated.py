@@ -398,7 +398,7 @@ class AnnotatedScreenDetector(ScreenDetectorABC):
         self.room_id = room_id
         self.camera_id = camera_id
 
-    def __call__(self, frame):
+    def detect(self, frame):
         """Converts a frame to screens using the closest available human annotations.
 
         Parameters

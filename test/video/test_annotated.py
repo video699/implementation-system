@@ -197,24 +197,24 @@ class TestAnnotatedSampledVideoScreenDetector(unittest.TestCase):
         second_screen_detector = AnnotatedSampledVideoScreenDetector(
             conditions=set(['windowed', 'obstacle']),
         )
-        self.assertEqual(1, len(list(first_screen_detector(self.first_frame))))
-        self.assertEqual(0, len(list(second_screen_detector(self.first_frame))))
+        self.assertEqual(1, len(list(first_screen_detector.detect(self.first_frame))))
+        self.assertEqual(0, len(list(second_screen_detector.detect(self.first_frame))))
 
     def test_windowed_screen(self):
         first_screen_detector = AnnotatedSampledVideoScreenDetector()
         second_screen_detector = AnnotatedSampledVideoScreenDetector(
             conditions=set(['pristine', 'obstacle']),
         )
-        self.assertEqual(2, len(list(first_screen_detector(self.twentysecond_frame))))
-        self.assertEqual(1, len(list(second_screen_detector(self.twentysecond_frame))))
+        self.assertEqual(2, len(list(first_screen_detector.detect(self.twentysecond_frame))))
+        self.assertEqual(1, len(list(second_screen_detector.detect(self.twentysecond_frame))))
 
     def test_screen_behind_obstacle(self):
         first_screen_detector = AnnotatedSampledVideoScreenDetector()
         second_screen_detector = AnnotatedSampledVideoScreenDetector(
             conditions=set(['pristine', 'windowed']),
         )
-        self.assertEqual(1, len(list(first_screen_detector(self.fifth_frame))))
-        self.assertEqual(0, len(list(second_screen_detector(self.fifth_frame))))
+        self.assertEqual(1, len(list(first_screen_detector.detect(self.fifth_frame))))
+        self.assertEqual(0, len(list(second_screen_detector.detect(self.fifth_frame))))
 
 
 class TestAnnotatedSampledVideoScreen(unittest.TestCase):
@@ -228,8 +228,8 @@ class TestAnnotatedSampledVideoScreen(unittest.TestCase):
         screen_detector = AnnotatedSampledVideoScreenDetector()
         first_frame = frames[0]
         eleventh_frame = frames[10]
-        self.first_screen = next(iter(screen_detector(first_frame)))
-        self.second_screen = next(iter(screen_detector(eleventh_frame)))
+        self.first_screen = next(iter(screen_detector.detect(first_frame)))
+        self.second_screen = next(iter(screen_detector.detect(eleventh_frame)))
 
     def test_matching_pages(self):
         self.assertEqual(
