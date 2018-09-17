@@ -13,6 +13,55 @@ from datetime import timedelta
 from functools import total_ordering
 
 
+class EventABC(ABC):
+    """An abstract event detected in a video.
+
+    """
+
+    @abstractmethod
+    def write_xml(self, f):
+        """Writes an XML representation of the event to a file-like object.
+
+        Parameters
+        ----------
+        f : file-like object
+            A writeable file-like object to which an XML representation of the event will be
+            written.
+        """
+        pass
+
+    def __repr__(self):
+        return '<{classname}>'.format(
+            classname=self.__class__.__name__,
+        )
+
+
+class EventDetectorABC(ABC):
+    """An abstract event detector.
+
+    """
+
+    @abstractmethod
+    def __iter__(self):
+        """Produces an iterator of events.
+
+        Note
+        ----
+        It MAY be possible to iterate repeatedly over all events.
+
+        Returns
+        -------
+        frames : iterator of EventABC
+            An iterable of events.
+        """
+        pass
+
+    def __repr__(self):
+        return '<{classname}>'.format(
+            classname=self.__class__.__name__,
+        )
+
+
 class VideoABC(ABC, Iterable):
     """An abstract video.
 
