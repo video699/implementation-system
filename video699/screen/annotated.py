@@ -261,6 +261,8 @@ class AnnotatedScreenVideo(VideoABC):
     The width, and the height of the video are extracted from XML human annotations. This is a stub
     class intended for testing purposes.
 
+    .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
     Parameters
     ----------
     institution_id : str
@@ -284,13 +286,21 @@ class AnnotatedScreenVideo(VideoABC):
         The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
+    uri : string
+        An IRI, as defined in RFC3987_, that uniquely indentifies the video over the entire lifetime
+        of a program.
     """
+
+    _num_videos = 0
 
     def __init__(self, institution_id, room_id, camera_id, datetime, fps=1):
         _assert_key_exists(institution_id, room_id, camera_id)
         self._fps = fps
         self._datetime = datetime
         self._camera_annotations = CAMERA_ANNOTATIONS[institution_id][room_id][camera_id]
+        self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
+            'screen/annotated.py#AnnotatedScreenVideo:{}'.format(AnnotatedScreenVideo._num_videos)
+        AnnotatedScreenVideo._num_videos += 1
 
     @property
     def fps(self):
@@ -307,6 +317,10 @@ class AnnotatedScreenVideo(VideoABC):
     @property
     def datetime(self):
         return self._datetime
+
+    @property
+    def uri(self):
+        return self._uri
 
     def __iter__(self):
         image = np.zeros((self.height, self.width), dtype=np.uint8)

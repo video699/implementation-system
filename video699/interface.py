@@ -65,6 +65,8 @@ class EventDetectorABC(ABC):
 class VideoABC(ABC, Iterable):
     """An abstract video.
 
+    .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
     Attributes
     ----------
     fps : scalar
@@ -75,6 +77,9 @@ class VideoABC(ABC, Iterable):
         The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
+    uri : string
+        An IRI, as defined in RFC3987_, that uniquely indentifies the video over the entire lifetime
+        of a program.
     """
 
     @property
@@ -97,6 +102,11 @@ class VideoABC(ABC, Iterable):
     def datetime(self):
         pass
 
+    @property
+    @abstractmethod
+    def uri(self):
+        pass
+
     @abstractmethod
     def __iter__(self):
         """Produces an iterator of video frames.
@@ -113,12 +123,13 @@ class VideoABC(ABC, Iterable):
         pass
 
     def __repr__(self):
-        return '<{classname}, {width}x{height}px, {fps} fps, {datetime}>'.format(
+        return '<{classname}, {uri}, {width}x{height}px, {fps} fps, {datetime}>'.format(
             classname=self.__class__.__name__,
             width=self.width,
             height=self.height,
             fps=self.fps,
             datetime=self.datetime,
+            uri=self.uri,
         )
 
 
@@ -390,12 +401,17 @@ class ScreenDetectorABC(ABC):
 class DocumentABC(ABC, Iterable):
     """An abstract text document.
 
+    .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
     Attributes
     ----------
     title : str or None
         The title of a document.
     author : str or None
         The author of a document.
+    uri : string
+        An IRI, as defined in RFC3987_, that uniquely indentifies the document over the entire
+        lifetime of a program.
     """
 
     @property
@@ -406,6 +422,11 @@ class DocumentABC(ABC, Iterable):
     @property
     @abstractmethod
     def author(self):
+        pass
+
+    @property
+    @abstractmethod
+    def uri(self):
         pass
 
     @abstractmethod
@@ -426,10 +447,11 @@ class DocumentABC(ABC, Iterable):
     def __repr__(self):
         formatted_title = ', "{0}"'.format(self.title) if self.title is not None else ''
         formatted_author = ', "{0}"'.format(self.author) if self.author is not None else ''
-        return '<{classname}{formatted_author}{formatted_title}>'.format(
+        return '<{classname}, {uri}{formatted_author}{formatted_title}>'.format(
             classname=self.__class__.__name__,
             formatted_author=formatted_author,
             formatted_title=formatted_title,
+            uri=self.uri,
         )
 
 

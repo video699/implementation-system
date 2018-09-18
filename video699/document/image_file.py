@@ -83,6 +83,8 @@ class ImageFileDocumentPage(PageABC):
 class ImageFileDocument(DocumentABC):
     """A document that consists of pages represented by NumPy matrices containing image data.
 
+    .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
     Parameters
     ----------
     image_pathnames : iterable of str
@@ -98,7 +100,12 @@ class ImageFileDocument(DocumentABC):
         The title of a document.
     author : str or None
         The author of a document.
+    uri : string
+        An IRI, as defined in RFC3987_, that uniquely indentifies the document over the entire
+        lifetime of a program.
     """
+
+    _num_documents = 0
 
     def __init__(self, image_pathnames, title=None, author=None):
         self._title = title
@@ -107,6 +114,9 @@ class ImageFileDocument(DocumentABC):
             ImageFileDocumentPage(self, page_number + 1, image_pathname)
             for page_number, image_pathname in enumerate(image_pathnames)
         ]
+        self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
+            'document/image_file.py#ImageFileDocument:{}'.format(ImageFileDocument._num_documents)
+        ImageFileDocument._num_documents += 1
 
     @property
     def title(self):
@@ -115,6 +125,10 @@ class ImageFileDocument(DocumentABC):
     @property
     def author(self):
         pass
+
+    @property
+    def uri(self):
+        return self._uri
 
     def __iter__(self):
         return iter(self._pages)

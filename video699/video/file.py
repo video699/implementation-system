@@ -6,6 +6,7 @@
 
 from collections.abc import Iterator
 from datetime import timedelta
+from pathlib import Path
 
 import cv2 as cv
 
@@ -73,6 +74,8 @@ class VideoFileFrame(FrameABC):
 class VideoFile(VideoABC, Iterator):
     """A video read from a video file.
 
+    .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
     Note
     ----
     A video file is opened as soon as the class is instantiated, and released only after the
@@ -95,6 +98,9 @@ class VideoFile(VideoABC, Iterator):
         The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
+    uri : string
+        An IRI, as defined in RFC3987_, that uniquely indentifies the video over the entire lifetime
+        of a program.
 
     Raises
     ------
@@ -112,6 +118,7 @@ class VideoFile(VideoABC, Iterator):
         self._width = self._cap.get(cv.CAP_PROP_FRAME_WIDTH)
         self._height = self._cap.get(cv.CAP_PROP_FRAME_HEIGHT)
         self._datetime = datetime
+        self._uri = Path(pathname).as_uri()
 
     @property
     def fps(self):
@@ -128,6 +135,10 @@ class VideoFile(VideoABC, Iterator):
     @property
     def datetime(self):
         return self._datetime
+
+    @property
+    def uri(self):
+        return self._uri
 
     def __iter__(self):
         return self

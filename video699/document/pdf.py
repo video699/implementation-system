@@ -6,6 +6,7 @@
 
 from functools import lru_cache
 from logging import getLogger
+from pathlib import Path
 
 import cv2 as cv
 import fitz
@@ -91,6 +92,8 @@ class PDFDocumentPage(PageABC):
 class PDFDocument(DocumentABC):
     """A PDF document read from a PDF document file.
 
+    .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
     Note
     ----
     A document file is opened as soon as the class is instantiated, and closed only after the
@@ -109,6 +112,9 @@ class PDFDocument(DocumentABC):
         The author of a document.
     pathname : str
         The pathname of a PDF document file.
+    uri : string
+        An IRI, as defined in RFC3987_, that uniquely indentifies the document over the entire
+        lifetime of a program.
 
     Raises
     ------
@@ -118,6 +124,7 @@ class PDFDocument(DocumentABC):
 
     def __init__(self, pathname):
         self.pathname = pathname
+        self._uri = Path(pathname).as_uri()
         self._document = fitz.open(pathname)
         if not self._document.isPDF:
             raise ValueError('The pathname "{}" does not specify a PDF document'.format(pathname))
@@ -133,6 +140,10 @@ class PDFDocument(DocumentABC):
     @property
     def author(self):
         return self._author
+
+    @property
+    def uri(self):
+        return self._uri
 
     def __iter__(self):
         return iter(self._pages)

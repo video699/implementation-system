@@ -8,6 +8,7 @@ related classes.
 import json
 from logging import getLogger
 import os
+from pathlib import Path
 import re
 
 import cv2 as cv
@@ -306,6 +307,8 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
 class AnnotatedSampledVideoDocument(DocumentABC):
     """A sequence of images forming a document extracted from a dataset with XML human annotations.
 
+    .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
     Parameters
     ----------
     video : AnnotatedSampledVideo
@@ -325,11 +328,16 @@ class AnnotatedSampledVideoDocument(DocumentABC):
         The title of a document.
     author : str or None
         The author of a document.
+    uri : string
+        An IRI, as defined in RFC3987_, that uniquely indentifies the document over the entire
+        lifetime of a program.
     """
 
     def __init__(self, video, filename):
         self.video = video
         self.filename = filename
+        self._pathname = os.path.join(video.pathname, filename)
+        self._uri = Path(self._pathname).as_uri()
 
         document_annotations = DOCUMENT_ANNOTATIONS[video.uri][filename]
         self._pages = sorted([
@@ -349,11 +357,11 @@ class AnnotatedSampledVideoDocument(DocumentABC):
 
     @property
     def pathname(self):
-        pathname = os.path.join(
-            self.video.pathname,
-            self.filename,
-        )
-        return pathname
+        return self._pathname
+
+    @property
+    def uri(self):
+        return self._uri
 
     def __iter__(self):
         return iter(self._pages)
@@ -526,8 +534,6 @@ class AnnotatedSampledVideo(VideoABC):
 
     Attributes
     ----------
-    uri : str
-        The URI of the video file. The URI is unique in the dataset.
     dirname : str
         The pathname of the directory, where the frames, documents, and XML human annotations
         associated with the video are stored.
@@ -548,10 +554,12 @@ class AnnotatedSampledVideo(VideoABC):
         The date, and time at which the video was captured.
     documents : dict of (str, AnnotatedSampledVideoDocument)
         A map between PDF document filenames, and the documents associated with the video.
+    uri : string
+        The URI of the video file. The URI is unique in the dataset.
     """
 
     def __init__(self, uri):
-        self.uri = uri
+        self._uri = uri
         match = re.fullmatch(URI_REGEX, uri)
         self.filename = match.group('filename')
         self._datetime = datetime_parse(
@@ -606,6 +614,10 @@ class AnnotatedSampledVideo(VideoABC):
     @property
     def datetime(self):
         return self._datetime
+
+    @property
+    def uri(self):
+        return self._uri
 
     def __iter__(self):
         return iter(self._frames)
