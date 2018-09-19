@@ -61,3 +61,24 @@ def rescale_and_keep_aspect_ratio(original_width, original_height, new_width, ne
         left_margin,
         right_margin,
     )
+
+
+def timedelta_as_xsd_duration(timedelta):
+    """Serializes a timedelta object as a string that satisfies the XML Schema duration datatype.
+
+    Parameters
+    ----------
+    timedelta : timedelta
+        A timedelta object.
+
+    Returns
+    -------
+    duration : duration
+        A string that satisfies the XML Schema duration datatype.
+    """
+    duration = 'P{days}DT{seconds}.{microseconds}S'.format(
+        days=timedelta.days,
+        seconds=timedelta.seconds,
+        microseconds=timedelta.microseconds,
+    )
+    return duration

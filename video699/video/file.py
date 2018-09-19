@@ -76,8 +76,9 @@ class VideoFile(VideoABC, Iterator):
 
     .. _RFC3987: https://tools.ietf.org/html/rfc3987
 
-    Note
-    ----
+    Notes
+    -----
+    It is not possible to repeatedly iterate over all video frames.
     A video file is opened as soon as the class is instantiated, and released only after the
     finalization of the object or after the last frame has been read.
 

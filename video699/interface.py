@@ -16,18 +16,15 @@ from functools import total_ordering
 class EventABC(ABC):
     """An abstract event detected in a video.
 
+    Attributes
+    ----------
+    xml_element : lxml.etree.Element
+        An XML representation of the event.
     """
 
+    @property
     @abstractmethod
-    def write_xml(self, f):
-        """Writes an XML representation of the event to a file-like object.
-
-        Parameters
-        ----------
-        f : file-like object
-            A writeable file-like object to which an XML representation of the event will be
-            written.
-        """
+    def xml_element(self):
         pass
 
     def __repr__(self):
@@ -37,17 +34,26 @@ class EventABC(ABC):
 
 
 class EventDetectorABC(ABC):
-    """An abstract event detector.
+    """An abstract detector of events in a video.
 
+    Notes
+    -----
+    It MAY be possible to repeatedly iterate over all events detected in a video.
+
+    Attributes
+    ----------
+    video : VideoABC
+        The video in which the events are detected.
     """
+
+    @property
+    @abstractmethod
+    def video(self):
+        pass
 
     @abstractmethod
     def __iter__(self):
-        """Produces an iterator of events.
-
-        Note
-        ----
-        It MAY be possible to iterate repeatedly over all events.
+        """Produces an iterator of all events detected in a video.
 
         Returns
         -------
@@ -57,8 +63,9 @@ class EventDetectorABC(ABC):
         pass
 
     def __repr__(self):
-        return '<{classname}>'.format(
+        return '<{classname}, {video}>'.format(
             classname=self.__class__.__name__,
+            video=self.video,
         )
 
 
@@ -66,6 +73,10 @@ class VideoABC(ABC, Iterable):
     """An abstract video.
 
     .. _RFC3987: https://tools.ietf.org/html/rfc3987
+
+    Notes
+    -----
+    It MAY be possible to repeatedly iterate over all video frames.
 
     Attributes
     ----------
@@ -110,10 +121,6 @@ class VideoABC(ABC, Iterable):
     @abstractmethod
     def __iter__(self):
         """Produces an iterator of video frames.
-
-        Note
-        ----
-        It MAY be possible to iterate repeatedly over all video frames.
 
         Returns
         -------
@@ -294,6 +301,9 @@ class ConvexQuadrangleABC(ABC):
         """
         pass
 
+    def __hash__(self):
+        return hash((self.top_left, self.top_right, self.bottom_left, self.bottom_right))
+
     def __eq__(self, other):
         if isinstance(other, ConvexQuadrangleABC):
             return self.top_left == other.top_left \
@@ -403,6 +413,10 @@ class DocumentABC(ABC, Iterable):
 
     .. _RFC3987: https://tools.ietf.org/html/rfc3987
 
+    Notes
+    -----
+    It MUST be possible to repeatedly iterate over all document pages.
+
     Attributes
     ----------
     title : str or None
@@ -432,10 +446,6 @@ class DocumentABC(ABC, Iterable):
     @abstractmethod
     def __iter__(self):
         """Produces an iterator of document pages.
-
-        Note
-        ----
-        It MUST be possible to iterate repeatedly over all document pages.
 
         Returns
         -------

@@ -527,6 +527,10 @@ class _VideoAnnotations(object):
 class AnnotatedSampledVideo(VideoABC):
     """A sample of a video file extracted from a dataset with XML human annotations.
 
+    Notes
+    -----
+    It is possible to repeatedly iterate over all video frames.
+
     Parameters
     ----------
     uri : str
@@ -810,7 +814,7 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
         self._conditions = conditions
 
     def detect(self, frame):
-        """Converts an annotated frame to screens using the closest available human annotations.
+        """Converts an annotated frame to screens using human annotations.
 
         Parameters
         ----------

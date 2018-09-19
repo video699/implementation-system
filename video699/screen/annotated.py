@@ -258,8 +258,11 @@ class _ScreenPosition(object):
 class AnnotatedScreenVideo(VideoABC):
     """A video containing a single frame at a given date, and time.
 
-    The width, and the height of the video are extracted from XML human annotations. This is a stub
-    class intended for testing purposes.
+    Notes
+    -----
+    It is possible to repeatedly iterate over all video frames.
+    The width, and the height of the video are extracted from XML human annotations.
+    This is a stub class intended for testing.
 
     .. _RFC3987: https://tools.ietf.org/html/rfc3987
 
@@ -299,8 +302,8 @@ class AnnotatedScreenVideo(VideoABC):
         self._datetime = datetime
         self._camera_annotations = CAMERA_ANNOTATIONS[institution_id][room_id][camera_id]
         self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
-            'screen/annotated.py#AnnotatedScreenVideo:{}'.format(AnnotatedScreenVideo._num_videos)
-        AnnotatedScreenVideo._num_videos += 1
+            'screen/annotated.py#AnnotatedScreenVideo:{}'.format(self._num_videos)
+        self._num_videos += 1
 
     @property
     def fps(self):
@@ -323,7 +326,7 @@ class AnnotatedScreenVideo(VideoABC):
         return self._uri
 
     def __iter__(self):
-        image = np.zeros((self.height, self.width), dtype=np.uint8)
+        image = np.zeros((self.height, self.width, 4), dtype=np.uint8)
         frame = ImageFrame(self, 1, image)
         yield frame
 
