@@ -45,7 +45,7 @@ class TestScreenEventDetector(unittest.TestCase):
             width=VIDEO_WIDTH,
             height=VIDEO_HEIGHT,
             datetime=VIDEO_DATETIME,
-            coordinates_iterable=(),
+            quadrangles=(),
             pages=(),
         )
         detector = ScreenEventDetector(video)
@@ -63,7 +63,7 @@ class TestScreenEventDetector(unittest.TestCase):
             width=VIDEO_WIDTH,
             height=VIDEO_HEIGHT,
             datetime=VIDEO_DATETIME,
-            coordinates_iterable=(
+            quadrangles=(
                 FIRST_COORDINATES,
                 FIRST_COORDINATES,
                 SECOND_COORDINATES,

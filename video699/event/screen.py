@@ -360,7 +360,7 @@ class ScreenEventDetectorVideo(VideoABC):
         The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
-    coordinates_iterable : iterable of ConvexQuadrangleABC
+    quadrangles : iterable of ConvexQuadrangleABC
         Maps between frame and screen coordinates in consecutive frames of the video.
     pages : iterable of PageABC
         The document pages shown in the projection screen in consecutive frames of the video.
@@ -384,27 +384,28 @@ class ScreenEventDetectorVideo(VideoABC):
 
     _num_videos = 0
 
-    def __init__(self, fps, width, height, datetime, coordinates_iterable, pages):
+    def __init__(self, fps, width, height, datetime, quadrangles, pages):
         self._fps = fps
         self._width = width
         self._height = height
         self._datetime = datetime
 
         image = np.zeros((height, width, 4), dtype=np.uint8)
-        num_frames = len(coordinates_iterable) + 1 if coordinates_iterable else 0
+        quadrangles_list = list(quadrangles)
+        pages_list = list(pages)
+        assert len(quadrangles_list) == len(pages_list)
+        num_frames = len(quadrangles_list) + 1 if quadrangles else 0
         self._frames = [
             ImageFrame(self, frame_number, image)
             for frame_number in range(1, num_frames + 1)
         ]
         if num_frames:
-            coordinates_list = list(coordinates_iterable)
-            last_coordinate = coordinates_list[-1]
-            padded_coordinates_iterable = chain(coordinates_list, repeat(last_coordinate))
+            last_coordinates = quadrangles_list[-1]
+            padded_quadrangles = chain(quadrangles_list, repeat(last_coordinates))
             screens = (
                 ScreenEventDetectorScreen(frame, coordinates)
-                for frame, coordinates in zip(self, padded_coordinates_iterable)
+                for frame, coordinates in zip(self, padded_quadrangles)
             )
-            pages_list = list(pages)
             last_page = pages_list[-1]
             padded_pages = chain(pages_list, repeat(last_page))
         else:
