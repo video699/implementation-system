@@ -39,19 +39,19 @@
   <xs:complexType name="screen-appeared-event-type">
     <xs:annotation>
       <xs:documentation xml:lang="en">This element represents an
-      appearance of a lit projection screen containing a known page
-      of a document. The screen-id attribute is a unique identifier
-      of the screen. The frame-number attribute is the number of a
-      video frame where the screen appears (first frame has number
-      1) and the frame-time is the time elapsed since the start of
-      the video in the frame where the screen appears. The xi, yi,
-      i=0, 1, 2, 3, attributes are four coordinates that specify
-      the top left, top right, bottom left, and bottom right
-      corners of a quadrilateral delineating the frame area
-      occupied by the screen. The document-uri attribute specifies
-      an URI of the document shown in the screen. The page-number
-      attribute specifies the number of the document page shown in
-      the screen.</xs:documentation>
+      appearance of a lit projection screen containing a document
+      page. The screen-id attribute is a unique identifier of the
+      screen. The frame-number attribute is the number of a video
+      frame where the screen appears (first frame has number 1) and
+      the frame-time is the time elapsed since the start of the
+      video in the frame where the screen appears. The xi, yi, i=0,
+      1, 2, 3, attributes are four coordinates that specify the top
+      left, top right, bottom left, and bottom right corners of a
+      quadrilateral delineating the frame area occupied by the
+      screen. The document-uri attribute specifies an URI of the
+      document shown in the screen. The page-number attribute
+      specifies the number of the document page shown in the
+      screen.</xs:documentation>
       <xs:documentation xml:lang="cs">Tento element představuje
       výskyt osvětleného projekčního plátna zobrazujícího stránku
       známého dokumentu. Atribut screen-id udává unikátní
@@ -126,16 +126,16 @@
     <xs:annotation>
       <xs:documentation xml:lang="en">This element represents a
       change in the coordinates of a lit projection screen in a
-      video containing a known page of a document. The screen-id
-      attribute is a unique identifier of a screen, which appeared
-      in an earlier frame. The frame-number attribute is the number
-      of a video frame where the change takes place (first frame
-      has number 1) and the frame-time is the time elapsed since
-      the start of the video in the frame where the change takes
-      place. The xi, yi, i=0, 1, 2, 3, attributes are four new
-      coordinates that specify the top left, top right, bottom
-      left, and bottom right corners of a quadrilateral delineating
-      the frame area occupied by the screen.</xs:documentation>
+      video containing a document page. The screen-id attribute is
+      a unique identifier of a screen, which appeared in an earlier
+      frame. The frame-number attribute is the number of a video
+      frame where the change takes place (first frame has number 1)
+      and the frame-time is the time elapsed since the start of the
+      video in the frame where the change takes place. The xi, yi,
+      i=0, 1, 2, 3, attributes are four new coordinates that
+      specify the top left, top right, bottom left, and bottom
+      right corners of a quadrilateral delineating the frame area
+      occupied by the screen.</xs:documentation>
       <xs:documentation xml:lang="cs">Tento element představuje
       změnu pozice osvětleného projekčního plátna. Atribut
       screen-id udává unikátní identifikátor projekčního plátna,

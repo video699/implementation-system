@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """This module defines events describing the detection of the appearance and the disappearance of
-projection screens showing known pages of documents, and the detection of changes in the screen
-coordinates and content. Related classes are also defined.
+projection screens showing document pages, and the detection of changes in the screen coordinates
+and content. Related classes are also defined.
 
 """
 
@@ -54,29 +54,29 @@ class ScreenEventABC(FrameEventABC):
 
 
 class ScreenAppearedEvent(ScreenEventABC):
-    """The appearance of a projection screen containing a known page of a document.
+    """The appearance of a projection screen containing a document page.
 
     Parameters
     ----------
     screen : ScreenABC
-        A detected projection screen containing a known page of a document.
+        A detected projection screen containing a document page.
     screen_id : string
         A screen identifier unique among the `ScreenAppearedEvent` events produced by an
         `EventDetector` object.
     page : PageABC
-        The known page of a document.
+        The document page.
 
     Attributes
     ----------
     frame : FrameABC
         A frame in which the event takes place.
     screen : ScreenABC
-        A detected projection screen containing a known page of a document.
+        A detected projection screen containing a document page.
     screen_id : str
         A screen identifier unique among the `ScreenAppearedEvent` events produced by an
         `EventDetector` object.
     page : PageABC
-        The known page of a document.
+        The document page.
     xml : xml.etree.ElementTree.Element
         An XML representation of the event.
     """
@@ -131,24 +131,24 @@ class ScreenChangedContentEvent(ScreenEventABC):
     Parameters
     ----------
     screen : ScreenABC
-        A projection screen, which now shows a different known page of a document.
+        A projection screen, which now shows a different document page.
     screen_id : string
         A screen identifier that MUST have appeared in an earlier `ScreenAppearedEvent` event
         produced by an `EventDetector` object.
     page : PageABC
-        The different known page of a document.
+        The different document page.
 
     Attributes
     ----------
     frame : FrameABC
         A frame in which the event takes place.
     screen : ScreenABC
-        A projection screen, which now shows a different known page of a document.
+        A projection screen, which now shows a different document page.
     screen_id : string
         A screen identifier that MUST have appeared in an earlier `ScreenAppearedEvent` event
         produced by an `EventDetector` object.
     page : PageABC
-        The different known page of a document.
+        The different document page.
     xml : xml.etree.ElementTree.Element
         An XML representation of the event.
     """
