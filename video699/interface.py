@@ -374,7 +374,6 @@ class ConvexQuadrangleABC(ABC):
         )
 
 
-@total_ordering
 class ConvexQuadrangleIndexABC(MutableSet):
     """An abstract convex quadrangle index for the retrieval of convex quadrangles.
 
@@ -433,21 +432,6 @@ class ConvexQuadrangleIndexABC(MutableSet):
 
     def __len__(self):
         return len(self.quadrangles)
-
-    def __eq__(self, other):
-        if isinstance(other, ConvexQuadrangleIndexABC):
-            return self.quadrangles == other.quadrangles
-        return NotImplemented
-
-    def __lt__(self, other):
-        if isinstance(other, ConvexQuadrangleIndexABC):
-            return self.quadrangles < other.quadrangles
-        return NotImplemented
-
-    def isdisjoint(self, other):
-        if isinstance(other, ConvexQuadrangleIndexABC):
-            return self.quadrangles.isdisjoint(other.quadrangles)
-        return NotImplemented
 
 
 class ScreenABC(ABC):
