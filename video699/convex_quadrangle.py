@@ -35,8 +35,14 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         The top left corner of the quadrangle in a video frame coordinate system.
     top_right : (scalar, scalar)
         The top right corner of the quadrangle in a video frame coordinate system.
+    top_right_bound : (scalar, scalar)
+        The top right corner of the minimal bounding box that bounds the quadrangle in a video frame
+        coordinate system.
     bottom_left : (scalar, scalar)
         The bottom left corner of the quadrangle in a video frame coordinate system.
+    bottom_left_bound : (scalar, scalar)
+        The bottom left corner of the minimal bounding box that bounds the quadrangle in a video
+        frame coordinate system.
     bottom_right : (scalar, scalar)
         The bottom right corner of the quadrangle in a video frame coordinate system.
     width : int
@@ -88,12 +94,20 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
         return self._top_right.coords[0]
 
     @property
+    def top_left_bound(self):
+        return self._polygon.bounds[0:2]
+
+    @property
     def bottom_left(self):
         return self._bottom_left.coords[0]
 
     @property
     def bottom_right(self):
         return self._bottom_right.coords[0]
+
+    @property
+    def bottom_right_bound(self):
+        return self._polygon.bounds[2:4]
 
     @property
     def width(self):

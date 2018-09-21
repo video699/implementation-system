@@ -34,6 +34,27 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(bottom_left, quadrangle.bottom_left)
         self.assertEqual(bottom_right, quadrangle.bottom_right)
 
+    def test_bounding_box_coordinates(self):
+        top_left = (0, 2)
+        top_right = (2, 2)
+        bottom_left = (0, 0)
+        bottom_right = (2, 0)
+        quadrangle = ConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
+        top_left_bound = bottom_left
+        bottom_right_bound = top_right
+        self.assertEqual(top_left_bound, quadrangle.top_left_bound)
+        self.assertEqual(bottom_right_bound, quadrangle.bottom_right_bound)
+
+        top_left = (1, 0)
+        top_right = (0, 1)
+        bottom_left = (1, 2)
+        bottom_right = (2, 1)
+        quadrangle = ConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
+        top_left_bound = (0, 0)
+        bottom_right_bound = (2, 2)
+        self.assertEqual(top_left_bound, quadrangle.top_left_bound)
+        self.assertEqual(bottom_right_bound, quadrangle.bottom_right_bound)
+
     def test_equality(self):
         first_quadrangle = ConvexQuadrangle(
             top_left=(0, 2),

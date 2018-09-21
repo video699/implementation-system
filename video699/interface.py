@@ -247,12 +247,18 @@ class ConvexQuadrangleABC(ABC):
     ----------
     top_left : (scalar, scalar)
         The top left corner of the quadrangle in a video frame coordinate system.
+    top_left_bound : (scalar, scalar)
+        The top left corner of the minimal bounding box that bounds the quadrangle in a video frame
+        coordinate system.
     top_right : (scalar, scalar)
         The top right corner of the quadrangle in a video frame coordinate system.
     bottom_left : (scalar, scalar)
         The bottom left corner of the quadrangle in a video frame coordinate system.
     bottom_right : (scalar, scalar)
         The bottom right corner of the quadrangle in a video frame coordinate system.
+    bottom_right_bound : (scalar, scalar)
+        The bottom right corner of the minimal bounding box that bounds the quadrangle in a video
+        frame coordinate system.
     width : int
         The width of the screen in the screen coordinate space.
     height : int
@@ -262,6 +268,11 @@ class ConvexQuadrangleABC(ABC):
     @property
     @abstractmethod
     def top_left(self):
+        pass
+
+    @property
+    @abstractmethod
+    def top_left_bound(self):
         pass
 
     @property
@@ -277,6 +288,11 @@ class ConvexQuadrangleABC(ABC):
     @property
     @abstractmethod
     def bottom_right(self):
+        pass
+
+    @property
+    @abstractmethod
+    def bottom_right_bound(self):
         pass
 
     @property
