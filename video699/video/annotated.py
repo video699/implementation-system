@@ -142,12 +142,12 @@ def _init_dataset():
 
 
 def get_videos():
-    """Returns all videos from a XML dataset.
+    """Returns all videos from an XML dataset.
 
     Returns
     -------
     videos : dict of (str, AnnotatedSampledVideo)
-        A map between video file URIs, and all videos from a XML dataset.
+        A map between video file URIs, and all videos from an XML dataset.
     """
     return VIDEOS
 
