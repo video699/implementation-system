@@ -57,8 +57,8 @@ class RTreeConvexQuadrangleIndex(ConvexQuadrangleIndexABC):
             self._index.delete(quadrangle_id, coordinates)
 
     def clear(self):
-        self._quadrangles = {}
-        self._quadrangle_ids = {}
+        self._quadrangles.clear()
+        self._quadrangle_ids.clear()
         self._index = rtree.index.Index()
 
     def intersection_areas(self, input_quadrangle):
