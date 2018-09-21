@@ -9,6 +9,7 @@ jobs:
     - run:
         name: "Pull submodules"
         command: |
+          set -e
           git submodule init
           git submodule update
     - restore_cache:
@@ -16,18 +17,38 @@ jobs:
     - run:
         name: "Install dependencies"
         command: |
-          if [ -e venv ]; then mv ./venv ~/venv; else python3 -m venv ~/venv; fi
+          set -e
+          if [ -e ./venv ]; then mv ./venv ~/venv; else python3 -m venv ~/venv; fi
           . ~/venv/bin/activate
           pip install -U pip setuptools
           make init develop
           mv ~/venv ./venv
+    - run:
+        name: "Install libspatialindex"
+        command: |
+          set -e
+          if [ -e ./spatialindex ]; then
+            cd ./spatialindex
+          else
+            wget https://download.osgeo.org/libspatialindex/spatialindex-src-1.7.0.tar.gz
+            tar xzvf spatialindex-src-1.7.0.tar.gz
+            mv ./spatialindex-src-1.7.0 ./spatialindex
+            cd ./spatialindex
+            ./configure
+            make -j $(nproc --all)
+          fi
+          sudo make install
+          sudo ldconfig
     - save_cache:
         key: implementation-setup-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml" }}
         paths:
+          - spatialindex
           - venv
     - run:
         name: "Run tests"
         command: |
+          set -e
           mv ./venv ~/venv
+          rm -rf ./spatialindex
           . ~/venv/bin/activate
           make test
