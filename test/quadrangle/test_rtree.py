@@ -118,6 +118,13 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
             index.intersection_areas(FOURTH_QUADRANGLE),
         )
 
+    def test_clear(self):
+        index = RTreeConvexQuadrangleIndex((FIRST_QUADRANGLE, SECOND_QUADRANGLE))
+        index.clear()
+
+        self.assertEqual(0, len(index))
+        self.assertEqual({}, index.intersection_areas(FOURTH_QUADRANGLE))
+
     def test_intersection_areas_of_disjoint_quadrangles(self):
         index = RTreeConvexQuadrangleIndex((FIRST_QUADRANGLE,))
         self.assertEqual({}, index.intersection_areas(SECOND_QUADRANGLE))
