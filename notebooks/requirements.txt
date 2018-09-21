@@ -1,0 +1,4 @@
+jupyter~=1.0.0
+npstreams~=1.5.1
+tqdm~=4.26.0
+video699~=1.0.0
