@@ -2,7 +2,9 @@
 
 """This module defines interfaces, and abstract base classes.
 
-The use of MAY, and MUST in the docstrings follows RFC2119_.
+The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT, RECOMMENDED, MAY, and
+OPTIONAL in the docstrings of this module and modules importing this module are to be interpreted as
+described in RFC2119_.
 
 .. _RFC2119: https://tools.ietf.org/html/rfc2119
 """
