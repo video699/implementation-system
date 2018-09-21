@@ -14,7 +14,7 @@ from dateutil.parser import parse as datetime_parse
 from lxml import etree
 import numpy as np
 
-from ..convex_quadrangle import ConvexQuadrangle
+from ..quadrangle.geos import GEOSConvexQuadrangle
 from ..frame.image import ImageFrame
 from ..interface import ScreenABC, ScreenDetectorABC, VideoABC
 
@@ -62,7 +62,7 @@ def _init_dataset():
                     positions={
                         positions.attrib['camera']: sorted([
                             _ScreenPosition(
-                                coordinates=ConvexQuadrangle(
+                                coordinates=GEOSConvexQuadrangle(
                                     top_left=(
                                         int(position.attrib['x0']),
                                         int(position.attrib['y0']),

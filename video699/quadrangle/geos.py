@@ -2,6 +2,7 @@
 
 """This module implements a coordinate map between a video frame and projection screen coordinate
 systems based on a quadrangle specifying the screen corners in the video frame coordinate system.
+The implementation uses the GEOS library exposed through the Shapely Python package.
 
 """
 
@@ -9,11 +10,11 @@ import cv2 as cv
 import numpy as np
 from shapely.geometry import Point, Polygon
 
-from .common import COLOR_RGBA_TRANSPARENT
-from .interface import ConvexQuadrangleABC
+from ..common import COLOR_RGBA_TRANSPARENT
+from ..interface import ConvexQuadrangleABC
 
 
-class ConvexQuadrangle(ConvexQuadrangleABC):
+class GEOSConvexQuadrangle(ConvexQuadrangleABC):
     """A convex quadrangle specifying a map between video frame and projection screen coordinates.
 
     The quadrangle specifies the screen corners in a video frame coordinate system.
@@ -119,7 +120,7 @@ class ConvexQuadrangle(ConvexQuadrangleABC):
 
     def intersection_area(self, other):
         if isinstance(other, ConvexQuadrangleABC):
-            if isinstance(other, ConvexQuadrangle):
+            if isinstance(other, GEOSConvexQuadrangle):
                 other_polygon = other._polygon
             else:
                 other_polygon = Polygon([

@@ -8,7 +8,7 @@ The use of MAY, and MUST in the docstrings follows RFC2119_.
 """
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, MutableSet
 from datetime import timedelta
 from functools import total_ordering
 
@@ -370,6 +370,82 @@ class ConvexQuadrangleABC(ABC):
             bottom_left=self.bottom_left,
             bottom_right=self.bottom_right,
         )
+
+
+@total_ordering
+class ConvexQuadrangleIndexABC(MutableSet):
+    """An abstract convex quadrangle index for the retrieval of convex quadrangles.
+
+    Notes
+    -----
+    All requirements for subclassing `collections.abc.MutableSet` (such as the requirement for a
+    special constructor signature) apply. Mixin methods of `MutableSet` (such as __ior__, and
+    __iand__) that are not overriden here MAY be efficiently implemented by subclasses.
+
+    Attributes
+    ----------
+    quadrangles : a set-like object of ConvexQuadrangleABC
+        The convex quadrangles in the index.
+    """
+
+    @property
+    @abstractmethod
+    def quadrangles(self):
+        pass
+
+    @abstractmethod
+    def add(self, quadrangle):
+        pass
+
+    @abstractmethod
+    def discard(self, quadrangle):
+        pass
+
+    @abstractmethod
+    def clear(self):
+        pass
+
+    @abstractmethod
+    def intersection_areas(self, input_quadrangle):
+        """Retrieves convex quadrangles from the index that intersect an input convex quadrangle.
+
+        Parameters
+        ----------
+        quadrangle : ConvexQuadrangleABC
+            An input convex quadrangle.
+
+        Returns
+        -------
+        quadrangles : dict of (ConvexQuadrangleABC, scalar)
+            A map between convex quadrangles from the index that intersect the input convex
+            quadrangle, and the intersection areas. All intersection areas MUST be greater than
+            zero.
+        """
+        pass
+
+    def __contains__(self, quadrangle):
+        return quadrangle in self.quadrangles
+
+    def __iter__(self):
+        return iter(self.quadrangles)
+
+    def __len__(self):
+        return len(self.quadrangles)
+
+    def __eq__(self, other):
+        if isinstance(other, ConvexQuadrangleIndexABC):
+            return self.quadrangles == other.quadrangles
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, ConvexQuadrangleIndexABC):
+            return self.quadrangles < other.quadrangles
+        return NotImplemented
+
+    def isdisjoint(self, other):
+        if isinstance(other, ConvexQuadrangleIndexABC):
+            return self.quadrangles.isdisjoint(other.quadrangles)
+        return NotImplemented
 
 
 class ScreenABC(ABC):

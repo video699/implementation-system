@@ -16,7 +16,7 @@ from dateutil.parser import parse as datetime_parse
 from lxml import etree
 import numpy as np
 
-from ..convex_quadrangle import ConvexQuadrangle
+from ..quadrangle.geos import GEOSConvexQuadrangle
 from ..document.image_file import ImageFileDocumentPage
 from ..document.pdf import PDFDocument
 from ..frame.image import ImageFrame
@@ -74,7 +74,7 @@ def _init_dataset():
                 number=int(frame.attrib['number']),
                 screens=[
                     _ScreenAnnotations(
-                        coordinates=ConvexQuadrangle(
+                        coordinates=GEOSConvexQuadrangle(
                             top_left=(
                                 int(screen.attrib['x0']),
                                 int(screen.attrib['y0']),

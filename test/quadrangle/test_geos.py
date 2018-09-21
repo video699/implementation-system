@@ -4,18 +4,18 @@ import os
 import unittest
 
 import cv2 as cv
-from video699.convex_quadrangle import ConvexQuadrangle
+from video699.quadrangle.geos import GEOSConvexQuadrangle
 
 
 FRAME_IMAGE_PATHNAME = os.path.join(
     os.path.dirname(__file__),
-    'test_convex_quadrangle',
+    'test_geos',
     'sample_frame_image.png',
 )
 
 
-class TestConvexQuadrangle(unittest.TestCase):
-    """Tests the ability of the ConvexQuadrangle class to map image data in frame coordinate system.
+class TestGEOSConvexQuadrangle(unittest.TestCase):
+    """Tests the ability of the GEOSConvexQuadrangle class to map images in frame coordinate systems.
 
     """
 
@@ -28,7 +28,7 @@ class TestConvexQuadrangle(unittest.TestCase):
         top_right = (2, 2)
         bottom_left = (0, 0)
         bottom_right = (2, 0)
-        quadrangle = ConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
+        quadrangle = GEOSConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
         self.assertEqual(top_left, quadrangle.top_left)
         self.assertEqual(top_right, quadrangle.top_right)
         self.assertEqual(bottom_left, quadrangle.bottom_left)
@@ -39,7 +39,7 @@ class TestConvexQuadrangle(unittest.TestCase):
         top_right = (2, 2)
         bottom_left = (0, 0)
         bottom_right = (2, 0)
-        quadrangle = ConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
+        quadrangle = GEOSConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
         top_left_bound = bottom_left
         bottom_right_bound = top_right
         self.assertEqual(top_left_bound, quadrangle.top_left_bound)
@@ -49,26 +49,26 @@ class TestConvexQuadrangle(unittest.TestCase):
         top_right = (0, 1)
         bottom_left = (1, 2)
         bottom_right = (2, 1)
-        quadrangle = ConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
+        quadrangle = GEOSConvexQuadrangle(top_left, top_right, bottom_left, bottom_right)
         top_left_bound = (0, 0)
         bottom_right_bound = (2, 2)
         self.assertEqual(top_left_bound, quadrangle.top_left_bound)
         self.assertEqual(bottom_right_bound, quadrangle.bottom_right_bound)
 
     def test_equality(self):
-        first_quadrangle = ConvexQuadrangle(
+        first_quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
             bottom_right=(2, 0),
         )
-        second_quadrangle = ConvexQuadrangle(
+        second_quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
             bottom_right=(2, 0),
         )
-        third_quadrangle = ConvexQuadrangle(
+        third_quadrangle = GEOSConvexQuadrangle(
             top_left=(-1, 1),
             top_right=(1, 1),
             bottom_left=(-1, -1),
@@ -78,19 +78,19 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertFalse(first_quadrangle == third_quadrangle)
 
     def test_ordering(self):
-        first_quadrangle = ConvexQuadrangle(
+        first_quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
             bottom_right=(2, 0),
         )
-        second_quadrangle = ConvexQuadrangle(
+        second_quadrangle = GEOSConvexQuadrangle(
             top_left=(-1, 1),
             top_right=(1, 1),
             bottom_left=(-1, -1),
             bottom_right=(1, -1),
         )
-        third_quadrangle = ConvexQuadrangle(
+        third_quadrangle = GEOSConvexQuadrangle(
             top_left=(-2, 0),
             top_right=(0, 0),
             bottom_left=(-2, -2),
@@ -101,7 +101,7 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertTrue(first_quadrangle > third_quadrangle)
 
     def test_intersection_area_of_equal_quadrangles(self):
-        quadrangle = ConvexQuadrangle(
+        quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
@@ -111,13 +111,13 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(intersection_area, quadrangle.intersection_area(quadrangle))
 
     def test_intersection_area_of_crossing_quadrangles(self):
-        first_quadrangle = ConvexQuadrangle(
+        first_quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
             bottom_right=(2, 0),
         )
-        second_quadrangle = ConvexQuadrangle(
+        second_quadrangle = GEOSConvexQuadrangle(
             top_left=(-1, 1),
             top_right=(1, 1),
             bottom_left=(-1, -1),
@@ -128,13 +128,13 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
 
     def test_intersection_area_of_touching_quadrangles(self):
-        first_quadrangle = ConvexQuadrangle(
+        first_quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
             bottom_right=(2, 0),
         )
-        second_quadrangle = ConvexQuadrangle(
+        second_quadrangle = GEOSConvexQuadrangle(
             top_left=(-2, 0),
             top_right=(0, 0),
             bottom_left=(-2, -2),
@@ -145,13 +145,13 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
 
     def test_intersection_area_of_disjoint_quadrangles(self):
-        first_quadrangle = ConvexQuadrangle(
+        first_quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 2),
             top_right=(2, 2),
             bottom_left=(0, 0),
             bottom_right=(2, 0),
         )
-        second_quadrangle = ConvexQuadrangle(
+        second_quadrangle = GEOSConvexQuadrangle(
             top_left=(-4, 0),
             top_right=(-2, 0),
             bottom_left=(-4, -4),
@@ -162,7 +162,7 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(intersection_area, second_quadrangle.intersection_area(first_quadrangle))
 
     def test_red_screen(self):
-        coordinate_map = ConvexQuadrangle(
+        coordinate_map = GEOSConvexQuadrangle(
             top_left=(50, 210),
             top_right=(30, 55),
             bottom_left=(300, 250),
@@ -188,7 +188,7 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(255, alpha[black_circle_coordinates])
 
     def test_green_screen(self):
-        coordinate_map = ConvexQuadrangle(
+        coordinate_map = GEOSConvexQuadrangle(
             top_left=(95, 385),
             top_right=(560, 360),
             bottom_left=(75, 440),
@@ -214,7 +214,7 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(255, alpha[black_circle_coordinates])
 
     def test_blue_screen(self):
-        coordinate_map = ConvexQuadrangle(
+        coordinate_map = GEOSConvexQuadrangle(
             top_left=(462, 112),
             top_right=(580, 120),
             bottom_left=(460, 300),
@@ -240,7 +240,7 @@ class TestConvexQuadrangle(unittest.TestCase):
         self.assertEqual(255, alpha[black_circle_coordinates])
 
     def test_out_of_bounds_screen(self):
-        coordinate_map = ConvexQuadrangle(
+        coordinate_map = GEOSConvexQuadrangle(
             top_left=(-50, 210),
             top_right=(-30, 55),
             bottom_left=(700, 250),

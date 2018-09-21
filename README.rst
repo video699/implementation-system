@@ -16,15 +16,30 @@ for notes on how to deploy the project on a live system.
 Prerequisites
 ~~~~~~~~~~~~~
 
-You will require the following tools for the installation:
+You need the following tools for the installation:
 
 - Git >= 1.5.3
 - Python >= 3.5
 
-You will also require at least the following Python packages:
+You also need at least the following Python packages:
 
-- `Pip <https://pypi.org/project/pip/>`__
-- `Setuptools <https://pypi.org/project/setuptools/>`__
+- `Pip <https://pypi.org/project/pip/>`__ >= 1.4
+- `Setuptools <https://pypi.org/project/setuptools/>`__ >= 0.8
+
+You also need to install the libxml2, and libxslt libraries, which are
+required by the `lxml <https://pypi.org/project/lxml/>`__ Python package. To
+install the libxml2, and libxslt libraries, follow the instructions in the
+`lxml documentation <https://lxml.de/installation.html#requirements>`__.
+
+You also need to install the libspatial library, which is required by the
+`Rtree <https://pypi.org/project/Rtree/>`__ Python package.  To install the
+libspatial library, follow the instructions in the `Rtree documentation
+<http://toblerity.org/rtree/install.html>`__.
+
+If you are using a platform for which wheel binary packages are not available,
+you may need to perform extra steps. Consult the documentation of the
+`OpenCV <https://pypi.org/project/opencv-python/>`__, and
+`Shapely <https://pypi.org/project/Shapely/>`__ packages for further details.
 
 What other things you need to install the software and how to install them
 
@@ -48,7 +63,7 @@ Next, install the package using Pip:
 
    $ python install .
 
-If you wish to run tests, and build the documentation, use Pip to download
+If you wish to run tests, or build the documentation, use Pip to download
 additional Python packages specified in the ``requirements.txt`` file:
 
 ::
@@ -75,6 +90,14 @@ for a little demo
 
 Running the tests
 -----------------
+
+Running automated tests is a good way to check that you installed the package
+correctly, or that your change to the package did not break any functionality
+covered by the tests. To run automated tests, use the following command:
+
+::
+
+   $ python setup.py test
 
 Explain how to run the automated tests for this system
 

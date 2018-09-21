@@ -47,6 +47,7 @@ setup(
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',
         'pyxdg~=0.26',
+        'Rtree~=0.8.3',
         'Shapely~=1.6.4.post2',
     ],
     long_description=long_description,

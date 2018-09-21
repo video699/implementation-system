@@ -11,7 +11,7 @@ from lxml.etree import xmlfile, XMLSchema
 from video699.document.image_file import ImageFileDocument
 from video699.event.screen import ScreenEventDetector, ScreenEventDetectorVideo, \
     ScreenAppearedEvent, ScreenChangedContentEvent, ScreenMovedEvent, ScreenDisappearedEvent
-from video699.convex_quadrangle import ConvexQuadrangle
+from video699.quadrangle.geos import GEOSConvexQuadrangle
 from ..document.test_image_file import FIRST_PAGE_IMAGE_PATHNAME, SECOND_PAGE_IMAGE_PATHNAME
 
 
@@ -19,8 +19,8 @@ VIDEO_FPS = 15
 VIDEO_WIDTH = 720
 VIDEO_HEIGHT = 576
 VIDEO_DATETIME = datetime_parse('2016-10-26T00:00:00+00:00')
-FIRST_COORDINATES = ConvexQuadrangle((10, 10), (30, 10), (10, 30), (30, 30))
-SECOND_COORDINATES = ConvexQuadrangle((40, 40), (80, 40), (40, 80), (80, 80))
+FIRST_COORDINATES = GEOSConvexQuadrangle((10, 10), (30, 10), (10, 30), (30, 30))
+SECOND_COORDINATES = GEOSConvexQuadrangle((40, 40), (80, 40), (40, 80), (80, 80))
 XML_SCHEMA_PATHNAME = os.path.join(os.path.dirname(__file__), 'schema.xsd')
 
 
