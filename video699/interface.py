@@ -16,15 +16,17 @@ from functools import total_ordering
 class EventABC(ABC):
     """An abstract event detected in a video.
 
-    Attributes
-    ----------
-    xml_element : lxml.etree.Element
-        An XML representation of the event.
     """
 
-    @property
     @abstractmethod
-    def xml_element(self):
+    def write_xml(self, xf):
+        """Writes an XML fragment that represents the event to an XML file.
+
+        Parameters
+        ----------
+        xf : lxml.etree.xmlfile
+            An XML file.
+        """
         pass
 
     def __repr__(self):
@@ -51,9 +53,33 @@ class EventDetectorABC(ABC):
     def video(self):
         pass
 
+    def write_xml(self, xf):
+        """Writes an XML document that represents all detected event to an XML file.
+
+        Notes
+        -----
+        After the first invocation of `write_xml`, it MAY be possible to call `write_xml` again and
+        to iterate over all detected events in the video.
+
+        Parameters
+        ----------
+        xf : lxml.etree.xmlfile
+            An XML file.
+        """
+        xf.write_declaration()
+        with xf.element('events', attrib={'video-uri': self.video.uri}):
+            for event in self:
+                event.write_xml(xf)
+                xf.flush()
+
     @abstractmethod
     def __iter__(self):
         """Produces an iterator of all events detected in a video.
+
+        Notes
+        -----
+        After the first iteration, it MAY be possible to call `write_xml` and to iterate over all
+        detected events in the video again.
 
         Returns
         -------

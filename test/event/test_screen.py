@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from io import BytesIO
 import os
 import unittest
 
 from dateutil.parser import parse as datetime_parse
-from lxml.etree import XMLSchema, Element, ElementTree
+from lxml import etree
+from lxml.etree import xmlfile, XMLSchema
 
 from video699.document.image_file import ImageFileDocument
 from video699.event.screen import ScreenEventDetector, ScreenEventDetectorVideo, \
@@ -52,10 +54,12 @@ class TestScreenEventDetector(unittest.TestCase):
         screen_events = list(detector)
         self.assertEqual(0, len(screen_events))
 
-        xml_element = Element('events')
-        xml_element.attrib['video-uri'] = detector.video.uri
-        xml_etree = ElementTree(xml_element)
-        self.xml_schema.assertValid(xml_etree)
+        f = BytesIO()
+        with xmlfile(f) as xf:
+            detector.write_xml(xf)
+        f.seek(0)
+        xml_document = etree.parse(f)
+        self.xml_schema.assertValid(xml_document)
 
     def test_nonempty(self):
         video = ScreenEventDetectorVideo(
@@ -109,12 +113,12 @@ class TestScreenEventDetector(unittest.TestCase):
         self.assertEqual(5, screen_event.frame.number)
         self.assertEqual(SECOND_COORDINATES, screen_event.screen.coordinates)
 
-        xml_element = Element('events')
-        xml_element.attrib['video-uri'] = detector.video.uri
-        for screen_event in screen_events:
-            xml_element.append(screen_event.xml_element)
-        xml_etree = ElementTree(xml_element)
-        self.xml_schema.assertValid(xml_etree)
+        f = BytesIO()
+        with xmlfile(f) as xf:
+            detector.write_xml(xf)
+        f.seek(0)
+        xml_document = etree.parse(f)
+        self.xml_schema.assertValid(xml_document)
 
 
 if __name__ == '__main__':

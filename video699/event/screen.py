@@ -90,8 +90,7 @@ class ScreenAppearedEvent(ScreenEventABC):
     def screen_id(self):
         return self._screen_id
 
-    @property
-    def xml_element(self):
+    def write_xml(self, xf):
         screen = self.screen
         frame = self.frame
         video = frame.video
@@ -119,7 +118,7 @@ class ScreenAppearedEvent(ScreenEventABC):
         xml_element.attrib['x3'] = str(x3)
         xml_element.attrib['y3'] = str(y3)
 
-        return xml_element
+        xf.write(xml_element)
 
 
 class ScreenChangedContentEvent(ScreenEventABC):
@@ -163,8 +162,7 @@ class ScreenChangedContentEvent(ScreenEventABC):
     def screen_id(self):
         return self._screen_id
 
-    @property
-    def xml_element(self):
+    def write_xml(self, xf):
         frame = self.frame
         video = frame.video
         page = self.page
@@ -178,7 +176,7 @@ class ScreenChangedContentEvent(ScreenEventABC):
         xml_element.attrib['document-uri'] = document.uri
         xml_element.attrib['page-number'] = str(page.number)
 
-        return xml_element
+        xf.write(xml_element)
 
 
 class ScreenMovedEvent(ScreenEventABC):
@@ -217,8 +215,7 @@ class ScreenMovedEvent(ScreenEventABC):
     def screen_id(self):
         return self._screen_id
 
-    @property
-    def xml_element(self):
+    def write_xml(self, xf):
         screen = self.screen
         frame = self.frame
         video = frame.video
@@ -242,7 +239,7 @@ class ScreenMovedEvent(ScreenEventABC):
         xml_element.attrib['x3'] = str(x3)
         xml_element.attrib['y3'] = str(y3)
 
-        return xml_element
+        xf.write(xml_element)
 
 
 class ScreenDisappearedEvent(ScreenEventABC):
@@ -283,8 +280,7 @@ class ScreenDisappearedEvent(ScreenEventABC):
     def screen_id(self):
         return self._screen_id
 
-    @property
-    def xml_element(self):
+    def write_xml(self, xf):
         frame = self.frame
         video = frame.video
         xsd_duration = timedelta_as_xsd_duration(frame.datetime - video.datetime)
@@ -294,7 +290,7 @@ class ScreenDisappearedEvent(ScreenEventABC):
         xml_element.attrib['frame-number'] = str(frame.number)
         xml_element.attrib['frame-time'] = xsd_duration
 
-        return xml_element
+        xf.write(xml_element)
 
 
 class ScreenEventDetectorScreen(ScreenABC):
