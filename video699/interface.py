@@ -479,7 +479,7 @@ class ScreenABC(ABC):
         return '<{classname}, {width}x{height}px, frame {frame} at {coordinates}>'.format(
             classname=self.__class__.__name__,
             width=self.width,
-            height=self.heigth,
+            height=self.height,
             frame=self.frame,
             coordinates=self.coordinates,
         )
