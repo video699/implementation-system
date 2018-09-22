@@ -475,6 +475,14 @@ class ScreenABC(ABC):
     def height(self):
         return self.coordinates.height
 
+    def __hash__(self):
+        return hash((self.frame, self.coordinates))
+
+    def __eq__(self, other):
+        if isinstance(other, ScreenABC):
+            return self.frame == other.frame and self.coordinates == other.coordinates
+        return NotImplemented
+
     def __repr__(self):
         return '<{classname}, {width}x{height}px, frame {frame} at {coordinates}>'.format(
             classname=self.__class__.__name__,
