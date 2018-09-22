@@ -159,4 +159,15 @@ texinfo_documents = [
 ]
 
 
+# -- Include __iter__ in the documentation -----------------------------------
+
+def skip(app, what, name, obj, skip, options):
+    if name == "__iter__":
+        return False
+    return skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
+
+
 # -- Extension configuration -------------------------------------------------
