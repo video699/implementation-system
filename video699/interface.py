@@ -60,7 +60,7 @@ class EventDetectorABC(ABC):
 
         Notes
         -----
-        After the first invocation of `write_xml`, it MAY be possible to call `write_xml` again and
+        After the first invocation of ``write_xml``, it MAY be possible to call ``write_xml`` again and
         to iterate over all detected events in the video.
 
         Parameters
@@ -80,7 +80,7 @@ class EventDetectorABC(ABC):
 
         Notes
         -----
-        After the first iteration, it MAY be possible to call `write_xml` and to iterate over all
+        After the first iteration, it MAY be possible to call ``write_xml`` and to iterate over all
         detected events in the video again.
 
         Returns
@@ -375,12 +375,12 @@ class ConvexQuadrangleABC(ABC):
 
 
 class ConvexQuadrangleIndexABC(MutableSet):
-    """An abstract convex quadrangle index for the retrieval of convex quadrangles.
+    """An abstract index for the retrieval of convex quadrangles.
 
     Notes
     -----
-    All requirements for subclassing `collections.abc.MutableSet` (such as the requirement for a
-    special constructor signature) apply. Mixin methods of `MutableSet` (such as __ior__, and
+    All requirements for subclassing ``collections.abc.MutableSet`` (such as the requirement for a
+    special constructor signature) apply. Mixin methods of ``MutableSet`` (such as __ior__, and
     __iand__) that are not overriden here MAY be efficiently implemented by subclasses.
 
     Attributes

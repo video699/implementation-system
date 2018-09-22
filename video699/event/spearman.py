@@ -35,6 +35,7 @@ def benjamini_hochberg(p_values):
     q_values : iterable of scalar
         The p-values adjusted using the FDR controlling procedure.
     """
+
     p_value_array = np.asfarray(p_values)
     num_pvalues = len(p_value_array)
     descending_order = p_value_array.argsort()[::-1]

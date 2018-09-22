@@ -90,9 +90,9 @@ class ImageFileDocument(DocumentABC):
     image_pathnames : iterable of str
         The pathnames of the image files containing the individual pages in the document.
     title : str or None, optional
-        The title of a document. `None` when unspecified.
+        The title of a document. ``None`` when unspecified.
     author : str or None, optional
-        The author of a document. `None` when unspecified.
+        The author of a document. ``None`` when unspecified.
 
     Attributes
     ----------

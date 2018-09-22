@@ -24,7 +24,7 @@ class ScreenEventABC(FrameEventABC):
 
     Notes
     -----
-    Other screen events MUST NOT take place in the same frame as a `ScreenAppearedEvent` event.
+    Other screen events MUST NOT take place in the same frame as a ``ScreenAppearedEvent`` event.
 
     Attributes
     ----------
@@ -61,7 +61,7 @@ class ScreenAppearedEvent(ScreenEventABC):
     screen : ScreenABC
         A detected projection screen containing a document page.
     screen_id : string
-        A screen identifier unique among the `ScreenAppearedEvent` events produced by an event
+        A screen identifier unique among the ``ScreenAppearedEvent`` events produced by an event
         detector.
     page : PageABC
         The document page.
@@ -73,7 +73,7 @@ class ScreenAppearedEvent(ScreenEventABC):
     screen : ScreenABC
         A detected projection screen containing a document page.
     screen_id : str
-        A screen identifier unique among the `ScreenAppearedEvent` events produced by an event
+        A screen identifier unique among the ``ScreenAppearedEvent`` events produced by an event
         detector.
     page : PageABC
         The document page.
@@ -133,7 +133,7 @@ class ScreenChangedContentEvent(ScreenEventABC):
     screen : ScreenABC
         A projection screen, which now shows a different document page.
     screen_id : string
-        A screen identifier that MUST have appeared in an earlier `ScreenAppearedEvent` event
+        A screen identifier that MUST have appeared in an earlier ``ScreenAppearedEvent`` event
         produced by an event detector.
     page : PageABC
         The different document page.
@@ -145,7 +145,7 @@ class ScreenChangedContentEvent(ScreenEventABC):
     screen : ScreenABC
         A projection screen, which now shows a different document page.
     screen_id : string
-        A screen identifier that MUST have appeared in an earlier `ScreenAppearedEvent` event
+        A screen identifier that MUST have appeared in an earlier ``ScreenAppearedEvent`` event
         produced by an event detector,
     page : PageABC
         The different document page.
@@ -191,7 +191,7 @@ class ScreenMovedEvent(ScreenEventABC):
     screen : ScreenABC
         A projection screen, which now appears at different coordinates.
     screen_id : string
-        A screen identifier that MUST have appeared in an earlier `ScreenAppearedEvent` event
+        A screen identifier that MUST have appeared in an earlier ``ScreenAppearedEvent`` event
         produced by an event detector.
 
     Attributes
@@ -201,7 +201,7 @@ class ScreenMovedEvent(ScreenEventABC):
     screen : ScreenABC
         A projection screen, which now appears at different coordinates.
     screen_id : string
-        A screen identifier that MUST have appeared in an earlier `ScreenAppearedEvent` event
+        A screen identifier that MUST have appeared in an earlier ``ScreenAppearedEvent`` event
         produced by an event detector.
     xml : xml.etree.ElementTree.Element
         An XML representation of the event.
@@ -251,8 +251,8 @@ class ScreenDisappearedEvent(ScreenEventABC):
 
     Notes
     -----
-    Other screen events MUST NOT take place in the same frame as a `ScreenDisappearedEvent` event.
-    For every `ScreenAppearedEvent` event, a `ScreenDisappearedEvent` event with the same screen
+    Other screen events MUST NOT take place in the same frame as a ``ScreenDisappearedEvent`` event.
+    For every ``ScreenAppearedEvent`` event, a ``ScreenDisappearedEvent`` event with the same screen
     identifier MAY be produced by an event detector.
 
     Parameters
@@ -260,8 +260,8 @@ class ScreenDisappearedEvent(ScreenEventABC):
     screen : ScreenABC
         A disappeared projection screen.
     screen_id : str
-        A screen identifier unique among the `ScreenDisappearedEvent`s produced by an event
-        detector. The identifier MUST have appeared in an earlier `ScreenAppearedEvent` produced by
+        A screen identifier unique among the ``ScreenDisappearedEvent``s produced by an event
+        detector. The identifier MUST have appeared in an earlier ``ScreenAppearedEvent`` produced by
         an event detector.
 
     Attributes
@@ -271,8 +271,8 @@ class ScreenDisappearedEvent(ScreenEventABC):
     screen : ScreenABC
         A disappeared projection screen.
     screen_id : string
-        A screen identifier unique among the `ScreenDisappearedEvent`s produced by an event
-        detector. The identifier MUST have appeared in an earlier `ScreenAppearedEvent` produced by
+        A screen identifier unique among the ``ScreenDisappearedEvent``s produced by an event
+        detector. The identifier MUST have appeared in an earlier ``ScreenAppearedEvent`` produced by
         an event detector.
     xml : xml.etree.ElementTree.Element
         An XML representation of the event.
@@ -304,7 +304,7 @@ class ScreenDisappearedEvent(ScreenEventABC):
 
 
 class ScreenEventDetectorScreen(ScreenABC):
-    """A projection screen shown in a video represented by the `ScreenEventDetectorVideo` object.
+    """A projection screen shown in a video represented by the ``ScreenEventDetectorVideo`` object.
 
     Notes
     -----
@@ -468,7 +468,7 @@ class ScreenEventDetectorVideo(VideoABC):
 
 
 class ScreenEventDetector(EventDetectorABC):
-    """A detector of screen events in a `ScreenEventDetectorVideo` object.
+    """A detector of screen events in a ``ScreenEventDetectorVideo`` object.
 
     Notes
     -----

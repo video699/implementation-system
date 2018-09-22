@@ -177,7 +177,7 @@ class _ScreenAnnotations(object):
     installed_until : datetime or None, optional
         The date, and time that marks the screen's removal. If None, or unspecified, then the screen
         is assumed to be present at any point since the date, and time specified by the (possibly
-        inferred) `installed_from` attribute.
+        inferred) ``installed_from`` attribute.
 
     Attributes
     ----------
@@ -195,7 +195,7 @@ class _ScreenAnnotations(object):
     installed_until : datetime or None
         The date, and time that marks the screen's removal. If None, then the screen is assumed to
         be present at any point since the date, and time specified by the (possibly inferred)
-        `installed_from` attribute.
+        ``installed_from`` attribute.
     """
 
     def __init__(self, screen_id, name, positions, installed_from=None, installed_until=None):

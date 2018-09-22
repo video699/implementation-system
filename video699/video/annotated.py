@@ -639,9 +639,9 @@ class _KeyRefAnnotations(object):
         The similarity between  what is shown in the projection screen, and the document page. The
         following values are legal:
 
-        - `full` specifies that there is a 1:1 correspondence between what is shown in the
+        - ``full`` specifies that there is a 1:1 correspondence between what is shown in the
           projection screen, and the document page.
-        - `incremental` specifies that in a document attached to the ancestor video, a single
+        - ``incremental`` specifies that in a document attached to the ancestor video, a single
           logical page is split across multiple physical pages and incrementally uncovered; the
           slide and the frame correspond to the same logical page, but not the same physical page.
 
@@ -654,9 +654,9 @@ class _KeyRefAnnotations(object):
         The similarity between  what is shown in the projection screen, and the document page. The
         following values are legal:
 
-        - `full` specifies that there is a 1:1 correspondence between what is shown in the
+        - ``full`` specifies that there is a 1:1 correspondence between what is shown in the
           projection screen, and the document page.
-        - `incremental` specifies that in a document attached to the ancestor video, a single
+        - ``incremental`` specifies that in a document attached to the ancestor video, a single
           logical page is split across multiple physical pages and incrementally uncovered; the
           slide and the frame correspond to the same logical page, but not the same physical page.
 
@@ -677,10 +677,10 @@ class _ScreenAnnotations(object):
     condition : str
         The condition of what is being shown in the screen. The following values are legal:
 
-        - `pristine` specifies that there is no significant degradation beyond photon noise.
-        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+        - ``pristine`` specifies that there is no significant degradation beyond photon noise.
+        - ``windowed`` specifies that a slide is being shown, but the slide does not cover the full
           screen.
-        - `obstacle` specifies that a part of the screen or the projector light is partially
+        - ``obstacle`` specifies that a part of the screen or the projector light is partially
           obscured by either a physical obstacle, or by a different GUI window.
 
     keyrefs : dict of (str, _KeyRefAnnotations)
@@ -696,10 +696,10 @@ class _ScreenAnnotations(object):
     condition : str
         The condition of what is being shown in the screen. The following values are legal:
 
-        - `pristine` specifies that there is no significant degradation beyond photon noise.
-        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+        - ``pristine`` specifies that there is no significant degradation beyond photon noise.
+        - ``windowed`` specifies that a slide is being shown, but the slide does not cover the full
           screen.
-        - `obstacle` specifies that a part of the screen or the projector light is partially
+        - ``obstacle`` specifies that a part of the screen or the projector light is partially
           obscured by either a physical obstacle, or by a different GUI window.
 
     keyrefs : dict of (str, _KeyRefAnnotations)
@@ -736,10 +736,10 @@ class AnnotatedSampledVideoScreen(ScreenABC):
     condition : str
         The condition of what is being shown in the screen. The following values are legal:
 
-        - `pristine` specifies that there is no significant degradation beyond photon noise.
-        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+        - ``pristine`` specifies that there is no significant degradation beyond photon noise.
+        - ``windowed`` specifies that a slide is being shown, but the slide does not cover the full
           screen.
-        - `obstacle` specifies that a part of the screen or the projector light is partially
+        - ``obstacle`` specifies that a part of the screen or the projector light is partially
           obscured by either a physical obstacle, or by a different GUI window.
 
     vgg256 : VGG256Features
@@ -801,10 +801,10 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
     conditions : set of str, optional
         A set of admissible conditions of a screen. The following condition strings are legal:
 
-        - `pristine` specifies that there is no significant degradation beyond photon noise.
-        - `windowed` specifies that a slide is being shown, but the slide does not cover the full
+        - ``pristine`` specifies that there is no significant degradation beyond photon noise.
+        - ``windowed`` specifies that a slide is being shown, but the slide does not cover the full
           screen.
-        - `obstacle` specifies that a part of the screen or the projector light is partially
+        - ``obstacle`` specifies that a part of the screen or the projector light is partially
           obscured by either a physical obstacle, or by a different GUI window.
 
         Screens with inadmissible conditions will not be detected.
