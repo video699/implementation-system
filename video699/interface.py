@@ -379,9 +379,10 @@ class ConvexQuadrangleIndexABC(MutableSet):
 
     Notes
     -----
-    All requirements for subclassing ``collections.abc.MutableSet`` (such as the requirement for a
-    special constructor signature) apply. Mixin methods of ``MutableSet`` (such as __ior__, and
-    __iand__) that are not overriden here MAY be efficiently implemented by subclasses.
+    All requirements for subclassing :class:`collections.abc.MutableSet` (such as the requirement
+    for a special constructor signature) apply. Mixin methods of :class:`MutableSet` (such as
+    ``__ior__``, and ``__iand__``) that are not overriden here MAY be efficiently implemented by
+    subclasses.
 
     Attributes
     ----------
