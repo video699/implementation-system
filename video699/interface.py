@@ -435,6 +435,45 @@ class ConvexQuadrangleIndexABC(MutableSet):
         return len(self.quadrangles)
 
 
+class MovingConvexQuadrangleABC(ABC):
+    """An abstract convex quadrangle that moves in time.
+
+    Notes
+    -----
+    It MUST be possible to repeatedly iterate over all tracked convex quadrangles.
+
+    Attributes
+    ----------
+    quadrangle_id : str
+        An identifier unique among the :class:`TrackedConvexQuadrangleABC` tracked identifiers
+        produced by a convex quadrangle tracker.
+
+    """
+
+    @property
+    @abstractmethod
+    def quadrangle_id(self):
+        pass
+
+    @abstractmethod
+    def __iter__(self):
+        """Produces an iterator of the movements of the convex quadrangle.
+
+        Returns
+        -------
+        quadrangles : iterator of ConvexQuadrangleABC
+            The corners of the moving convex quadrangle starting with the current time frame and
+            working back to the previous time frames in the past.
+        """
+        pass
+
+    def __repr__(self):
+        return '<{classname}, {quadrangle_id}>'.format(
+            classname=self.__class__.__name__,
+            quadrangle_id=quadrangle_id,
+        )
+
+
 class ConvexQuadrangleTrackerABC(ABC):
     """An abstract tracker of the movement of convex quadrangles over time.
 
@@ -461,11 +500,11 @@ class ConvexQuadrangleTrackerABC(ABC):
 
         Returns
         -------
-        appeared_quadrangles : set of TrackedConvexQuadrangleABC
+        appeared_quadrangles : set of MovingConvexQuadrangleABC
             The current quadrangles that intersect no previous quadrangles.
-        existing_quadrangles : set of TrackedConvexQuadrangleABC
+        existing_quadrangles : set of MovingConvexQuadrangleABC
             The current quadrangles that intersect at least one previous quadrangle.
-        disappeared_quadrangles : set of TrackedConvexQuadrangleABC
+        disappeared_quadrangles : set of MovingConvexQuadrangleABC
             The previous quadrangles that cross no current quadrangles.
         """
         pass
