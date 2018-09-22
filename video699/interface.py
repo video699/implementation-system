@@ -60,8 +60,8 @@ class EventDetectorABC(ABC):
 
         Notes
         -----
-        After the first invocation of ``write_xml``, it MAY be possible to call ``write_xml`` again and
-        to iterate over all detected events in the video.
+        After the first invocation of ``write_xml``, it MAY be possible to call ``write_xml`` again
+        and to iterate over all detected events in the video.
 
         Parameters
         ----------
