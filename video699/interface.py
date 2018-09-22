@@ -386,7 +386,7 @@ class ConvexQuadrangleIndexABC(MutableSet):
 
     Attributes
     ----------
-    quadrangles : a set-like object of ConvexQuadrangleABC
+    quadrangles : read-only set-like object of ConvexQuadrangleABC
         The convex quadrangles in the index.
     """
 
