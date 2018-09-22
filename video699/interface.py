@@ -434,6 +434,58 @@ class ConvexQuadrangleIndexABC(MutableSet):
         return len(self.quadrangles)
 
 
+class ConvexQuadrangleTrackerABC(ABC):
+    """An abstract tracker of the movement of convex quadrangles over time.
+
+    Notes
+    -----
+    It MUST be possible to repeatedly iterate over all tracked convex quadrangles.
+
+    """
+
+    @abstractmethod
+    def update(self, quadrangles):
+        """Records convex quadrangles that exist in the current time frame.
+
+        The convex quadrangles in the *current* time frame are compared with the convex quadrangles
+        in the *previous* time frame. The current quadrangles that intersect no previous quadrangles
+        are added to the tracker. The current quadrangles that intersect at least one previous
+        quadrangle are considered to be the current position of the previous quadrangle. The
+        previous quadrangles that cross no current quadrangles are removed from the tracker.
+
+        Parameters
+        ----------
+        current_quadrangles : iterable of ConvexQuadrangleABC
+            The convex quadrangles in the current time frame.
+
+        Returns
+        -------
+        appeared_quadrangles : set of TrackedConvexQuadrangleABC
+            The current quadrangles that intersect no previous quadrangles.
+        existing_quadrangles : set of TrackedConvexQuadrangleABC
+            The current quadrangles that intersect at least one previous quadrangle.
+        disappeared_quadrangles : set of TrackedConvexQuadrangleABC
+            The previous quadrangles that cross no current quadrangles.
+        """
+        pass
+
+    def __repr__(self):
+        return '<{classname}>'.format(
+            classname=self.__class__.__name__,
+        )
+
+    @abstractmethod
+    def __iter__(self):
+        """Produces an iterator of the tracked convex quadrangles.
+
+        Returns
+        -------
+        tracked_quadrangles : iterator of TrackedConvexQuadrangleABC
+            An iterable of the tracked quadrangles.
+        """
+        pass
+
+
 class ScreenABC(ABC):
     """An abstract projection screen shown in a video frame.
 
