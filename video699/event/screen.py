@@ -53,6 +53,14 @@ class ScreenEventABC(FrameEventABC):
     def screen_id(self):
         pass
 
+    def __repr__(self):
+        return '<{classname}, {screen_id}, screen {screen}>'.format(
+            classname=self.__class__.__name__,
+            screen=self.screen,
+            screen_id=self.screen_id,
+            quadrangle_id=self.quadrangle_id,
+        )
+
 
 class ScreenAppearedEvent(ScreenEventABC):
     """The appearance of a projection screen containing a document page.

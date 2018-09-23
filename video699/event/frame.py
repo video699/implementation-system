@@ -40,3 +40,9 @@ class FrameEventABC(EventABC):
         if isinstance(other, FrameEventABC):
             return self.frame < other.frame
         return NotImplemented
+
+    def __repr__(self):
+        return '<{classname}, frame {frame}>'.format(
+            classname=self.__class__.__name__,
+            frame=self.frame,
+        )
