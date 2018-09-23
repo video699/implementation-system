@@ -497,12 +497,6 @@ class ConvexQuadrangleTrackerABC(ABC, Iterable):
     def update(self, quadrangles):
         """Records convex quadrangles that exist in the current time frame.
 
-        The convex quadrangles in the *current* time frame are compared with the convex quadrangles
-        in the *previous* time frame. The current quadrangles that intersect no previous quadrangles
-        are added to the tracker. The current quadrangles that intersect at least one previous
-        quadrangle are considered to be the current position of the previous quadrangle. The
-        previous quadrangles that cross no current quadrangles are removed from the tracker.
-
         Parameters
         ----------
         current_quadrangles : iterable of ConvexQuadrangleABC
@@ -511,18 +505,16 @@ class ConvexQuadrangleTrackerABC(ABC, Iterable):
         Returns
         -------
         appeared_quadrangles : set of MovingConvexQuadrangleABC
-            The current quadrangles that intersect no previous quadrangles.
+            The moving convex quadrangles that did not exist in the previous time frame and exist in
+            the current time frame.
         existing_quadrangles : set of MovingConvexQuadrangleABC
-            The current quadrangles that intersect at least one previous quadrangle.
+            The moving convex quadrangles that existed in the previous time frame and exist in the
+            current time frame.
         disappeared_quadrangles : set of MovingConvexQuadrangleABC
-            The previous quadrangles that cross no current quadrangles.
+            The moving convex quadrangles that existed in the previous time frame and do not exist
+            in the current time frame.
         """
         pass
-
-    def __repr__(self):
-        return '<{classname}>'.format(
-            classname=self.__class__.__name__,
-        )
 
     @abstractmethod
     def __iter__(self):
@@ -534,6 +526,11 @@ class ConvexQuadrangleTrackerABC(ABC, Iterable):
             An iterable of the tracked quadrangles.
         """
         pass
+
+    def __repr__(self):
+        return '<{classname}>'.format(
+            classname=self.__class__.__name__,
+        )
 
 
 class ScreenABC(ABC):
