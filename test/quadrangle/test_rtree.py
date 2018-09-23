@@ -3,7 +3,7 @@
 import unittest
 
 from video699.quadrangle.geos import GEOSConvexQuadrangle
-from video699.quadrangle.rtree import RTreeConvexQuadrangleIndex
+from video699.quadrangle.rtree import RTreeConvexQuadrangleIndex, RTreeConvexQuadrangleTracker
 
 
 class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
@@ -168,6 +168,100 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
             fourth_quadrangle: fifth_quadrangle.area,
             fifth_quadrangle: fifth_quadrangle.area,
         }, index.intersection_areas(fifth_quadrangle))
+
+
+class TestRTreeConvexQuadrangleTracker(unittest.TestCase):
+    """Tests the ability of the RTreeConvexQuadrangleTracker class to track convex quadrangles.
+
+    """
+
+    def setUp(self):
+        self.quadrangle_tracker = RTreeConvexQuadrangleTracker()
+        self.first_quadrangle = GEOSConvexQuadrangle(
+            top_left=(0, 0),
+            top_right=(3, 3),
+            bottom_left=(0, 3),
+            bottom_right=(3, 3),
+        )
+        self.second_quadrangle = GEOSConvexQuadrangle(
+            top_left=(1, 1),
+            top_right=(4, 4),
+            bottom_left=(1, 4),
+            bottom_right=(4, 4),
+        )
+        self.third_quadrangle = GEOSConvexQuadrangle(
+            top_left=(3, 3),
+            top_right=(6, 6),
+            bottom_left=(3, 6),
+            bottom_right=(6, 6),
+        )
+
+    def test_two_moving_quadrangles(self):
+        quadrangle_tracker = self.quadrangle_tracker
+        first_quadrangle = self.first_quadrangle
+        second_quadrangle = self.second_quadrangle
+        third_quadrangle = self.third_quadrangle
+        unpack_moving_quadrangle = lambda x: next(iter(x))  # noqa: E731
+
+        self.assertEqual(0, len(quadrangle_tracker))
+
+        appeared_moving_quadrangles, existing_moving_quadrangles, disappeared_moving_quadrangles = \
+            quadrangle_tracker.update((first_quadrangle,))
+        self.assertGreater(len(quadrangle_tracker), 0)
+        self.assertGreater(len(appeared_moving_quadrangles), 0)
+        appeared_quadrangles = set(map(unpack_moving_quadrangle, appeared_moving_quadrangles))
+        self.assertEqual({first_quadrangle}, appeared_quadrangles)
+        self.assertEqual(set(), existing_moving_quadrangles)
+        self.assertEqual(set(), disappeared_moving_quadrangles)
+
+        appeared_moving_quadrangles, existing_moving_quadrangles, disappeared_moving_quadrangles = \
+            quadrangle_tracker.update((second_quadrangle,))
+        self.assertGreater(len(quadrangle_tracker), 0)
+        self.assertGreater(len(existing_moving_quadrangles), 0)
+        existing_quadrangles = set(map(unpack_moving_quadrangle, existing_moving_quadrangles))
+        self.assertEqual(set(), appeared_moving_quadrangles)
+        self.assertEqual({second_quadrangle}, existing_quadrangles)
+        self.assertEqual(set(), disappeared_moving_quadrangles)
+
+        appeared_moving_quadrangles, existing_moving_quadrangles, disappeared_moving_quadrangles = \
+            quadrangle_tracker.update((third_quadrangle,))
+        self.assertGreater(len(quadrangle_tracker), 0)
+        self.assertGreater(len(existing_moving_quadrangles), 0)
+        existing_quadrangles = set(map(unpack_moving_quadrangle, existing_moving_quadrangles))
+        self.assertEqual(set(), appeared_moving_quadrangles)
+        self.assertEqual({third_quadrangle}, existing_quadrangles)
+        self.assertEqual(set(), disappeared_moving_quadrangles)
+
+        appeared_moving_quadrangles, existing_moving_quadrangles, disappeared_moving_quadrangles = \
+            quadrangle_tracker.update((first_quadrangle, third_quadrangle))
+        self.assertGreater(len(quadrangle_tracker), 0)
+        self.assertGreater(len(appeared_moving_quadrangles), 0)
+        self.assertGreater(len(existing_moving_quadrangles), 0)
+        appeared_quadrangles = set(map(unpack_moving_quadrangle, appeared_moving_quadrangles))
+        existing_quadrangles = set(map(unpack_moving_quadrangle, existing_moving_quadrangles))
+        self.assertEqual({first_quadrangle}, appeared_quadrangles)
+        self.assertEqual({third_quadrangle}, existing_quadrangles)
+        self.assertEqual(set(), disappeared_moving_quadrangles)
+
+        appeared_moving_quadrangles, existing_moving_quadrangles, disappeared_moving_quadrangles = \
+            quadrangle_tracker.update((second_quadrangle,))
+        self.assertGreater(len(quadrangle_tracker), 0)
+        self.assertGreater(len(existing_moving_quadrangles), 0)
+        self.assertGreater(len(disappeared_moving_quadrangles), 0)
+        existing_quadrangles = set(map(unpack_moving_quadrangle, existing_moving_quadrangles))
+        disappeared_quadrangles = set(map(unpack_moving_quadrangle, disappeared_moving_quadrangles))
+        self.assertEqual(set(), appeared_moving_quadrangles)
+        self.assertEqual({second_quadrangle}, existing_quadrangles)
+        self.assertEqual({third_quadrangle}, disappeared_quadrangles)
+
+        appeared_moving_quadrangles, existing_moving_quadrangles, disappeared_moving_quadrangles = \
+            quadrangle_tracker.update(())
+        self.assertEqual(0, len(quadrangle_tracker))
+        self.assertGreater(len(disappeared_moving_quadrangles), 0)
+        disappeared_quadrangles = set(map(unpack_moving_quadrangle, disappeared_moving_quadrangles))
+        self.assertEqual(set(), appeared_moving_quadrangles)
+        self.assertEqual(set(), existing_moving_quadrangles)
+        self.assertEqual({second_quadrangle}, disappeared_quadrangles)
 
 
 if __name__ == '__main__':
