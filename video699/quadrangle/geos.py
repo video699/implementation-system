@@ -59,6 +59,7 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
         self._top_right = Point(top_right)
         self._bottom_left = Point(bottom_left)
         self._bottom_right = Point(bottom_right)
+        self._hash = hash((self.top_left, self.top_right, self.bottom_left, self.bottom_right))
         self._polygon = Polygon([top_left, top_right, bottom_right, bottom_left])
 
         top_width = self._top_left.distance(self._top_right)
@@ -147,3 +148,6 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
             borderMode=cv.BORDER_CONSTANT,
             borderValue=COLOR_RGBA_TRANSPARENT,
         )
+
+    def __hash__(self):
+        return self._hash
