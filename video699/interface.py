@@ -10,7 +10,7 @@ described in RFC2119_.
 """
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, MutableSet
+from collections.abc import Iterable, MutableSet, Sized
 from datetime import timedelta
 from functools import total_ordering
 
@@ -491,7 +491,7 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
         )
 
 
-class ConvexQuadrangleTrackerABC(ABC, Iterable):
+class ConvexQuadrangleTrackerABC(ABC, Iterable, Sized):
     """An abstract tracker of the movement of convex quadrangles over time.
 
     Notes
@@ -530,13 +530,25 @@ class ConvexQuadrangleTrackerABC(ABC, Iterable):
         Returns
         -------
         tracked_quadrangles : iterator of TrackedConvexQuadrangleABC
-            An iterable of the tracked quadrangles.
+            An iterable of the tracked convex quadrangles.
+        """
+        pass
+
+    @abstractmethod
+    def __len__(self):
+        """Produces the number of the tracked convex quadrangles.
+
+        Returns
+        -------
+        length : int
+            The number of the tracked convex quadrangles.
         """
         pass
 
     def __repr__(self):
-        return '<{classname}>'.format(
+        return '<{classname}, {length} tracked moving quadrangles>'.format(
             classname=self.__class__.__name__,
+            length=len(self),
         )
 
 
