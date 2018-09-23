@@ -35,8 +35,6 @@ class ScreenEventABC(FrameEventABC):
         A projection screen shown in a video frame.
     screen_id : str
         A screen identifier.
-    xml_element : xml.etree.ElementTree.Element
-        An XML representation of the event.
     """
 
     @property
@@ -86,8 +84,6 @@ class ScreenAppearedEvent(ScreenEventABC):
         event detector.
     page : PageABC
         The document page.
-    xml : xml.etree.ElementTree.Element
-        An XML representation of the event.
     """
 
     def __init__(self, screen, screen_id, page):
@@ -158,8 +154,6 @@ class ScreenChangedContentEvent(ScreenEventABC):
         produced by an event detector,
     page : PageABC
         The different document page.
-    xml : xml.etree.ElementTree.Element
-        An XML representation of the event.
     """
 
     def __init__(self, screen, screen_id, page):
@@ -212,8 +206,6 @@ class ScreenMovedEvent(ScreenEventABC):
     screen_id : string
         A screen identifier that MUST have appeared in an earlier :class:`ScreenAppearedEvent` event
         produced by an event detector.
-    xml : xml.etree.ElementTree.Element
-        An XML representation of the event.
     """
 
     def __init__(self, screen, screen_id):
@@ -283,8 +275,6 @@ class ScreenDisappearedEvent(ScreenEventABC):
         A screen identifier unique among the :class:`ScreenDisappearedEvent` events produced by an
         event detector. The identifier MUST have appeared in an earlier :class:`ScreenAppearedEvent`
         produced by an event detector.
-    xml : xml.etree.ElementTree.Element
-        An XML representation of the event.
     """
 
     def __init__(self, screen, screen_id):
