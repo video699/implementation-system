@@ -480,7 +480,7 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
     def __repr__(self):
         return '<{classname}, {quadrangle_id}>'.format(
             classname=self.__class__.__name__,
-            quadrangle_id=quadrangle_id,
+            quadrangle_id=self.quadrangle_id,
         )
 
 
