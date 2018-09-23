@@ -12,7 +12,13 @@ described in RFC2119_.
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, MutableSet, Sized
 from datetime import timedelta
-from functools import total_ordering
+from functools import lru_cache, total_ordering
+
+from .configuration import get_configuration
+
+
+SCREENABC_CONFIGURATION = get_configuration()['ScreenABC']
+SCREENABC_LRU_CACHE_MAXSIZE = SCREENABC_CONFIGURATION.getint('lru_cache_maxsize')
 
 
 class EventABC(ABC):
@@ -594,6 +600,7 @@ class ScreenABC(ABC):
         pass
 
     @property
+    @lru_cache(maxsize=SCREENABC_LRU_CACHE_MAXSIZE, typed=False)
     def image(self):
         return self.coordinates.transform(self.frame.image)
 
