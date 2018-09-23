@@ -3,7 +3,7 @@
 import unittest
 
 from numpy.testing import assert_array_almost_equal
-from video699.event.spearman import benjamini_hochberg
+from video699.common import benjamini_hochberg
 
 
 class TestBenjaminiHochberg(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestBenjaminiHochberg(unittest.TestCase):
     def test_nonempty(self):
         p_values = (0.005, 0.009, 0.05, 0.1, 0.2, 0.3)
         q_values = tuple(benjamini_hochberg(p_values))
-        assert_array_almost_equal((0.027, 0.027, 0.100, 0.150, 0.240, 0.300), q_values)
+        assert_array_almost_equal((0.027, 0.027, 0.1, 0.15, 0.24, 0.3), q_values)
 
 
 if __name__ == '__main__':
