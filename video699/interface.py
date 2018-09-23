@@ -455,6 +455,16 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
     def quadrangle_id(self):
         pass
 
+    def add(self, quadrangle):
+        """Adds the movement of the convex quadrangle at the following time frame.
+
+        Parameters
+        ----------
+        quadrangle : ConvexQuadrangleABC
+            The corners of the moving convex quadrangle at the following time frame.
+        """
+        pass
+
     @abstractmethod
     def __iter__(self):
         """Produces an iterator of the movements of the convex quadrangle.
