@@ -262,6 +262,31 @@ class TestGEOSConvexQuadrangle(unittest.TestCase):
         self.assertEqual(255, red[red_rectangle_coordinates])
         self.assertEqual(255, alpha[red_rectangle_coordinates])
 
+    def test_area(self):
+        empty_quadrangle = GEOSConvexQuadrangle(
+            top_left=(0, 0),
+            top_right=(0, 0),
+            bottom_left=(0, 0),
+            bottom_right=(0, 0),
+        )
+        self.assertEqual(0, empty_quadrangle.area)
+
+        rectangle = GEOSConvexQuadrangle(
+            top_left=(5, 3),
+            top_right=(3, 5),
+            bottom_left=(3, 1),
+            bottom_right=(1, 3),
+        )
+        self.assertEqual(8, rectangle.area)
+
+        trapezoid = GEOSConvexQuadrangle(
+            top_left=(4, 0),
+            top_right=(8, 0),
+            bottom_left=(5, 6),
+            bottom_right=(6, 6),
+        )
+        self.assertEqual((4 + 1) * 6 / 2, trapezoid.area)
+
 
 if __name__ == '__main__':
     unittest.main()

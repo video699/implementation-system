@@ -262,9 +262,11 @@ class ConvexQuadrangleABC(ABC):
         The bottom right corner of the minimal bounding box that bounds the quadrangle in a video
         frame coordinate system.
     width : int
-        The width of the screen in the screen coordinate space.
+        The width of the quadrangle in the screen coordinate space.
     height : int
-        The height of the screen in the screen coordinate space.
+        The height of the quadrangle in the screen coordinate space.
+    area : scalar
+        The area of the screen in the video frame coordinate system.
     """
 
     @property
@@ -305,6 +307,11 @@ class ConvexQuadrangleABC(ABC):
     @property
     @abstractmethod
     def height(self):
+        pass
+
+    @property
+    @abstractmethod
+    def area(self):
         pass
 
     @abstractmethod

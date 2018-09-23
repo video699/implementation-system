@@ -47,9 +47,11 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
     bottom_right : (scalar, scalar)
         The bottom right corner of the quadrangle in a video frame coordinate system.
     width : int
-        The width of the screen in a screen coordinate system.
+        The width of the quadrangle in a screen coordinate system.
     height : int
-        The height of the screen in a screen coordinate system.
+        The height of the quadrangle in a screen coordinate system.
+    area : scalar
+        The area of the screen in the video frame coordinate system.
     """
 
     def __init__(self, top_left, top_right, bottom_left, bottom_right):
@@ -117,6 +119,10 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
     @property
     def height(self):
         return self._height
+
+    @property
+    def area(self):
+        return self._polygon.area
 
     def intersection_area(self, other):
         if isinstance(other, ConvexQuadrangleABC):
