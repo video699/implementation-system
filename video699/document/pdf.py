@@ -12,8 +12,8 @@ import cv2 as cv
 import fitz
 import numpy as np
 
-from ..configuration import get_configuration
 from ..common import COLOR_RGBA_TRANSPARENT, rescale_and_keep_aspect_ratio
+from ..configuration import get_configuration
 from ..interface import DocumentABC, PageABC
 
 
