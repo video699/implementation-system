@@ -143,9 +143,9 @@ class RTreeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
                 appeared_quadrangles.add(moving_quadrangle)
             moving_quadrangle.add(quadrangle)
 
-        current_moving_quadrangles = appeared_quadrangles.union(existing_quadrangles)
+        current_moving_quadrangles = appeared_quadrangles | existing_quadrangles
         for moving_quadrangle in current_moving_quadrangles:
-            quadrangle = next(iter(moving_quadrangle))
+            quadrangle = next(reversed(moving_quadrangle))
             moving_quadrangles[quadrangle] = moving_quadrangle
             quadrangle_index.add(quadrangle)
 

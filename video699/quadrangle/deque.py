@@ -37,7 +37,10 @@ class DequeMovingConvexQuadrangle(MovingConvexQuadrangleABC):
         return self._quadrangle_id
 
     def add(self, quadrangle):
-        self._quadrangles.appendleft(quadrangle)
+        self._quadrangles.append(quadrangle)
 
     def __iter__(self):
         return iter(self._quadrangles)
+
+    def __reversed__(self):
+        return reversed(self._quadrangles)

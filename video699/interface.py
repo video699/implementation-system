@@ -474,13 +474,25 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
 
     @abstractmethod
     def __iter__(self):
-        """Produces an iterator of the movements of the convex quadrangle.
+        """Produces an iterator of the convex quadrangle movements from the past to the present.
 
         Returns
         -------
         quadrangles : iterator of ConvexQuadrangleABC
-            The corners of the moving convex quadrangle starting with the current time frame and
-            working back to the previous time frames in the past.
+            The corners of the moving convex quadrangle from the earliest time frame to the current
+            time frame.
+        """
+        pass
+
+    @abstractmethod
+    def __reversed__(self):
+        """Produces an iterator of the convex quadrangle movements from the present to the past.
+
+        Returns
+        -------
+        quadrangles : iterator of ConvexQuadrangleABC
+            The corners of the moving convex quadrangle from the current time frame to the earliest
+            time frame.
         """
         pass
 

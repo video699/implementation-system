@@ -201,7 +201,7 @@ class TestRTreeConvexQuadrangleTracker(unittest.TestCase):
         first_quadrangle = self.first_quadrangle
         second_quadrangle = self.second_quadrangle
         third_quadrangle = self.third_quadrangle
-        unpack_moving_quadrangle = lambda x: next(iter(x))  # noqa: E731
+        unpack_moving_quadrangle = lambda x: next(reversed(x))  # noqa: E731
 
         self.assertEqual(0, len(quadrangle_tracker))
 
