@@ -37,7 +37,7 @@ class EventABC(ABC):
         )
 
 
-class EventDetectorABC(ABC):
+class EventDetectorABC(ABC, Iterable):
     """An abstract detector of events in a video.
 
     Notes
@@ -435,7 +435,7 @@ class ConvexQuadrangleIndexABC(MutableSet):
         return len(self.quadrangles)
 
 
-class MovingConvexQuadrangleABC(ABC):
+class MovingConvexQuadrangleABC(ABC, Iterable):
     """An abstract convex quadrangle that moves in time.
 
     Notes
@@ -474,7 +474,7 @@ class MovingConvexQuadrangleABC(ABC):
         )
 
 
-class ConvexQuadrangleTrackerABC(ABC):
+class ConvexQuadrangleTrackerABC(ABC, Iterable):
     """An abstract tracker of the movement of convex quadrangles over time.
 
     Notes
