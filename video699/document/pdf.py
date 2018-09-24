@@ -71,10 +71,7 @@ class PDFDocumentPage(PageABC):
         rgba_image = cv.cvtColor(rgb_image, cv.COLOR_RGB2RGBA)
         rgba_image_downscaled = cv.resize(
             rgba_image,
-            (
-                rescaled_width,
-                rescaled_height,
-            ),
+            (rescaled_width, rescaled_height),
             DOWNSCALE_INTERPOLATION
         )
         rgba_image_downscaled_with_margins = cv.copyMakeBorder(

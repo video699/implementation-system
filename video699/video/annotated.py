@@ -6,6 +6,7 @@ related classes.
 """
 
 import json
+from fractions import Fraction
 from logging import getLogger
 import os
 from pathlib import Path
@@ -90,6 +91,10 @@ def _init_dataset():
                             bottom_right=(
                                 int(screen.attrib['x3']),
                                 int(screen.attrib['y3']),
+                            ),
+                            aspect_ratio=Fraction(
+                                int(screen.attrib['aspect-width']),
+                                int(screen.attrib['aspect-height']),
                             ),
                         ),
                         condition=screen.attrib['condition'],

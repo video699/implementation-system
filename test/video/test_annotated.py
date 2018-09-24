@@ -249,6 +249,15 @@ class TestAnnotatedSampledVideoScreen(unittest.TestCase):
             ])
         )
 
+    def test_aspect_ratio(self):
+        screen = self.first_screen
+        aspect_ratio = screen.width / screen.height
+        self.assertAlmostEqual(4 / 3, aspect_ratio, places=2)
+
+        screen = self.second_screen
+        aspect_ratio = screen.width / screen.height
+        self.assertAlmostEqual(4 / 3, aspect_ratio, places=2)
+
     def test_screen_image(self):
         screen_image = self.first_screen.image
         height, width, _ = screen_image.shape

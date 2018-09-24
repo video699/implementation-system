@@ -62,10 +62,7 @@ class ImageFileDocumentPage(PageABC):
             rescale_and_keep_aspect_ratio(original_width, original_height, width, height)
         rgba_image_rescaled = cv.resize(
             rgba_image,
-            (
-                rescaled_width,
-                rescaled_height,
-            ),
+            (rescaled_width, rescaled_height),
             RESCALE_INTERPOLATION
         )
         rgba_image_rescaled_with_margins = cv.copyMakeBorder(

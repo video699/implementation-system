@@ -41,6 +41,18 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
     def setUp(self):
         self.screen_detector = AnnotatedScreenDetector(INSTITUTION_ID, ROOM_ID, CAMERA_ID)
 
+    def test_aspect_ratio(self):
+        datetime = datetime_parse('2018-01-01T00:00:00+00:00')
+        video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
+        frame = next(iter(video))
+        self.assertIn(
+            ('aspect_ratio', 133, 100),
+            set([
+                (screen.screen_id, screen.width, screen.height)
+                for screen in self.screen_detector.detect(frame)
+            ])
+        )
+
     def test_no_screens_before_earliest_datetime(self):
         datetime = datetime_parse('2017-12-31T23:59:59+00:00')
         video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
@@ -54,10 +66,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         frame = next(iter(video))
         self.assertEqual(
             set([
-                (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector.detect(frame)
-            ]),
-            set([
+                (
+                    'aspect_ratio',
+                    datetime_parse('2018-01-01T00:00:00+00:00')
+                ),
                 (
                     'no_from_no_until',
                     datetime_parse('2018-01-01T00:00:00+00:00')
@@ -82,6 +94,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
                     'no_from_late_until',
                     datetime_parse('2018-01-01T00:00:00+00:00')
                 ),
+            ]),
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector.detect(frame)
             ]),
         )
 
@@ -91,10 +107,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         frame = next(iter(video))
         self.assertEqual(
             set([
-                (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector.detect(frame)
-            ]),
-            set([
+                (
+                    'aspect_ratio',
+                    datetime_parse('2018-01-01T00:00:00+00:00')
+                ),
                 (
                     'no_from_no_until',
                     datetime_parse('2018-01-01T00:00:00+00:00')
@@ -124,6 +140,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
                     datetime_parse('2018-01-01T00:00:00+00:00')
                 ),
             ]),
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector.detect(frame)
+            ]),
         )
 
     def test_screens_before_latest_datetime(self):
@@ -132,10 +152,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         frame = next(iter(video))
         self.assertEqual(
             set([
-                (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector.detect(frame)
-            ]),
-            set([
+                (
+                    'aspect_ratio',
+                    datetime_parse('2018-01-01T00:00:00+00:00')
+                ),
                 (
                     'no_from_no_until',
                     datetime_parse('2018-02-01T00:00:00+00:00')
@@ -161,6 +181,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
                     datetime_parse('2018-02-01T00:00:00+00:00')
                 ),
             ]),
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector.detect(frame)
+            ]),
         )
 
     def test_screens_at_latest_datetime(self):
@@ -169,10 +193,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         frame = next(iter(video))
         self.assertEqual(
             set([
-                (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector.detect(frame)
-            ]),
-            set([
+                (
+                    'aspect_ratio',
+                    datetime_parse('2018-01-01T00:00:00+00:00')
+                ),
                 (
                     'no_from_no_until',
                     datetime_parse('2018-03-01T00:00:00+00:00')
@@ -194,6 +218,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
                     datetime_parse('2018-03-01T00:00:00+00:00')
                 ),
             ]),
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector.detect(frame)
+            ]),
         )
 
     def test_screens_after_latest_datetime(self):
@@ -202,10 +230,10 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
         frame = next(iter(video))
         self.assertEqual(
             set([
-                (screen.screen_id, screen.datetime)
-                for screen in self.screen_detector.detect(frame)
-            ]),
-            set([
+                (
+                    'aspect_ratio',
+                    datetime_parse('2018-01-01T00:00:00+00:00')
+                ),
                 (
                     'no_from_no_until',
                     datetime_parse('2018-03-01T00:00:00+00:00')
@@ -222,6 +250,43 @@ class TestAnnotatedScreenDetector(unittest.TestCase):
                     'late_from_no_until',
                     datetime_parse('2018-03-01T00:00:00+00:00')
                 ),
+            ]),
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector.detect(frame)
+            ]),
+        )
+
+    def test_screens_aspect_ratio(self):
+        datetime = datetime_parse('2018-03-01T00:00:01+00:00')
+        video = AnnotatedScreenVideo(INSTITUTION_ID, ROOM_ID, CAMERA_ID, datetime)
+        frame = next(iter(video))
+        self.assertEqual(
+            set([
+                (
+                    'aspect_ratio',
+                    datetime_parse('2018-01-01T00:00:00+00:00')
+                ),
+                (
+                    'no_from_no_until',
+                    datetime_parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'early_from_no_until',
+                    datetime_parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'equal_from_no_until',
+                    datetime_parse('2018-03-01T00:00:00+00:00')
+                ),
+                (
+                    'late_from_no_until',
+                    datetime_parse('2018-03-01T00:00:00+00:00')
+                ),
+            ]),
+            set([
+                (screen.screen_id, screen.datetime)
+                for screen in self.screen_detector.detect(frame)
             ]),
         )
 

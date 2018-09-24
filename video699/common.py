@@ -12,6 +12,43 @@ import numpy as np
 COLOR_RGBA_TRANSPARENT = (0, 0, 0, 0)
 
 
+def change_aspect_ratio_by_upscaling(original_width, original_height, new_aspect_ratio):
+    """Returns new dimensions that upscale an image to a new aspect ratio.
+
+    Parameters
+    ----------
+    original_width : int
+        The original width of an image.
+    original_height : int
+        The original height of an image.
+    new_aspect_ratio : Fraction
+        A new aspect ratio. The ratio must be non-zero.
+
+    Returns
+    -------
+    rescaled_width : int
+        The width of the image after rescaling.
+    rescaled_height : int
+        The height of the image after rescaling.
+    """
+
+    if new_aspect_ratio.numerator == 0:
+        raise ValueError('The aspect ratio is zero')
+
+    new_aspect_width = new_aspect_ratio.numerator
+    new_aspect_height = new_aspect_ratio.denominator
+    ratio_of_ratios = (new_aspect_width * original_height) / (new_aspect_height * original_width)
+
+    if ratio_of_ratios >= 1:
+        rescaled_width = int(round(original_width * ratio_of_ratios))
+        rescaled_height = original_height
+    else:
+        rescaled_width = original_width
+        rescaled_height = int(round(original_height / ratio_of_ratios))
+
+    return (rescaled_width, rescaled_height)
+
+
 def rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height):
     """Returns new dimensions, and margins that rescale an image and keep its aspect ratio.
 
@@ -46,6 +83,7 @@ def rescale_and_keep_aspect_ratio(original_width, original_height, new_width, ne
     right_margin : int
         The width of the right margin of the rescaled image.
     """
+
     aspect_ratio = min(new_width / original_width, new_height / original_height)
     rescaled_width = int(round(original_width * aspect_ratio))
     rescaled_height = int(round(original_height * aspect_ratio))
@@ -78,6 +116,7 @@ def timedelta_as_xsd_duration(timedelta):
     duration : duration
         A string that satisfies the XML Schema duration datatype.
     """
+
     duration = 'P{days}DT{seconds}.{microseconds}S'.format(
         days=timedelta.days,
         seconds=timedelta.seconds,

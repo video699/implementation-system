@@ -10,8 +10,12 @@ import cv2 as cv
 import numpy as np
 from shapely.geometry import Point, Polygon
 
-from ..common import COLOR_RGBA_TRANSPARENT
+from ..common import change_aspect_ratio_by_upscaling, COLOR_RGBA_TRANSPARENT
+from ..configuration import get_configuration
 from ..interface import ConvexQuadrangleABC
+
+CONFIGURATION = get_configuration()['GEOSConvexQuadrangle']
+RESCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['rescale_interpolation']]
 
 
 class GEOSConvexQuadrangle(ConvexQuadrangleABC):
@@ -29,6 +33,10 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
         The bottom left corner of the quadrangle in a video frame coordinate system.
     bottom_right : (scalar, scalar)
         The bottom right corner of the quadrangle in a video frame coordinate system.
+    aspect_ratio : Fraction or None, optional
+        The aspect ratio of the quadrangle in a screen coordinate system. If ``None`` or
+        unspecified, the aspect ratio will be the ratio between the longest adjacent sides of the
+        quadrangle in the video frame coordinate system.
 
     Attributes
     ----------
@@ -54,7 +62,7 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
         The area of the screen in the video frame coordinate system.
     """
 
-    def __init__(self, top_left, top_right, bottom_left, bottom_right):
+    def __init__(self, top_left, top_right, bottom_left, bottom_right, aspect_ratio=None):
         self._top_left = Point(top_left)
         self._top_right = Point(top_right)
         self._bottom_left = Point(bottom_left)
@@ -68,8 +76,6 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
         right_height = self._top_right.distance(self._bottom_right)
         max_width = max(int(top_width), int(bottom_width))
         max_height = max(int(left_height), int(right_height))
-        self._width = max_width
-        self._height = max_height
 
         frame_coordinates = np.float32(
             [
@@ -88,6 +94,23 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
             ],
         )
         self.transform_matrix = cv.getPerspectiveTransform(frame_coordinates, screen_coordinates)
+
+        if aspect_ratio is None:
+            self._width = max_width
+            self._height = max_height
+        else:
+            self._width, self._height = change_aspect_ratio_by_upscaling(
+                max_width,
+                max_height,
+                aspect_ratio,
+            )
+            stretch_x = self.width / max_width
+            stretch_y = self.height / max_height
+            self.transform_matrix = np.array([
+                (stretch_x, 0, 0),
+                (0, stretch_y, 0),
+                (0, 0, 1),
+            ]).dot(self.transform_matrix)
 
     @property
     def top_left(self):
@@ -147,6 +170,7 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
             (self.width, self.height),
             borderMode=cv.BORDER_CONSTANT,
             borderValue=COLOR_RGBA_TRANSPARENT,
+            flags=RESCALE_INTERPOLATION,
         )
 
     def __hash__(self):

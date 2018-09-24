@@ -7,6 +7,7 @@
 from bisect import bisect
 from datetime import datetime
 from functools import total_ordering
+from fractions import Fraction
 from logging import getLogger
 import os
 
@@ -78,6 +79,10 @@ def _init_dataset():
                                     bottom_right=(
                                         int(position.attrib['x3']),
                                         int(position.attrib['y3']),
+                                    ),
+                                    aspect_ratio=Fraction(
+                                        int(screen.attrib['aspect-width']),
+                                        int(screen.attrib['aspect-height']),
                                     ),
                                 ),
                                 datetime=datetime_parse(position.attrib['datetime']),
