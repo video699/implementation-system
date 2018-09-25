@@ -132,20 +132,10 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                     page_alpha = page_image[:, :, 3]
                     nonzero_alpha = np.minimum(screen_alpha, page_alpha).nonzero()
                     num_nonzero_alpha = len(nonzero_alpha[0])
+                    pixel_subsample = np.random.choice(num_nonzero_alpha, SUBSAMPLE_SIZE)
 
-                    if num_nonzero_alpha > SUBSAMPLE_SIZE:
-                        pixel_subsample = np.random.choice(num_nonzero_alpha, SUBSAMPLE_SIZE)
-                        screen_pixels = screen_intensity[nonzero_alpha][pixel_subsample]
-                        page_pixels = page_intensity[nonzero_alpha][pixel_subsample]
-                    else:
-                        LOGGER.warn(
-                            'Less than subsample_size={subsample_size} pixels with nonzero '
-                            'alpha channel value in image data'.format(
-                                subsample_size=SUBSAMPLE_SIZE,
-                            )
-                        )
-                        screen_pixels = screen_intensity[nonzero_alpha]
-                        page_pixels = page_intensity[nonzero_alpha]
+                    screen_pixels = screen_intensity[nonzero_alpha][pixel_subsample]
+                    page_pixels = page_intensity[nonzero_alpha][pixel_subsample]
                     screen_sample.append(screen_pixels)
                     page_sample.append(page_pixels)
 
