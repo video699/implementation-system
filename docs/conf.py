@@ -162,7 +162,7 @@ texinfo_documents = [
 # -- Include __iter__ in the documentation -----------------------------------
 
 def skip(app, what, name, obj, skip, options):
-    if name == "__iter__":
+    if name == '__iter__' or name == '__reversed__':
         return False
     return skip
 
