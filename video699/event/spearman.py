@@ -99,7 +99,7 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                 quadrangle_tracker.update(detected_quadrangles)
 
             for moving_quadrangle in disappeared_quadrangles:
-                quadrangle = next(iter(moving_quadrangle))
+                quadrangle = moving_quadrangle.current_quadrangle
                 screen = detected_screens[quadrangle]
                 screen_id = moving_quadrangle.quadrangle_id
                 del matched_pages[moving_quadrangle]
@@ -122,9 +122,8 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                     else:
                         screen_sample, page_sample = previous_samples[moving_quadrangle][page]
 
-                    quadrangle_iter = reversed(moving_quadrangle)
-                    quadrangle = next(quadrangle_iter)
-                    screen = detected_screens[quadrangle]
+                    current_quadrangle = moving_quadrangle.current_quadrangle
+                    screen = detected_screens[current_quadrangle]
                     page_image = page.image(screen.width, screen.height)
 
                     screen_intensity = cv.cvtColor(screen.image, cv.COLOR_RGBA2GRAY)
@@ -161,10 +160,10 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                 q_value_map = dict(zip(pages, q_values))
 
                 quadrangle_iter = reversed(moving_quadrangle)
-                quadrangle = next(quadrangle_iter)
+                current_quadrangle = next(quadrangle_iter)
                 if moving_quadrangle in existing_quadrangles:
                     previous_quadrangle = next(quadrangle_iter)
-                screen = detected_screens[quadrangle]
+                screen = detected_screens[current_quadrangle]
                 screen_id = moving_quadrangle.quadrangle_id
                 correlation, page = max(zip(correlations, pages))
                 q_value = q_value_map[page]
@@ -202,12 +201,12 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                                 )
                             )
                             yield ScreenAppearedEvent(screen, screen_id, page)
-                        if quadrangle != previous_quadrangle:
+                        if current_quadrangle != previous_quadrangle:
                             LOGGER.debug(
                                 '{} moved from {} to {}'.format(
                                     screen,
                                     previous_quadrangle,
-                                    quadrangle,
+                                    current_quadrangle,
                                 )
                             )
                             yield ScreenMovedEvent(screen, screen_id)

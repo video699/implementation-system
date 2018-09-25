@@ -133,15 +133,19 @@ class RTreeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
                     reverse=True
                 )
                 moving_quadrangle = moving_quadrangles[previous_quadrangle]
+                moving_quadrangle.add(quadrangle)
                 quadrangle_index.remove(previous_quadrangle)
                 del moving_quadrangles[previous_quadrangle]
                 existing_quadrangles.add(moving_quadrangle)
             else:
                 quadrangle_id = 'quadrangle-{}'.format(self.num_moving_quadrangles)
                 self.num_moving_quadrangles += 1
-                moving_quadrangle = DequeMovingConvexQuadrangle(quadrangle_id, window_size)
+                moving_quadrangle = DequeMovingConvexQuadrangle(
+                    quadrangle_id,
+                    quadrangle,
+                    window_size,
+                )
                 appeared_quadrangles.add(moving_quadrangle)
-            moving_quadrangle.add(quadrangle)
 
         current_moving_quadrangles = appeared_quadrangles | existing_quadrangles
         for moving_quadrangle in current_moving_quadrangles:

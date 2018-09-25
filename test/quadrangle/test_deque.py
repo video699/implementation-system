@@ -45,8 +45,7 @@ class TestDequeMovingConvexQuadrangle(unittest.TestCase):
         second_quadrangle = self.second_quadrangle
         third_quadrangle = self.third_quadrangle
 
-        moving_convex_quadrangle = DequeMovingConvexQuadrangle(QUADRANGLE_ID)
-        moving_convex_quadrangle.add(first_quadrangle)
+        moving_convex_quadrangle = DequeMovingConvexQuadrangle(QUADRANGLE_ID, first_quadrangle)
         moving_convex_quadrangle.add(second_quadrangle)
         moving_convex_quadrangle.add(third_quadrangle)
 
@@ -68,8 +67,11 @@ class TestDequeMovingConvexQuadrangle(unittest.TestCase):
         third_quadrangle = self.third_quadrangle
         fourth_quadrangle = self.fourth_quadrangle
 
-        moving_convex_quadrangle = DequeMovingConvexQuadrangle(QUADRANGLE_ID, window_size=3)
-        moving_convex_quadrangle.add(first_quadrangle)
+        moving_convex_quadrangle = DequeMovingConvexQuadrangle(
+            QUADRANGLE_ID,
+            first_quadrangle,
+            window_size=3,
+        )
         moving_convex_quadrangle.add(second_quadrangle)
         moving_convex_quadrangle.add(third_quadrangle)
         moving_convex_quadrangle.add(fourth_quadrangle)

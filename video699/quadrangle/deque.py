@@ -17,6 +17,8 @@ class DequeMovingConvexQuadrangle(MovingConvexQuadrangleABC):
     quadrangle_id : str
         An identifier unique among the :class:`TrackedConvexQuadrangleABC` tracked identifiers
         produced by a convex quadrangle tracker.
+    current_quadrangle : ConvexQuadrangleABC
+        The latest coordinates of the moving convex quadrangle.
     window_size : int or None, optional
         The maximum number of previous time frames for which the quadrangle movements are stored. If
         ``None`` or unspecified, then the number of time frames is unbounded.
@@ -26,11 +28,20 @@ class DequeMovingConvexQuadrangle(MovingConvexQuadrangleABC):
     quadrangle_id : str
         An identifier unique among the :class:`TrackedConvexQuadrangleABC` tracked identifiers
         produced by a convex quadrangle tracker.
+    current_quadrangle : ConvexQuadrangleABC
+        The latest coordinates of the moving convex quadrangle.
+
+    Raises
+    ------
+    ValueError
+        If the window size is less than one.
     """
 
-    def __init__(self, quadrangle_id, window_size=None):
+    def __init__(self, quadrangle_id, current_quadrangle, window_size=None):
         self._quadrangle_id = quadrangle_id
-        self._quadrangles = deque(maxlen=window_size)
+        if window_size is not None and window_size < 1:
+            raise ValueError('The window size must not be less than one')
+        self._quadrangles = deque((current_quadrangle,), maxlen=window_size)
 
     @property
     def quadrangle_id(self):
