@@ -115,6 +115,7 @@ def _init_dataset():
         video.attrib['uri']: _VideoAnnotations(
             uri=video.attrib['uri'],
             dirname=video.attrib['dirname'],
+            datetime=datetime_parse(video.attrib['datetime']),
             num_frames=int(video.attrib['frames']),
             fps=int(video.attrib['fps']),
             width=int(video.attrib['width']),
@@ -494,6 +495,8 @@ class _VideoAnnotations(object):
     dirname : str
         The pathname of the directory, where the frames, documents, and XML human annotations
         associated with the video are stored.
+    datetime : aware datetime
+        The date, and time at which the video was captured.
     num_frames : int
         The total number of frames in the original video file.
     fps : scalar
@@ -510,6 +513,8 @@ class _VideoAnnotations(object):
     dirname : str
         The pathname of the directory, where the frames, documents, and XML human annotations
         associated with the video are stored.
+    datetime : aware datetime
+        The date, and time at which the video was captured.
     num_frames : int
         The total number of frames in the original video file.
     fps : scalar
@@ -520,9 +525,10 @@ class _VideoAnnotations(object):
         The height of the video.
     """
 
-    def __init__(self, uri, dirname, fps, num_frames, width, height):
+    def __init__(self, uri, dirname, datetime, fps, num_frames, width, height):
         self.uri = uri
         self.dirname = dirname
+        self.datetime = datetime
         self.num_frames = num_frames
         self.fps = fps
         self.width = width
@@ -571,16 +577,10 @@ class AnnotatedSampledVideo(VideoABC):
         self._uri = uri
         match = re.fullmatch(URI_REGEX, uri)
         self.filename = match.group('filename')
-        self._datetime = datetime_parse(
-            '{0}-{1}-{2}T00:00:00+00:00'.format(
-                match.group('year'),
-                match.group('month'),
-                match.group('day_of_month'),
-            ),
-        )
 
         video_annotations = VIDEO_ANNOTATIONS[uri]
         self.dirname = video_annotations.dirname
+        self._datetime = video_annotations.datetime
         self.num_frames = video_annotations.num_frames
         self._fps = video_annotations.fps
         self._width = video_annotations.width
