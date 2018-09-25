@@ -111,6 +111,15 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                 p_values = []
                 correlations = []
 
+                quadrangle_iter = reversed(moving_quadrangle)
+                current_quadrangle = next(quadrangle_iter)
+                if moving_quadrangle in existing_quadrangles:
+                    previous_quadrangle = next(quadrangle_iter)
+                screen = detected_screens[current_quadrangle]
+                screen_id = moving_quadrangle.quadrangle_id
+                screen_intensity = cv.cvtColor(screen.image, cv.COLOR_RGBA2GRAY)
+                screen_alpha = screen.image[:, :, 3]
+
                 if moving_quadrangle in appeared_quadrangles:
                     previous_samples[moving_quadrangle] = {}
 
@@ -122,14 +131,10 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                     else:
                         screen_sample, page_sample = previous_samples[moving_quadrangle][page]
 
-                    current_quadrangle = moving_quadrangle.current_quadrangle
-                    screen = detected_screens[current_quadrangle]
                     page_image = page.image(screen.width, screen.height)
-
-                    screen_intensity = cv.cvtColor(screen.image, cv.COLOR_RGBA2GRAY)
                     page_intensity = cv.cvtColor(page_image, cv.COLOR_RGBA2GRAY)
-                    screen_alpha = screen.image[:, :, 3]
                     page_alpha = page_image[:, :, 3]
+
                     nonzero_alpha = np.minimum(screen_alpha, page_alpha).nonzero()
                     num_nonzero_alpha = len(nonzero_alpha[0])
                     pixel_subsample = np.random.choice(num_nonzero_alpha, SUBSAMPLE_SIZE)
@@ -146,15 +151,9 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                     )
                     correlations.append(correlation)
                     p_values.append(p_value)
+
                 q_values = benjamini_hochberg(p_values)
                 q_value_map = dict(zip(pages, q_values))
-
-                quadrangle_iter = reversed(moving_quadrangle)
-                current_quadrangle = next(quadrangle_iter)
-                if moving_quadrangle in existing_quadrangles:
-                    previous_quadrangle = next(quadrangle_iter)
-                screen = detected_screens[current_quadrangle]
-                screen_id = moving_quadrangle.quadrangle_id
                 correlation, page = max(zip(correlations, pages))
                 q_value = q_value_map[page]
 
