@@ -507,6 +507,19 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
         """
         pass
 
+    def __hash__(self):
+        return hash(self.current_quadrangle)
+
+    def __eq__(self, other):
+        if isinstance(other, MovingConvexQuadrangleABC):
+            return self.current_quadrangle == other.current_quadrangle
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, MovingConvexQuadrangleABC):
+            return self.current_quadrangle < other.current_quadrangle
+        return NotImplemented
+
     def __repr__(self):
         return '<{classname}, {quadrangle_id}, {current_quadrangle}>'.format(
             classname=self.__class__.__name__,

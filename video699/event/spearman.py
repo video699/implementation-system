@@ -98,7 +98,7 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
             appeared_quadrangles, existing_quadrangles, disappeared_quadrangles = \
                 quadrangle_tracker.update(detected_quadrangles)
 
-            for moving_quadrangle in disappeared_quadrangles:
+            for moving_quadrangle in sorted(disappeared_quadrangles):
                 quadrangle = moving_quadrangle.current_quadrangle
                 screen = detected_screens[quadrangle]
                 screen_id = moving_quadrangle.quadrangle_id
@@ -107,7 +107,7 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
                 LOGGER.debug('{} disappeared'.format(screen))
                 yield ScreenDisappearedEvent(screen, screen_id)
 
-            for moving_quadrangle in chain(appeared_quadrangles, existing_quadrangles):
+            for moving_quadrangle in sorted(chain(appeared_quadrangles, existing_quadrangles)):
                 p_values = []
                 correlations = []
 
