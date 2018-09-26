@@ -17,8 +17,12 @@ from scipy.stats import spearmanr
 from ..common import benjamini_hochberg
 from ..configuration import get_configuration
 from ..interface import EventDetectorABC
-from .screen import ScreenAppearedEvent, ScreenChangedContentEvent, ScreenMovedEvent, \
-    ScreenDisappearedEvent
+from .screen import (
+    ScreenAppearedEvent,
+    ScreenChangedContentEvent,
+    ScreenMovedEvent,
+    ScreenDisappearedEvent,
+)
 from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 

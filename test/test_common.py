@@ -4,7 +4,11 @@ from fractions import Fraction
 import unittest
 
 from numpy.testing import assert_array_almost_equal
-from video699.common import benjamini_hochberg, change_aspect_ratio_by_upscaling
+from video699.common import (
+    benjamini_hochberg,
+    change_aspect_ratio_by_upscaling,
+    rescale_and_keep_aspect_ratio,
+)
 
 
 class TestBenjaminiHochberg(unittest.TestCase):
