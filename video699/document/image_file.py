@@ -112,8 +112,8 @@ class ImageFileDocument(DocumentABC):
             for page_number, image_pathname in enumerate(image_pathnames)
         ]
         self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
-            'document/image_file.py#ImageFileDocument:{}'.format(ImageFileDocument._num_documents)
-        ImageFileDocument._num_documents += 1
+            'document/image_file.py#ImageFileDocument:{}'.format(self._num_documents + 1)
+        self._num_documents += 1
 
     @property
     def title(self):

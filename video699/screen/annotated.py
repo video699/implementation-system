@@ -307,7 +307,7 @@ class AnnotatedScreenVideo(VideoABC):
         self._datetime = datetime
         self._camera_annotations = CAMERA_ANNOTATIONS[institution_id][room_id][camera_id]
         self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
-            'screen/annotated.py#AnnotatedScreenVideo:{}'.format(self._num_videos)
+            'screen/annotated.py#AnnotatedScreenVideo:{}'.format(self._num_videos + 1)
         self._num_videos += 1
 
     @property
