@@ -80,5 +80,70 @@ class TestChangeAspectRatioByUpscaling(unittest.TestCase):
             )
 
 
+class TestRescaleAndKeepAspectRatio(unittest.TestCase):
+    """Tests the ability of the rescale_and_keep_aspect_ratio function to calculate dimensions.
+
+    """
+
+    def test_same_aspect_ratio(self):
+        original_width, original_height = (800, 600)
+        new_width, new_height = (1200, 900)
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height)
+
+        self.assertEqual(1200, rescaled_width)
+        self.assertEqual(900, rescaled_height)
+        self.assertEqual(0, top_margin)
+        self.assertEqual(0, bottom_margin)
+        self.assertEqual(0, left_margin)
+        self.assertEqual(0, right_margin)
+
+    def test_wider_aspect_ratio(self):
+        original_width, original_height = (800, 600)
+        new_width, new_height = (960, 600)
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height)
+
+        self.assertEqual(800, rescaled_width)
+        self.assertEqual(600, rescaled_height)
+        self.assertEqual(0, top_margin)
+        self.assertEqual(0, bottom_margin)
+        self.assertEqual(80, left_margin)
+        self.assertEqual(80, right_margin)
+
+    def test_taller_aspect_ratio(self):
+        original_width, original_height = (800, 600)
+        new_width, new_height = (800, 800)
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height)
+
+        self.assertEqual(800, rescaled_width)
+        self.assertEqual(600, rescaled_height)
+        self.assertEqual(100, top_margin)
+        self.assertEqual(100, bottom_margin)
+        self.assertEqual(0, left_margin)
+        self.assertEqual(0, right_margin)
+
+    def test_zero_aspect_ratio(self):
+        original_width, original_height = (800, 600)
+        new_width, new_height = (0, 800)
+        with self.assertRaises(ValueError):
+            rescale_and_keep_aspect_ratio(
+                original_width,
+                original_height,
+                new_width,
+                new_height,
+            )
+
+        new_width, new_height = (800, 0)
+        with self.assertRaises(ValueError):
+            rescale_and_keep_aspect_ratio(
+                original_width,
+                original_height,
+                new_width,
+                new_height,
+            )
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -84,6 +84,9 @@ def rescale_and_keep_aspect_ratio(original_width, original_height, new_width, ne
         The width of the right margin of the rescaled image.
     """
 
+    if new_width == 0 or new_height == 0:
+        raise ValueError('The aspect ratio is zero')
+
     aspect_ratio = min(new_width / original_width, new_height / original_height)
     rescaled_width = int(round(original_width * aspect_ratio))
     rescaled_height = int(round(original_height * aspect_ratio))
