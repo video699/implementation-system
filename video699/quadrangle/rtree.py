@@ -87,6 +87,9 @@ class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
 
     def __init__(self, window_size=None):
         self._window_size = window_size
+        self.clear()
+
+    def clear(self):
         self._moving_quadrangles = {}
         self._quadrangle_index = RTreeConvexQuadrangleIndex()
 

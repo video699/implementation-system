@@ -529,6 +529,13 @@ class ConvexQuadrangleTrackerABC(ABC, Iterable, Sized):
     """
 
     @abstractmethod
+    def clear(self):
+        """Removes all tracked convex quadrangles.
+
+        """
+        pass
+
+    @abstractmethod
     def update(self, quadrangles):
         """Records convex quadrangles that exist in the current time frame.
 
