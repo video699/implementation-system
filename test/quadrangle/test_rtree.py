@@ -3,7 +3,7 @@
 import unittest
 
 from video699.quadrangle.geos import GEOSConvexQuadrangle
-from video699.quadrangle.rtree import RTreeConvexQuadrangleIndex, RTreeConvexQuadrangleTracker
+from video699.quadrangle.rtree import RTreeConvexQuadrangleIndex, RTreeDequeConvexQuadrangleTracker
 
 
 class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
@@ -170,13 +170,13 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
         }, index.intersection_areas(fifth_quadrangle))
 
 
-class TestRTreeConvexQuadrangleTracker(unittest.TestCase):
-    """Tests the ability of the RTreeConvexQuadrangleTracker class to track convex quadrangles.
+class TestRTreeDequeConvexQuadrangleTracker(unittest.TestCase):
+    """Tests the ability of the RTreeDequeConvexQuadrangleTracker class to track convex quadrangles.
 
     """
 
     def setUp(self):
-        self.quadrangle_tracker = RTreeConvexQuadrangleTracker()
+        self.quadrangle_tracker = RTreeDequeConvexQuadrangleTracker()
         self.first_quadrangle = GEOSConvexQuadrangle(
             top_left=(0, 0),
             top_right=(3, 3),

@@ -19,7 +19,7 @@ from ..configuration import get_configuration
 from ..interface import EventDetectorABC
 from .screen import ScreenAppearedEvent, ScreenChangedContentEvent, ScreenMovedEvent, \
     ScreenDisappearedEvent
-from ..quadrangle.rtree import RTreeConvexQuadrangleTracker
+from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
 LOGGER = getLogger(__name__)
@@ -82,7 +82,7 @@ class SlidingSpearmanEventDetector(EventDetectorABC):
         return self._video
 
     def __iter__(self):
-        quadrangle_tracker = RTreeConvexQuadrangleTracker(WINDOW_SIZE)
+        quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(WINDOW_SIZE)
         screen_detector = self._screen_detector
         pages = self._pages
         num_screens = 0

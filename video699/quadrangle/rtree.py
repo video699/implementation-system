@@ -75,8 +75,8 @@ class RTreeConvexQuadrangleIndex(ConvexQuadrangleIndexABC):
         return intersection_areas
 
 
-class RTreeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
-    """A convex quadrangle tracker that uses the :class:`RTreeConvexQuadrangleIndex` index.
+class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
+    """Quadrangle tracker using :class:`RTreeConvexQuadrangleIndex`, :class:`DequeMovingQuadrangle`.
 
     Parameters
     ----------
