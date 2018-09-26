@@ -7,16 +7,19 @@ and content. Related classes are also defined.
 """
 
 from abc import abstractmethod
-from itertools import chain, repeat
-import numpy as np
+from itertools import chain
+from logging import getLogger
 from lxml.etree import Element
 
-from ..interface import EventDetectorABC, VideoABC, ScreenABC
+import numpy as np
+
+from ..common import timedelta_as_xsd_duration
+from ..interface import EventDetectorABC, VideoABC, ScreenABC, ScreenDetectorABC, PageDetectorABC
 from .frame import FrameEventABC
 from ..frame.image import ImageFrame
-from ..common import timedelta_as_xsd_duration
 
-SCREEN_EVENT_DETECTOR_SCREEN_ID = 'screen'
+
+LOGGER = getLogger(__name__)
 
 
 class ScreenEventABC(FrameEventABC):
@@ -257,6 +260,8 @@ class ScreenDisappearedEvent(ScreenEventABC):
 
     Parameters
     ----------
+    frame : FrameABC
+        A frame in which the event takes place.
     screen : ScreenABC
         A disappeared projection screen.
     screen_id : str
@@ -276,9 +281,14 @@ class ScreenDisappearedEvent(ScreenEventABC):
         produced by an event detector.
     """
 
-    def __init__(self, screen, screen_id):
+    def __init__(self, frame, screen, screen_id):
+        self._frame = frame
         self._screen = screen
         self._screen_id = screen_id
+
+    @property
+    def frame(self):
+        return self._frame
 
     @property
     def screen(self):
@@ -302,7 +312,7 @@ class ScreenDisappearedEvent(ScreenEventABC):
 
 
 class ScreenEventDetectorScreen(ScreenABC):
-    """A projection screen shown in a :class:`ScreenEventDetectorVideo` video.
+    """A projection screen shown in a frame of a :class:`ScreenEventDetectorVideo` video.
 
     Notes
     -----
@@ -345,7 +355,7 @@ class ScreenEventDetectorScreen(ScreenABC):
 
 
 class ScreenEventDetectorVideo(VideoABC):
-    """A video containing frames showing a projection screen changing coordinates and content.
+    """A video whose frames show a projection screen that changes coordinates and content.
 
     Notes
     -----
@@ -364,10 +374,10 @@ class ScreenEventDetectorVideo(VideoABC):
         The height of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
-    quadrangles : iterable of ConvexQuadrangleABC
-        Maps between frame and screen coordinates in consecutive frames of the video.
-    pages : iterable of PageABC
-        The document pages shown in the projection screen in consecutive frames of the video.
+    quadrangles : sequence of ConvexQuadrangleABC
+        The projection screen coordinates in the consecutive frames of the video.
+    pages : sequence of PageABC
+        The document pages shown in the projection screen in the consecutive frames of the video.
 
     Attributes
     ----------
@@ -382,8 +392,10 @@ class ScreenEventDetectorVideo(VideoABC):
     uri : string
         An IRI, as defined in RFC3987_, that uniquely indentifies the video over the entire lifetime
         of a program.
-    screen_events : sequence of ScreenEventABC
-        Screen events that take place in consecutive frames of the video.
+    screens : dict of (FrameABC, ScreenABC)
+        A map between video frames, and the projection screens shown in the frames.
+    pages : dict of (ScreenABC, PageABC)
+        A map between projection screens, and the document pages shown in the screens.
     """
 
     _num_videos = 0
@@ -394,51 +406,24 @@ class ScreenEventDetectorVideo(VideoABC):
         self._height = height
         self._datetime = datetime
 
+        assert len(quadrangles) == len(pages)
+        num_frames = len(quadrangles) + 1 if quadrangles else 0
         image = np.zeros((height, width, 4), dtype=np.uint8)
-        quadrangles_list = list(quadrangles)
-        pages_list = list(pages)
-        assert len(quadrangles_list) == len(pages_list)
-        num_frames = len(quadrangles_list) + 1 if quadrangles else 0
         self._frames = [
             ImageFrame(self, frame_number, image)
             for frame_number in range(1, num_frames + 1)
         ]
-        if num_frames:
-            last_coordinates = quadrangles_list[-1]
-            padded_quadrangles = chain(quadrangles_list, repeat(last_coordinates))
-            screens = (
-                ScreenEventDetectorScreen(frame, coordinates)
-                for frame, coordinates in zip(self, padded_quadrangles)
-            )
-            last_page = pages_list[-1]
-            padded_pages = chain(pages_list, repeat(last_page))
-        else:
-            screens = ()
-            padded_pages = ()
-        screen_id = SCREEN_EVENT_DETECTOR_SCREEN_ID
-        previous_screen = None
-        previous_page = None
-        self.screen_events = []
-        for screen, page in zip(screens, padded_pages):
-            frame_number = screen.frame.number
-            if frame_number == 1:
-                screen_event = ScreenAppearedEvent(screen, screen_id, page)
-                self.screen_events.append(screen_event)
-            elif frame_number == num_frames:
-                screen_event = ScreenDisappearedEvent(screen, screen_id)
-                self.screen_events.append(screen_event)
-            else:
-                if page != previous_page:
-                    screen_event = ScreenChangedContentEvent(screen, screen_id, page)
-                    self.screen_events.append(screen_event)
-                if screen.coordinates != previous_screen.coordinates:
-                    screen_event = ScreenMovedEvent(screen, screen_id)
-                    self.screen_events.append(screen_event)
-            previous_screen = screen
-            previous_page = page
+        self.screens = {
+            frame: ScreenEventDetectorScreen(frame, coordinates)
+            for frame, coordinates in zip(self, quadrangles)
+        }
+        self.pages = {
+            self.screens[frame]: page
+            for frame, page in zip(self, pages)
+        }
 
         self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
-            'event/screen.py#ScreenEventDetectorVideo:{}'.format(self._num_videos)
+            'event/screen.py#ScreenEventDetectorVideo:{}'.format(self._num_videos + 1)
         self._num_videos += 1
 
     @property
@@ -465,33 +450,209 @@ class ScreenEventDetectorVideo(VideoABC):
         return iter(self._frames)
 
 
-class ScreenEventDetector(EventDetectorABC):
-    """A detector of screen events in a :class:`ScreenEventDetectorVideo` video.
+class ScreenEventDetectorScreenDetector(ScreenDetectorABC):
+    """A detector of screens in the frames of a :class:`ScreenEventDetectorVideo` video.
 
     Notes
     -----
-    It is possible to repeatedly iterate over all events detected in a video.
     This is a stub class intended for testing.
+
+    """
+
+    def detect(self, frame):
+        video = frame.video
+        if isinstance(video, ScreenEventDetectorVideo) and frame in video.screens:
+            return (video.screens[frame],)
+        return ()
+
+
+class ScreenEventDetectorPageDetector(PageDetectorABC):
+    """A detector of pages in the screens shown in :class:`ScreenEventDetectorVideo` video frames.
+
+    Notes
+    -----
+    This is a stub class intended for testing.
+
+    """
+
+    def detect(self, appeared_screens, existing_screens, disappeared_screens):
+        detected_pages = {}
+
+        for screen, _ in chain(appeared_screens, existing_screens):
+            frame = screen.frame
+            video = frame.video
+            if isinstance(video, ScreenEventDetectorVideo) and screen in video.pages:
+                detected_pages[screen] = video.pages[screen]
+            else:
+                detected_pages[screen] = None
+
+        return detected_pages
+
+
+class ScreenEventDetector(EventDetectorABC):
+    r"""An event detector that detects screen events in a video.
+
+    In each frame of a video, screens are detected using a provided screen detector. The detected
+    screens are tracked over time using a provided convex quadrangle tracker. New screens that
+    *match* a document page as determined by a provided page tracker, or screens that have already
+    been known to the quadrangle tracker but that previously did not match a document page are
+    reported in a :class:`ScreenAppearedEvent` event. A change of coordinates of a known screen is
+    reported in a :class:`ScreenMovedEvent` event and a change of the matching page of a known
+    screen is reported in a :class:`ScreenChangedContentEvent` event. Known screens that no longer
+    match a page are reported in a :class:`ScreenDisappearedEvent` event.
+
+    Notes
+    -----
+    It is not possible to repeatedly iterate over all events detected in the video.
+    Iterating over frames in the video prevents iterating over all events detected in the video.
+    For screens that do not disappear by the last frame of the video, a
+    :class:`ScreenDisappearedEvent` event will not be produced.
 
     Parameters
     ----------
-    video : ScreenEventDetectorVideo
+    video : VideoABC
         The video in which the events are detected.
+    quadrangle_tracker : ConvexQuadrangleTrackerABC
+        The provided convex quadrangle tracker. If non-empty, the tracker will be cleared.
+    screen_detector : ScreenDetectorABC
+        The provided screen detector that will be used to detect lit projection screens in video
+        frames.
+    page_detector : PageDetectorABC
+        The provided page detector that will be used to determine whether a screen shows a document
+        page.
 
     Attributes
     ----------
-    video : ScreenEventDetectorVideo
+    video : VideoABC
         The video in which the events are detected.
     """
 
-    def __init__(self, video):
+    def __init__(self, video, quadrangle_tracker, screen_detector, page_detector):
         self._video = video
+        if quadrangle_tracker:
+            quadrangle_tracker.clear()
+        self._quadrangle_tracker = quadrangle_tracker
+        self._screen_detector = screen_detector
+        self._page_detector = page_detector
 
     @property
     def video(self):
         return self._video
 
     def __iter__(self):
-        if not isinstance(self.video, ScreenEventDetectorVideo):
-            return iter(())
-        return iter(self.video.screen_events)
+        quadrangle_tracker = self._quadrangle_tracker
+        screen_detector = self._screen_detector
+        page_detector = self._page_detector
+
+        num_screens = 0
+        screen_ids = {}
+        matched_pages = {}
+        matched_quadrangles = matched_pages.keys()
+        detected_screens = None
+        previous_detected_screens = None
+
+        for frame in self.video:
+            previous_detected_screens = detected_screens
+            detected_screens = {
+                screen.coordinates: screen
+                for screen in screen_detector.detect(frame)
+            }
+            detected_quadrangles = detected_screens.keys()
+            appeared_quadrangles, existing_quadrangles, disappeared_quadrangles = \
+                quadrangle_tracker.update(detected_quadrangles)
+
+            for moving_quadrangle in sorted(disappeared_quadrangles):
+                if moving_quadrangle in matched_quadrangles:
+                    quadrangle = moving_quadrangle.current_quadrangle
+                    screen = previous_detected_screens[quadrangle]
+                    screen_id = screen_ids[moving_quadrangle]
+                    previous_page = matched_pages[moving_quadrangle]
+                    del screen_ids[moving_quadrangle]
+                    del matched_pages[moving_quadrangle]
+                    LOGGER.debug('{} disappeared matching {}'.format(screen, previous_page))
+                    yield ScreenDisappearedEvent(frame, screen, screen_id)
+                else:
+                    LOGGER.debug('{} disappeared with no matching page'.format(screen))
+
+            moving_quadrangles = {
+                moving_quadrangle.current_quadrangle: moving_quadrangle
+                for moving_quadrangle in chain(
+                    appeared_quadrangles,
+                    existing_quadrangles,
+                )
+            }
+
+            def moving_quadrangle_to_screen(moving_quadrangle):
+                return (detected_screens[moving_quadrangle.current_quadrangle], moving_quadrangle)
+
+            def moving_quadrangle_to_previous_screen(moving_quadrangle):
+                return (
+                    previous_detected_screens[moving_quadrangle.current_quadrangle],
+                    moving_quadrangle,
+                )
+
+            pages = page_detector.detect(
+                map(moving_quadrangle_to_screen, appeared_quadrangles),
+                map(moving_quadrangle_to_screen, existing_quadrangles),
+                map(moving_quadrangle_to_previous_screen, disappeared_quadrangles),
+            )
+
+            for screen, page in pages.items():
+                moving_quadrangle = moving_quadrangles[screen.coordinates]
+                quadrangle_iter = reversed(moving_quadrangle)
+                current_quadrangle = next(quadrangle_iter)
+                if moving_quadrangle in existing_quadrangles:
+                    previous_quadrangle = next(quadrangle_iter)
+
+                if page:
+                    if moving_quadrangle in appeared_quadrangles:
+                        LOGGER.debug('{} appeared and matches {}'.format(screen, page))
+                        screen_id = 'screen-{}'.format(num_screens + 1)
+                        num_screens += 1
+                        screen_ids[moving_quadrangle] = screen_id
+                        yield ScreenAppearedEvent(screen, screen_id, page)
+                    elif moving_quadrangle in existing_quadrangles:
+                        if moving_quadrangle in matched_quadrangles:
+                            screen_id = screen_ids[moving_quadrangle]
+                            previous_page = matched_pages[moving_quadrangle]
+                            if previous_page != page:
+                                LOGGER.debug(
+                                    '{} changed content from {} to {}'.format(
+                                        screen,
+                                        previous_page,
+                                        page,
+                                    )
+                                )
+                                yield ScreenChangedContentEvent(screen, screen_id, page)
+                            if current_quadrangle != previous_quadrangle:
+                                LOGGER.debug(
+                                    '{} moved from {} to {}'.format(
+                                        screen,
+                                        previous_quadrangle,
+                                        current_quadrangle,
+                                    )
+                                )
+                                yield ScreenMovedEvent(screen, screen_id)
+                        else:
+                            LOGGER.debug(
+                                '{} started matching {}'.format(
+                                    screen,
+                                    page,
+                                )
+                            )
+                            screen_id = 'screen-{}'.format(num_screens)
+                            num_screens += 1
+                            screen_ids[moving_quadrangle] = screen_id
+                            yield ScreenAppearedEvent(screen, screen_id, page)
+                    matched_pages[moving_quadrangle] = page
+                else:
+                    if moving_quadrangle in appeared_quadrangles:
+                        LOGGER.debug('{} appeared with no matching page'.format(screen))
+                    elif moving_quadrangle in existing_quadrangles:
+                        if moving_quadrangle in matched_quadrangles:
+                            screen_id = screen_ids[moving_quadrangle]
+                            previous_page = matched_pages[moving_quadrangle]
+                            LOGGER.debug('{} no longer matches {}'.format(screen, previous_page))
+                            del screen_ids[moving_quadrangle]
+                            del matched_pages[moving_quadrangle]
+                            yield ScreenDisappearedEvent(frame, screen, screen_id)

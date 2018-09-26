@@ -831,12 +831,12 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
         screens : iterable of AnnotatedSampledVideoScreen
             An iterable of detected lit projection screens.
         """
-        if not isinstance(frame, AnnotatedSampledVideoFrame):
-            return ()
-        return [
-            screen for screen in SCREENS[frame.video.uri][frame.number]
-            if screen.condition in self._conditions
-        ]
+        if isinstance(frame, AnnotatedSampledVideoFrame):
+            return [
+                screen for screen in SCREENS[frame.video.uri][frame.number]
+                if screen.condition in self._conditions
+            ]
+        return ()
 
 
 _init_dataset()

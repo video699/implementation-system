@@ -9,9 +9,18 @@ from lxml import etree
 from lxml.etree import xmlfile, XMLSchema
 
 from video699.document.image_file import ImageFileDocument
-from video699.event.screen import ScreenEventDetector, ScreenEventDetectorVideo, \
-    ScreenAppearedEvent, ScreenChangedContentEvent, ScreenMovedEvent, ScreenDisappearedEvent
+from video699.event.screen import (
+    ScreenEventDetector,
+    ScreenEventDetectorVideo,
+    ScreenEventDetectorScreenDetector,
+    ScreenEventDetectorPageDetector,
+    ScreenAppearedEvent,
+    ScreenChangedContentEvent,
+    ScreenMovedEvent,
+    ScreenDisappearedEvent,
+)
 from video699.quadrangle.geos import GEOSConvexQuadrangle
+from video699.quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 from ..document.test_image_file import FIRST_PAGE_IMAGE_PATHNAME, SECOND_PAGE_IMAGE_PATHNAME
 
 
@@ -20,7 +29,7 @@ VIDEO_WIDTH = 720
 VIDEO_HEIGHT = 576
 VIDEO_DATETIME = datetime_parse('2016-10-26T00:00:00+00:00')
 FIRST_COORDINATES = GEOSConvexQuadrangle((10, 10), (30, 10), (10, 30), (30, 30))
-SECOND_COORDINATES = GEOSConvexQuadrangle((40, 40), (80, 40), (40, 80), (80, 80))
+SECOND_COORDINATES = GEOSConvexQuadrangle((20, 20), (40, 20), (20, 40), (40, 40))
 XML_SCHEMA_PATHNAME = os.path.join(os.path.dirname(__file__), 'schema.xsd')
 
 
@@ -40,6 +49,9 @@ class TestScreenEventDetector(unittest.TestCase):
         self.second_page = next(page_iterator)
 
         self.xml_schema = XMLSchema(file=XML_SCHEMA_PATHNAME)
+        self.quadrangle_tracker = RTreeDequeConvexQuadrangleTracker()
+        self.screen_detector = ScreenEventDetectorScreenDetector()
+        self.page_detector = ScreenEventDetectorPageDetector()
 
     def test_empty(self):
         video = ScreenEventDetectorVideo(
@@ -50,7 +62,12 @@ class TestScreenEventDetector(unittest.TestCase):
             quadrangles=(),
             pages=(),
         )
-        detector = ScreenEventDetector(video)
+        detector = ScreenEventDetector(
+            video,
+            self.quadrangle_tracker,
+            self.screen_detector,
+            self.page_detector,
+        )
         screen_events = list(detector)
         self.assertEqual(0, len(screen_events))
 
@@ -80,7 +97,12 @@ class TestScreenEventDetector(unittest.TestCase):
                 self.first_page,
             ),
         )
-        detector = ScreenEventDetector(video)
+        detector = ScreenEventDetector(
+            video,
+            self.quadrangle_tracker,
+            self.screen_detector,
+            self.page_detector,
+        )
         screen_events = list(detector)
         self.assertEqual(5, len(screen_events))
         screen_event_iterator = iter(screen_events)

@@ -454,6 +454,8 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
     Notes
     -----
     It MUST be possible to repeatedly iterate over all tracked convex quadrangles.
+    :class:`MovingConvexQuadrangleABC` objects corresponding to a single conceptual moving
+    quadrangle MUST compare equal.
 
     Attributes
     ----------
@@ -804,15 +806,15 @@ class PageDetectorABC(ABC):
 
         Parameters
         ----------
-        appeared_screens : iterator of ScreenABC
+        appeared_screens : iterator of (ScreenABC, MovingQuadrangleABC)
             Projection screens that did not exist in the previous video frame and exist in the
-            current video frame.
-        existing_screens : iterator of ScreenABC
+            current video frame, and their movements.
+        existing_screens : iterator of (ScreenABC, MovingQuadrangleABC)
             Projection screens that existed in the previous video frame and exist in the current
-            video frame.
-        disappeared_screens : iterator of ScreenABC
+            video frame, and their movements.
+        disappeared_screens : iterator of (ScreenABC, MovingQuadrangleABC)
             Projection screens that existed in the previous video frame and do not exist in the
-            current video frame.
+            current video frame, and their movements.
 
         Returns
         -------
