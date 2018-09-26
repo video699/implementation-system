@@ -56,7 +56,6 @@ class ScreenEventABC(FrameEventABC):
             classname=self.__class__.__name__,
             screen=self.screen,
             screen_id=self.screen_id,
-            quadrangle_id=self.quadrangle_id,
         )
 
 
