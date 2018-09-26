@@ -785,3 +785,37 @@ class PageABC(ABC):
             classname=self.__class__.__name__,
             page_number=self.number,
         )
+
+
+class PageDetectorABC(ABC):
+    """An abstract detector of document pages in projection screens.
+
+    """
+
+    def detect(self, appeared_screens, existing_screens, disappeared_screens):
+        """Detects document pages in projection screens from a current video frame.
+
+        Parameters
+        ----------
+        appeared_screens : iterator of ScreenABC
+            Projection screens that did not exist in the previous video frame and exist in the
+            current video frame.
+        existing_screens : iterator of ScreenABC
+            Projection screens that existed in the previous video frame and exist in the current
+            video frame.
+        disappeared_screens : iterator of ScreenABC
+            Projection screens that existed in the previous video frame and do not exist in the
+            current video frame.
+
+        Returns
+        -------
+        detected_pages : dict of (ScreenABC, PageABC or None)
+            A map between projections screens that exist in the current video frame and the document
+            page detected in a projection screen. If no page was detected in a screen, then the
+            screen maps to ``None``.
+        """
+
+    def __repr__(self):
+        return '<{classname}>'.format(
+            classname=self.__class__.__name__,
+        )
