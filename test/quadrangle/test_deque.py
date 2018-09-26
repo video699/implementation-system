@@ -6,9 +6,6 @@ from video699.quadrangle.deque import DequeMovingConvexQuadrangle
 from video699.quadrangle.geos import GEOSConvexQuadrangle
 
 
-QUADRANGLE_ID = 'quadrangle'
-
-
 class TestDequeMovingConvexQuadrangle(unittest.TestCase):
     """Tests the ability of the DequeMovingConvexQuadrangle class to record quadrangle movement.
 
@@ -45,7 +42,7 @@ class TestDequeMovingConvexQuadrangle(unittest.TestCase):
         second_quadrangle = self.second_quadrangle
         third_quadrangle = self.third_quadrangle
 
-        moving_convex_quadrangle = DequeMovingConvexQuadrangle(QUADRANGLE_ID, first_quadrangle)
+        moving_convex_quadrangle = DequeMovingConvexQuadrangle(first_quadrangle)
         moving_convex_quadrangle.add(second_quadrangle)
         moving_convex_quadrangle.add(third_quadrangle)
 
@@ -68,7 +65,6 @@ class TestDequeMovingConvexQuadrangle(unittest.TestCase):
         fourth_quadrangle = self.fourth_quadrangle
 
         moving_convex_quadrangle = DequeMovingConvexQuadrangle(
-            QUADRANGLE_ID,
             first_quadrangle,
             window_size=3,
         )

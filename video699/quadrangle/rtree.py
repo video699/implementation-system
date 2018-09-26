@@ -85,8 +85,6 @@ class RTreeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
         ``None`` or unspecified, then the number of time frames is unbounded.
     """
 
-    num_moving_quadrangles = 0
-
     def __init__(self, window_size=None):
         self._window_size = window_size
         self._moving_quadrangles = {}
@@ -138,10 +136,7 @@ class RTreeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
                 del moving_quadrangles[previous_quadrangle]
                 existing_quadrangles.add(moving_quadrangle)
             else:
-                quadrangle_id = 'quadrangle-{}'.format(self.num_moving_quadrangles)
-                self.num_moving_quadrangles += 1
                 moving_quadrangle = DequeMovingConvexQuadrangle(
-                    quadrangle_id,
                     quadrangle,
                     window_size,
                 )

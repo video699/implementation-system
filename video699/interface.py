@@ -457,17 +457,9 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
 
     Attributes
     ----------
-    quadrangle_id : str
-        An identifier unique among the :class:`TrackedConvexQuadrangleABC` tracked identifiers
-        produced by a convex quadrangle tracker.
     current_quadrangle : ConvexQuadrangleABC
         The latest coordinates of the moving convex quadrangle.
     """
-
-    @property
-    @abstractmethod
-    def quadrangle_id(self):
-        pass
 
     @property
     def current_quadrangle(self):
@@ -521,9 +513,8 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
         return NotImplemented
 
     def __repr__(self):
-        return '<{classname}, {quadrangle_id}, {current_quadrangle}>'.format(
+        return '<{classname}, {current_quadrangle}>'.format(
             classname=self.__class__.__name__,
-            quadrangle_id=self.quadrangle_id,
             current_quadrangle=self.current_quadrangle,
         )
 
