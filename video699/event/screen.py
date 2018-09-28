@@ -104,10 +104,9 @@ class ScreenAppearedEvent(ScreenEventABC):
     def write_xml(self, xf):
         screen = self.screen
         frame = self.frame
-        video = frame.video
         page = self.page
         document = page.document
-        xsd_duration = timedelta_as_xsd_duration(frame.datetime - video.datetime)
+        xsd_duration = timedelta_as_xsd_duration(frame.duration)
 
         xml_element = Element('screen-appeared-event')
         xml_element.attrib['screen-id'] = self.screen_id
@@ -173,10 +172,9 @@ class ScreenChangedContentEvent(ScreenEventABC):
 
     def write_xml(self, xf):
         frame = self.frame
-        video = frame.video
         page = self.page
         document = page.document
-        xsd_duration = timedelta_as_xsd_duration(frame.datetime - video.datetime)
+        xsd_duration = timedelta_as_xsd_duration(frame.duration)
 
         xml_element = Element('screen-changed-content-event')
         xml_element.attrib['screen-id'] = self.screen_id
@@ -225,8 +223,7 @@ class ScreenMovedEvent(ScreenEventABC):
     def write_xml(self, xf):
         screen = self.screen
         frame = self.frame
-        video = frame.video
-        xsd_duration = timedelta_as_xsd_duration(frame.datetime - video.datetime)
+        xsd_duration = timedelta_as_xsd_duration(frame.duration)
 
         xml_element = Element('screen-moved-event')
         xml_element.attrib['screen-id'] = self.screen_id
@@ -300,8 +297,7 @@ class ScreenDisappearedEvent(ScreenEventABC):
 
     def write_xml(self, xf):
         frame = self.frame
-        video = frame.video
-        xsd_duration = timedelta_as_xsd_duration(frame.datetime - video.datetime)
+        xsd_duration = timedelta_as_xsd_duration(frame.duration)
 
         xml_element = Element('screen-disappeared-event')
         xml_element.attrib['screen-id'] = self.screen_id
@@ -372,6 +368,8 @@ class ScreenEventDetectorVideo(VideoABC):
         The width of the video.
     height : int
         The height of the video.
+    duration : timedelta
+        The elapsed time since the beginning of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
     quadrangles : sequence of ConvexQuadrangleABC

@@ -193,6 +193,8 @@ class FrameABC(ABC):
         The width of the image data.
     height : int
         The height of the image data.
+    duration : timedelta
+        The elapsed time since the beginning of the video.
     datetime : aware datetime
         The date, and time at which the frame was captured.
     """
@@ -221,8 +223,12 @@ class FrameABC(ABC):
         return self.video.height
 
     @property
+    def duration(self):
+        return timedelta(seconds=(self.number - 1) / self.video.fps)
+
+    @property
     def datetime(self):
-        return self.video.datetime + timedelta(seconds=(self.number - 1) / self.video.fps)
+        return self.video.datetime + self.duration
 
     def __hash__(self):
         return hash((self.video, self.number))

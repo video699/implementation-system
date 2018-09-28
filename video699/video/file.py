@@ -24,8 +24,8 @@ class VideoFileFrame(FrameABC):
     number : int
         The frame number, i.e. the position of the frame in the video. Frame indexing is one-based,
         i.e. the first frame has number 1.
-    delta : float
-        The number of milliseconds elapsed since the beginning of the video.
+    duration : timedelta
+        The elapsed time since the beginning of the video.
     image : array_like
         The image data of the frame as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
         is currently unused and all pixels are fully opaque, i.e. they have the maximum alpha of
@@ -46,13 +46,15 @@ class VideoFileFrame(FrameABC):
         The width of the image data.
     height : int
         The height of the image data.
+    duration : timedelta
+        The elapsed time since the beginning of the video.
     datetime : aware datetime
         The date, and time at which the frame was captured.
     """
 
-    def __init__(self, video, number, delta, image):
+    def __init__(self, video, number, duration, image):
         self._frame = ImageFrame(video, number, image)
-        self._delta = timedelta(milliseconds=delta)
+        self._duration = duration
 
     @property
     def video(self):
@@ -67,8 +69,8 @@ class VideoFileFrame(FrameABC):
         return self._frame.image
 
     @property
-    def datetime(self):
-        return self.video.datetime + self._delta
+    def duration(self):
+        return self._duration
 
 
 class VideoFile(VideoABC, Iterator):
@@ -147,7 +149,7 @@ class VideoFile(VideoABC, Iterator):
     def __next__(self):
         if self._is_finished:
             raise StopIteration
-        delta = self._cap.get(cv.CAP_PROP_POS_MSEC)
+        duration = timedelta(milliseconds=self._cap.get(cv.CAP_PROP_POS_MSEC))
         retval, bgr_frame_image = self._cap.read()
         if not retval:
             self._is_finished = True
@@ -155,7 +157,7 @@ class VideoFile(VideoABC, Iterator):
             raise StopIteration
         rgba_frame_image = cv.cvtColor(bgr_frame_image, cv.COLOR_BGR2RGBA)
         self._frame_number += 1
-        return VideoFileFrame(self, self._frame_number, delta, rgba_frame_image)
+        return VideoFileFrame(self, self._frame_number, duration, rgba_frame_image)
 
     def __del__(self):
         self._cap.release()

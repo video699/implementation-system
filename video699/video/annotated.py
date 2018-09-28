@@ -565,6 +565,8 @@ class AnnotatedSampledVideo(VideoABC):
         The width of the video.
     height : int
         The height of the video.
+    duration : timedelta
+        The elapsed time since the beginning of the video.
     datetime : aware datetime
         The date, and time at which the video was captured.
     documents : dict of (str, AnnotatedSampledVideoDocument)
