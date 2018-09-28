@@ -26,7 +26,7 @@ LOGGER = getLogger(__name__)
 CONFIGURATION = get_configuration()['RollingPearsonEventDetector']
 WINDOW_SIZE = int(CONFIGURATION['window_size'])
 SIGNIFICANCE_LEVEL = float(CONFIGURATION['significance_level'])
-SUBSAMPLE_SIZE = int(CONFIGURATION['subsample_size'])
+SAMPLE_SIZE = int(CONFIGURATION['sample_size'])
 
 
 class RollingPearsonR(object):
@@ -186,13 +186,13 @@ class RollingPearsonPageDetector(PageDetectorABC):
     """A page detector using rolling Pearson's correlation coefficient.
 
     A random sample :math:`X` is taken from the intensities of the image data in a screen.
-    Intensities with a corresponding alpha channel (A) value of zero are disregarded. A temporal
+    The alpha channel (A) in the original RGBA image data weighs the intensities. A temporal
     rolling window is used to increase the sample size, i.e. the screens SHOULD originate from
     consecutive video frames. Analogously to :math:`X`, a random sample :math:`Y` of the same size
-    is taken from the image data in a document page. Pearson's correlation coefficient :math:`r`
-    between :math:`X` and :math:`Y` is computed. A significance test with the assumption that
-    :math:`(X,Y)` is bivariate normal is performed to see if :math:`r` is sufficiently extreme to
-    refuse the null hypothesis :math:`h_0: r = 0`. The page with the most extreme significant and
+    is taken from the image data in a document page. Weighted Pearson's correlation coefficient
+    :math:`r` between :math:`X` and :math:`Y` is computed. A significance test with the assumption
+    that :math:`(X,Y)` is bivariate normal is performed to see if :math:`r` is sufficiently extreme
+    to refuse the null hypothesis :math:`h_0: r = 0`. The page with the most extreme significant and
     positive value of :math:`r` is said to *match* the screen. If no page has a significant value of
     :math:`r`, then no page matches the screen.
 
@@ -206,66 +206,74 @@ class RollingPearsonPageDetector(PageDetectorABC):
     """
 
     def __init__(self, documents, window_size):
-        self._pages = list(chain(*documents))
+        pages = list(chain(*documents))
+        self._pages = pages
         self._window_size = window_size
-        self._samples = {}
+        self._rolling_pearsons = {}
+        self._correlation_coefficients = np.empty(len(pages))
+        self._p_values = np.empty(len(pages))
 
     def detect(self, appeared_screens, existing_screens, disappeared_screens):
         pages = self._pages
         window_size = self._window_size
-        samples = self._samples
+        rolling_pearsons = self._rolling_pearsons
+        correlation_coefficients = self._correlation_coefficients
+        p_values = self._p_values
         detected_pages = {}
 
         for _, moving_quadrangle in disappeared_screens:
-            del samples[moving_quadrangle]
+            del rolling_pearsons[moving_quadrangle]
 
         for screen, moving_quadrangle in chain(appeared_screens, existing_screens):
-            p_values = []
-            correlations = []
+            page_pixel_samples = []
 
-            if moving_quadrangle not in samples:
-                samples[moving_quadrangle] = {}
-            moving_quadrangle_samples = samples[moving_quadrangle]
+            if moving_quadrangle not in rolling_pearsons:
+                rolling_pearsons[moving_quadrangle] = {}
+
+            pixel_sample = (
+                np.random.random_integers(0, screen.height - 1, SAMPLE_SIZE),
+                np.random.random_integers(0, screen.width - 1, SAMPLE_SIZE),
+            )
 
             screen_intensity = cv.cvtColor(screen.image, cv.COLOR_RGBA2GRAY)
-            screen_alpha = screen.image[:, :, 3]
+            screen_pixels = screen_intensity[pixel_sample]
+            screen_alpha = screen.image[:, :, 3][pixel_sample]
 
-            for page in pages:
-                if page not in moving_quadrangle_samples:
-                    screen_sample = deque(maxlen=window_size)
-                    page_sample = deque(maxlen=window_size)
-                    moving_quadrangle_samples[page] = (screen_sample, page_sample)
-                else:
-                    screen_sample, page_sample = moving_quadrangle_samples[page]
+            for page_index, page in enumerate(pages):
+                if page not in rolling_pearsons[moving_quadrangle]:
+                    rolling_pearsons[moving_quadrangle][page] = RollingPearsonR(window_size)
+                rolling_pearson = rolling_pearsons[moving_quadrangle][page]
 
                 page_image = page.image(screen.width, screen.height)
                 page_intensity = cv.cvtColor(page_image, cv.COLOR_RGBA2GRAY)
-                page_alpha = page_image[:, :, 3]
+                page_pixels = page_intensity[pixel_sample]
+                page_alpha = page_image[:, :, 3][pixel_sample]
 
-                nonzero_alpha = np.minimum(screen_alpha, page_alpha).nonzero()
-                num_nonzero_alpha = len(nonzero_alpha[0])
-                pixel_subsample = np.random.choice(num_nonzero_alpha, SUBSAMPLE_SIZE)
+                pixel_weights = np.minimum(screen_alpha, page_alpha) / 255
 
-                screen_pixels = screen_intensity[nonzero_alpha][pixel_subsample]
-                page_pixels = page_intensity[nonzero_alpha][pixel_subsample]
-                screen_sample.append(screen_pixels)
-                page_sample.append(page_pixels)
-
-                correlation, p_value = pearsonr(
-                    np.concatenate(screen_sample),
-                    np.concatenate(page_sample),
-                    nan_policy='raise',
+                correlation_coefficient, p_value = rolling_pearson.next(
+                    screen_pixels,
+                    page_pixels,
+                    pixel_weights,
+                    update=False,
                 )
-                correlations.append(correlation)
-                p_values.append(p_value)
+                correlation_coefficients[page_index] = correlation_coefficient
+                p_values[page_index] = p_value
+                page_pixel_samples.append((page_pixels, pixel_weights))
 
-            q_values = benjamini_hochberg(p_values)
-            q_value_map = dict(zip(pages, q_values))
-            correlation, page = max(zip(correlations, pages))
-            q_value = q_value_map[page]
-            detected_page = None
-            if q_value < SIGNIFICANCE_LEVEL and correlation > 0:
+            page_index = np.argmax(correlation_coefficients)
+            correlation_coefficient = correlation_coefficients[page_index]
+            q_value = benjamini_hochberg(p_values)[page_index]
+            page = pages[page_index]
+            page_pixels, pixel_weights = page_pixel_samples[page_index]
+
+            rolling_pearson = rolling_pearsons[moving_quadrangle][page]
+            rolling_pearson.next(screen_pixels, page_pixels, pixel_weights)
+
+            if q_value < SIGNIFICANCE_LEVEL and correlation_coefficient > 0:
                 detected_page = page
+            else:
+                detected_page = None
             detected_pages[screen] = detected_page
 
         return detected_pages
