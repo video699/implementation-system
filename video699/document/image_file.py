@@ -54,7 +54,7 @@ class ImageFileDocumentPage(PageABC):
         return self._number
 
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
-    def image(self, width, height):
+    def image(self, width=None, height=None):
         bgr_image = cv.imread(self._image_pathname)
         rgba_image = cv.cvtColor(bgr_image, cv.COLOR_BGR2RGBA)
         original_height, original_width, _ = rgba_image.shape

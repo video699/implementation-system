@@ -778,15 +778,17 @@ class PageABC(ABC):
         pass
 
     @abstractmethod
-    def image(self, width, height):
+    def image(self, width=None, height=None):
         """Returns the image data of the document page at the specified dimensions.
 
         Parameters
         ----------
-        width : int
-            The width of the image data.
-        height : int
-            The height of the image data.
+        width : int or None, optional
+            The width of the image data. When unspecified or ``None``, the implementation MUST pick
+            a width at its own discretion.
+        height : int or None, optional
+            The height of the image data. When unspecified or ``None``, the implementation MUST pick
+            a height at its own discretion.
 
         Returns
         -------
@@ -795,6 +797,11 @@ class PageABC(ABC):
             denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha,
             SHOULD be completely disregarded in subsequent computation. Any margins added to the
             image data, e.g. by keeping the aspect ratio of the page, MUST be fully transparent.
+
+        Raises
+        ------
+        ValueError
+            When either the width or the height is zero.
         """
         pass
 

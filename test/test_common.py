@@ -68,10 +68,27 @@ class TestChangeAspectRatioByUpscaling(unittest.TestCase):
         self.assertEqual(800, rescaled_width)
         self.assertEqual(800, rescaled_height)
 
-    def test_zero_aspect_ratio(self):
+    def test_zero_dimensions(self):
         original_width, original_height = (800, 600)
         new_aspect_ratio = Fraction(0, 1)
 
+        with self.assertRaises(ValueError):
+            rescaled_width, rescaled_height = change_aspect_ratio_by_upscaling(
+                original_width,
+                original_height,
+                new_aspect_ratio,
+            )
+
+        new_aspect_ratio = Fraction(800, 600)
+        original_width, original_height = (0, 600)
+        with self.assertRaises(ValueError):
+            rescaled_width, rescaled_height = change_aspect_ratio_by_upscaling(
+                original_width,
+                original_height,
+                new_aspect_ratio,
+            )
+
+        original_width, original_height = (800, 0)
         with self.assertRaises(ValueError):
             rescaled_width, rescaled_height = change_aspect_ratio_by_upscaling(
                 original_width,
@@ -124,9 +141,9 @@ class TestRescaleAndKeepAspectRatio(unittest.TestCase):
         self.assertEqual(0, left_margin)
         self.assertEqual(0, right_margin)
 
-    def test_zero_aspect_ratio(self):
+    def test_zero_dimensions(self):
         original_width, original_height = (800, 600)
-        new_width, new_height = (0, 800)
+        new_width, new_height = (0, 600)
         with self.assertRaises(ValueError):
             rescale_and_keep_aspect_ratio(
                 original_width,
@@ -143,6 +160,64 @@ class TestRescaleAndKeepAspectRatio(unittest.TestCase):
                 new_width,
                 new_height,
             )
+
+        original_width, original_height = (0, 600)
+        new_width, new_height = (800, 600)
+        with self.assertRaises(ValueError):
+            rescale_and_keep_aspect_ratio(
+                original_width,
+                original_height,
+                new_width,
+                new_height,
+            )
+
+        original_width, original_height = (800, 0)
+        with self.assertRaises(ValueError):
+            rescale_and_keep_aspect_ratio(
+                original_width,
+                original_height,
+                new_width,
+                new_height,
+            )
+
+    def test_unspecified_new_width(self):
+        original_width, original_height = (800, 600)
+        new_width, new_height = (None, 900)
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height)
+
+        self.assertEqual(1200, rescaled_width)
+        self.assertEqual(900, rescaled_height)
+        self.assertEqual(0, top_margin)
+        self.assertEqual(0, bottom_margin)
+        self.assertEqual(0, left_margin)
+        self.assertEqual(0, right_margin)
+
+    def test_unspecified_new_height(self):
+        original_width, original_height = (800, 600)
+        new_width, new_height = (1200, None)
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height)
+
+        self.assertEqual(1200, rescaled_width)
+        self.assertEqual(900, rescaled_height)
+        self.assertEqual(0, top_margin)
+        self.assertEqual(0, bottom_margin)
+        self.assertEqual(0, left_margin)
+        self.assertEqual(0, right_margin)
+
+    def test_unspecified_new_dimensions(self):
+        original_width, original_height = (800, 600)
+        new_width, new_height = (None, None)
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height)
+
+        self.assertEqual(800, rescaled_width)
+        self.assertEqual(600, rescaled_height)
+        self.assertEqual(0, top_margin)
+        self.assertEqual(0, bottom_margin)
+        self.assertEqual(0, left_margin)
+        self.assertEqual(0, right_margin)
 
 
 if __name__ == '__main__':

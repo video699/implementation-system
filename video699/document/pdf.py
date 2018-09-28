@@ -58,7 +58,7 @@ class PDFDocumentPage(PageABC):
         return self._page.number + 1
 
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
-    def image(self, width, height):
+    def image(self, width=None, height=None):
         rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
             rescale_and_keep_aspect_ratio(self._default_width, self._default_height, width, height)
         # Subtract 1, so that the dimensions of getPixmap(zoom_matrix) are never less than

@@ -30,10 +30,19 @@ def change_aspect_ratio_by_upscaling(original_width, original_height, new_aspect
         The width of the image after rescaling.
     rescaled_height : int
         The height of the image after rescaling.
+
+    Raises
+    ------
+    ValueError
+        When some of the original dimensions or the new aspect ratio is zero.
     """
 
-    if new_aspect_ratio.numerator == 0:
-        raise ValueError('The aspect ratio is zero')
+    if original_width == 0:
+        raise ValueError('The original width be non-zero')
+    if original_width == 0 or original_height == 0:
+        raise ValueError('The original height must be non-zero')
+    if new_aspect_ratio == 0:
+        raise ValueError('The new aspect ratio must be non-zero')
 
     new_aspect_width = new_aspect_ratio.numerator
     new_aspect_height = new_aspect_ratio.denominator
@@ -49,7 +58,7 @@ def change_aspect_ratio_by_upscaling(original_width, original_height, new_aspect
     return (rescaled_width, rescaled_height)
 
 
-def rescale_and_keep_aspect_ratio(original_width, original_height, new_width, new_height):
+def rescale_and_keep_aspect_ratio(original_width, original_height, new_width=None, new_height=None):
     """Returns new dimensions, and margins that rescale an image and keep its aspect ratio.
 
     Notes
@@ -64,9 +73,13 @@ def rescale_and_keep_aspect_ratio(original_width, original_height, new_width, ne
     original_height : int
         The original height of an image.
     new_width : int
-        The new width of the image including the margins.
+        The new width of the image including the margins. When unspecified or ``None`` and the new
+        height is specified, the new height minimizes the margins. When both the new width and the
+        new height are unspecified or ``None``, the new height equals the original height.
     new_height : int
-        The new height of the image including the margins.
+        The new height of the image including the margins. When unspecified or ``None`` and the new
+        width is specified, the new height minimizes the margins. When both the new width and the
+        new height are unspecified or ``None``, the new width equals the original width.
 
     Returns
     -------
@@ -82,20 +95,46 @@ def rescale_and_keep_aspect_ratio(original_width, original_height, new_width, ne
         The width of the left margin of the rescaled image.
     right_margin : int
         The width of the right margin of the rescaled image.
+
+    Raises
+    ------
+    ValueError
+        When some of the original or new dimensions is zero.
     """
 
+    if original_width == 0:
+        raise ValueError('The original width be non-zero')
+    if original_width == 0 or original_height == 0:
+        raise ValueError('The original height must be non-zero')
+    if new_width == 0:
+        raise ValueError('The new width be non-zero')
     if new_width == 0 or new_height == 0:
-        raise ValueError('The aspect ratio is zero')
+        raise ValueError('The new height must be non-zero')
 
-    aspect_ratio = min(new_width / original_width, new_height / original_height)
-    rescaled_width = int(round(original_width * aspect_ratio))
-    rescaled_height = int(round(original_height * aspect_ratio))
-    margin_width = (new_width - rescaled_width) / 2
-    margin_height = (new_height - rescaled_height) / 2
-    top_margin = floor(margin_height)
-    bottom_margin = ceil(margin_height)
-    left_margin = floor(margin_width)
-    right_margin = ceil(margin_width)
+    if new_width is None or new_height is None:
+        top_margin = 0
+        bottom_margin = 0
+        left_margin = 0
+        right_margin = 0
+        if new_width is None and new_height is None:
+            rescaled_width = original_width
+            rescaled_height = original_height
+        elif new_width is not None:
+            rescaled_width = new_width
+            rescaled_height = new_width / original_width * original_height
+        else:
+            rescaled_width = new_height / original_height * original_width
+            rescaled_height = new_height
+    else:
+        aspect_ratio = min(new_width / original_width, new_height / original_height)
+        rescaled_width = int(round(original_width * aspect_ratio))
+        rescaled_height = int(round(original_height * aspect_ratio))
+        margin_width = (new_width - rescaled_width) / 2
+        margin_height = (new_height - rescaled_height) / 2
+        top_margin = floor(margin_height)
+        bottom_margin = ceil(margin_height)
+        left_margin = floor(margin_width)
+        right_margin = ceil(margin_width)
     return (
         rescaled_width,
         rescaled_height,
