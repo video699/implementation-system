@@ -56,10 +56,10 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
         self.assertEqual({first_quadrangle, second_quadrangle}, set(index.quadrangles))
         self.assertEqual(
             {
-                first_quadrangle: first_quadrangle.area,
-                second_quadrangle: second_quadrangle.area,
+                first_quadrangle: first_quadrangle.area / fourth_quadrangle.area,
+                second_quadrangle: second_quadrangle.area / fourth_quadrangle.area,
             },
-            index.intersection_areas(fourth_quadrangle),
+            index.jaccard_indexes(fourth_quadrangle),
         )
 
     def test_add_duplicates(self):
@@ -80,9 +80,9 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
         self.assertEqual({first_quadrangle}, set(index.quadrangles))
         self.assertEqual(
             {
-                first_quadrangle: first_quadrangle.area,
+                first_quadrangle: first_quadrangle.area / fourth_quadrangle.area,
             },
-            index.intersection_areas(fourth_quadrangle),
+            index.jaccard_indexes(fourth_quadrangle),
         )
 
     def test_discard(self):
@@ -96,9 +96,9 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
         self.assertEqual({first_quadrangle}, set(index.quadrangles))
         self.assertEqual(
             {
-                first_quadrangle: first_quadrangle.area,
+                first_quadrangle: first_quadrangle.area / fourth_quadrangle.area,
             },
-            index.intersection_areas(fourth_quadrangle),
+            index.jaccard_indexes(fourth_quadrangle),
         )
 
     def test_discard_duplicate(self):
@@ -118,9 +118,9 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
         self.assertEqual({first_quadrangle}, set(index.quadrangles))
         self.assertEqual(
             {
-                first_quadrangle: first_quadrangle.area,
+                first_quadrangle: first_quadrangle.area / fourth_quadrangle.area,
             },
-            index.intersection_areas(fourth_quadrangle),
+            index.jaccard_indexes(fourth_quadrangle),
         )
 
     def test_clear(self):
@@ -132,23 +132,23 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
         index.clear()
 
         self.assertEqual(0, len(index))
-        self.assertEqual({}, index.intersection_areas(fourth_quadrangle))
+        self.assertEqual({}, index.jaccard_indexes(fourth_quadrangle))
 
-    def test_intersection_areas_of_disjoint_quadrangles(self):
+    def test_jaccard_indexes_of_disjoint_quadrangles(self):
         first_quadrangle = self.first_quadrangle
         second_quadrangle = self.second_quadrangle
 
         index = RTreeConvexQuadrangleIndex((first_quadrangle,))
-        self.assertEqual({}, index.intersection_areas(second_quadrangle))
+        self.assertEqual({}, index.jaccard_indexes(second_quadrangle))
 
-    def test_intersection_areas_of_touching_quadrangles(self):
+    def test_jaccard_indexes_of_touching_quadrangles(self):
         first_quadrangle = self.first_quadrangle
         third_quadrangle = self.third_quadrangle
 
         index = RTreeConvexQuadrangleIndex((first_quadrangle,))
-        self.assertEqual({}, index.intersection_areas(third_quadrangle))
+        self.assertEqual({}, index.jaccard_indexes(third_quadrangle))
 
-    def test_intersection_areas_of_crossing_quadrangles(self):
+    def test_jaccard_indexes_of_crossing_quadrangles(self):
         first_quadrangle = self.first_quadrangle
         second_quadrangle = self.second_quadrangle
         third_quadrangle = self.third_quadrangle
@@ -163,11 +163,13 @@ class TestRTreeConvexQuadrangleIndex(unittest.TestCase):
             fifth_quadrangle,
         ))
         self.assertEqual({
-            first_quadrangle: first_quadrangle.area / 2,
-            third_quadrangle: third_quadrangle.area,
-            fourth_quadrangle: fifth_quadrangle.area,
-            fifth_quadrangle: fifth_quadrangle.area,
-        }, index.intersection_areas(fifth_quadrangle))
+            first_quadrangle: (
+                (first_quadrangle.area / 2) / (first_quadrangle.area / 2 + fifth_quadrangle.area)
+            ),
+            third_quadrangle: third_quadrangle.area / fifth_quadrangle.area,
+            fourth_quadrangle: fifth_quadrangle.area / fourth_quadrangle.area,
+            fifth_quadrangle: 1.0,
+        }, index.jaccard_indexes(fifth_quadrangle))
 
 
 class TestRTreeDequeConvexQuadrangleTracker(unittest.TestCase):

@@ -163,6 +163,21 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
             return intersection.area
         return NotImplemented
 
+    def union_area(self, other):
+        if isinstance(other, ConvexQuadrangleABC):
+            if isinstance(other, GEOSConvexQuadrangle):
+                other_polygon = other._polygon
+            else:
+                other_polygon = Polygon([
+                    other.top_left,
+                    other.top_right,
+                    other.bottom_right,
+                    other.bottom_left,
+                ])
+            union = self._polygon.union(other_polygon)
+            return union.area
+        return NotImplemented
+
     def transform(self, frame_image):
         return cv.warpPerspective(
             frame_image,

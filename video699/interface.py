@@ -338,7 +338,23 @@ class ConvexQuadrangleABC(ABC):
         Returns
         -------
         intersection_area : scalar
-            The area of the intersection of self, and the other convex quadrangle.
+            The area of the intersection with the other convex quadrangle.
+        """
+        pass
+
+    @abstractmethod
+    def union_area(self, other):
+        """The area of the union of two convex quadrangles.
+
+        Parameters
+        ----------
+        other : ConvexQuadrangleABC
+            The other convex quadrangle.
+
+        Returns
+        -------
+        union_area : scalar
+            The area of the union with the other convex quadrangle.
         """
         pass
 
@@ -427,8 +443,8 @@ class ConvexQuadrangleIndexABC(MutableSet):
         pass
 
     @abstractmethod
-    def intersection_areas(self, input_quadrangle):
-        """Retrieves convex quadrangles from the index that intersect an input convex quadrangle.
+    def jaccard_indexes(self, input_quadrangle):
+        """Retrieves quadrangles intersecting an input quadrangle, computes Jaccard indexes.
 
         Parameters
         ----------
@@ -437,10 +453,10 @@ class ConvexQuadrangleIndexABC(MutableSet):
 
         Returns
         -------
-        quadrangles : dict of (ConvexQuadrangleABC, scalar)
-            A map between convex quadrangles from the index that intersect the input convex
-            quadrangle, and the intersection areas. All intersection areas MUST be greater than
-            zero.
+        jaccard_indexes : dict of (ConvexQuadrangleABC, scalar)
+            A map between convex quadrangles in the index that intersect the input convex
+            quadrangle, and the Jaccard indexes between the input convex quadrangle and the convex
+            quadrangles in the index. All Jaccard indexes MUST be greater than zero.
         """
         pass
 

@@ -63,16 +63,17 @@ class RTreeConvexQuadrangleIndex(ConvexQuadrangleIndexABC):
         self._quadrangle_ids.clear()
         self._index = rtree.index.Index()
 
-    def intersection_areas(self, input_quadrangle):
+    def jaccard_indexes(self, input_quadrangle):
         coordinates = (*input_quadrangle.top_left_bound, *input_quadrangle.bottom_right_bound)
         intersection = self._index.intersection(coordinates)
-        intersection_areas = {}
+        jaccard_indexes = {}
         for indexed_quadrangle_id in intersection:
             indexed_quadrangle = self._quadrangles[indexed_quadrangle_id]
             intersection_area = input_quadrangle.intersection_area(indexed_quadrangle)
             if intersection_area > 0:
-                intersection_areas[indexed_quadrangle] = intersection_area
-        return intersection_areas
+                union_area = input_quadrangle.union_area(indexed_quadrangle)
+                jaccard_indexes[indexed_quadrangle] = intersection_area / union_area
+        return jaccard_indexes
 
 
 class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
@@ -100,8 +101,8 @@ class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
         with the convex quadrangles in the *previous* time frame. The current quadrangles that
         intersect no previous quadrangles are added to the tracker. The current quadrangles that
         intersect at least one previous quadrangle are considered to be the current position of the
-        previous quadrangle with the largest intersection area. The previous quadrangles that cross
-        no current quadrangles are removed from the tracker.
+        previous quadrangle with the largest Jaccard index. The previous quadrangles that cross no
+        current quadrangles are removed from the tracker.
 
         Parameters
         ----------
@@ -126,10 +127,10 @@ class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
         quadrangle_index = self._quadrangle_index
 
         for quadrangle in current_quadrangles:
-            intersection_areas = quadrangle_index.intersection_areas(quadrangle)
-            if intersection_areas:
+            jaccard_indexes = quadrangle_index.jaccard_indexes(quadrangle)
+            if jaccard_indexes:
                 (previous_quadrangle, _), *__ = sorted(
-                    intersection_areas.items(),
+                    jaccard_indexes.items(),
                     key=lambda x: x[1],
                     reverse=True
                 )
