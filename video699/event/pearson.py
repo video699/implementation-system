@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 r"""This module implements a screen event detector that matches document page image data with
-projection screen image data using the Spearman's rank correlation coefficient :math:`\rho` with a
-sliding window of video frames. Related classes and methods are also implemented.
+projection screen image data using the Pearson's rank correlation coefficient :math:`r` with a
+rolling window of video frames. Related classes and methods are also implemented.
 
 """
 
@@ -12,7 +12,7 @@ from logging import getLogger
 
 import cv2 as cv
 import numpy as np
-from scipy.stats import spearmanr
+from scipy.stats import pearsonr
 
 from ..common import benjamini_hochberg
 from ..configuration import get_configuration
@@ -22,32 +22,33 @@ from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
 LOGGER = getLogger(__name__)
-CONFIGURATION = get_configuration()['SlidingSpearmanEventDetector']
+CONFIGURATION = get_configuration()['RollingPearsonEventDetector']
 WINDOW_SIZE = int(CONFIGURATION['window_size'])
 SIGNIFICANCE_LEVEL = float(CONFIGURATION['significance_level'])
 SUBSAMPLE_SIZE = int(CONFIGURATION['subsample_size'])
 
 
-class SlidingSpearmanPageDetector(PageDetectorABC):
-    r"""A page detector using Spearman's rank correlation coefficient with a sliding window.
+class RollingPearsonPageDetector(PageDetectorABC):
+    """A page detector using rolling Pearson's correlation coefficient.
 
     A random sample :math:`X` is taken from the intensities of the image data in a screen.
     Intensities with a corresponding alpha channel (A) value of zero are disregarded. A temporal
-    sliding window is used to increase the sample size, i.e. the screens SHOULD originate from
+    rolling window is used to increase the sample size, i.e. the screens SHOULD originate from
     consecutive video frames. Analogously to :math:`X`, a random sample :math:`Y` of the same size
-    is taken from the image data in a document page. Spearman's correlation coefficient :math:`\rho`
-    between :math:`X` and :math:`Y` is computed. A significance test is performed to see if
-    :math:`\rho` is sufficiently extreme to refuse the null hypothesis :math:`h_0: \rho = 0`. The
-    page with the most extreme significant value of :math:`\rho` is said to *match* the screen. If
-    no page has a significant value of :math:`\rho`, then no page matches the screen.
+    is taken from the image data in a document page. Pearson's correlation coefficient :math:`r`
+    between :math:`X` and :math:`Y` is computed. A significance test with the assumption that
+    :math:`(X,Y)` is bivariate normal is performed to see if :math:`r` is sufficiently extreme to
+    refuse the null hypothesis :math:`h_0: r = 0`. The page with the most extreme significant and
+    positive value of :math:`r` is said to *match* the screen. If no page has a significant value of
+    :math:`r`, then no page matches the screen.
 
     Parameters
     ----------
     documents : set of DocumentABC
         Documents whose pages are matched against detected lit projection screens.
     window_size : int
-        The maximum number of video frames for which samples are reused.
-
+        The maximum number of previous video frames that contribute to the random samples from
+        :math:`X`, and :math:`Y`.
     """
 
     def __init__(self, documents, window_size):
@@ -96,7 +97,7 @@ class SlidingSpearmanPageDetector(PageDetectorABC):
                 screen_sample.append(screen_pixels)
                 page_sample.append(page_pixels)
 
-                correlation, p_value = spearmanr(
+                correlation, p_value = pearsonr(
                     np.concatenate(screen_sample),
                     np.concatenate(page_sample),
                     nan_policy='raise',
@@ -116,12 +117,12 @@ class SlidingSpearmanPageDetector(PageDetectorABC):
         return detected_pages
 
 
-class RTreeDequeSlidingSpearmanEventDetector(EventDetectorABC):
+class RTreeDequeRollingPearsonEventDetector(EventDetectorABC):
     r"""A screen event detector that wraps :class:`ScreenEventDetector` and serves as a facade.
 
     A :class:`ScreenEventDetector` is instantiated with the
     :class:`RTreeDequeConvexQuadrangleTracker` convex quadrangle tracker and the
-    :class:`SlidingSpearmanPageDetector` page detector. The window size for the convex quadrangle
+    :class:`RollingPearsonPageDetector` page detector. The window size for the convex quadrangle
     tracker and for the page detector is taken from the configuration.
 
     Parameters
@@ -141,7 +142,7 @@ class RTreeDequeSlidingSpearmanEventDetector(EventDetectorABC):
 
     def __init__(self, video, screen_detector, documents):
         quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(WINDOW_SIZE)
-        page_detector = SlidingSpearmanPageDetector(documents, WINDOW_SIZE)
+        page_detector = RollingPearsonPageDetector(documents, WINDOW_SIZE)
         self._event_detector = ScreenEventDetector(
             video,
             quadrangle_tracker,
