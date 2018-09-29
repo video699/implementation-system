@@ -174,8 +174,25 @@ class VideoABC(ABC, Iterable):
         )
 
 
+class ImageABC(ABC):
+    """An abstract image represented by an OpenCV CV_8UC3 RGBA matrix.
+
+    Attributes
+    ----------
+    image : array_like
+        The image data as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A) denotes the
+        weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD be
+        completely disregarded in subsequent computation.
+    """
+
+    @property
+    @abstractmethod
+    def image(self):
+        pass
+
+
 @total_ordering
-class FrameABC(ABC):
+class FrameABC(ImageABC):
     """An abstract frame of a video.
 
     Attributes
@@ -207,11 +224,6 @@ class FrameABC(ABC):
     @property
     @abstractmethod
     def number(self):
-        pass
-
-    @property
-    @abstractmethod
-    def image(self):
         pass
 
     @property
@@ -611,7 +623,7 @@ class ConvexQuadrangleTrackerABC(ABC, Iterable, Sized):
         )
 
 
-class ScreenABC(ABC):
+class ScreenABC(ImageABC):
     """An abstract projection screen shown in a video frame.
 
     Attributes
@@ -755,13 +767,18 @@ class DocumentABC(ABC, Iterable):
         )
 
 
-class PageABC(ABC):
+class PageABC(ImageABC):
     """An abstract page of a document.
 
     Attributes
     ----------
     document : DocumentABC
         The document containing the page.
+    image : array_like
+        The image data of the page as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD
+        be completely disregarded in subsequent computation. Any margins added to the image data,
+        e.g. by keeping the aspect ratio of the page, MUST be fully transparent.
     number : int
         The page number, i.e. the position of the page in the document. Page indexing is one-based,
         i.e. the first page has number 1.
@@ -778,8 +795,8 @@ class PageABC(ABC):
         pass
 
     @abstractmethod
-    def image(self, width=None, height=None):
-        """Returns the image data of the document page at the specified dimensions.
+    def render(self, width=None, height=None):
+        """Renders the image data of the document page at the specified dimensions.
 
         Parameters
         ----------
@@ -804,6 +821,10 @@ class PageABC(ABC):
             When either the width or the height is zero.
         """
         pass
+
+    @property
+    def image(self):
+        return self.render()
 
     def __hash__(self):
         return hash((self.document, self.number))

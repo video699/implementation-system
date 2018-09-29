@@ -148,7 +148,7 @@ class TestAnnotatedSampledVideoDocumentPage(unittest.TestCase):
     def test_page_image(self):
         page_width = 640
         page_height = 480
-        page_image = self.second_page.image(page_width, page_height)
+        page_image = self.second_page.render(page_width, page_height)
         height, width, _ = page_image.shape
         self.assertEqual(page_width, width)
         self.assertEqual(page_height, height)

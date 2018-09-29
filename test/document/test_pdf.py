@@ -61,7 +61,7 @@ class TestPDFDocumentPage(unittest.TestCase):
         self.assertEqual(2, self.second_page.number)
 
     def test_first_page_image(self):
-        image = self.first_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
+        image = self.first_page.render(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
         height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT, height)
@@ -93,7 +93,7 @@ class TestPDFDocumentPage(unittest.TestCase):
         self.assertEqual(255, alpha[position])
 
     def test_second_page_image(self):
-        image = self.second_page.image(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
+        image = self.second_page.render(PAGE_IMAGE_WIDTH, PAGE_IMAGE_HEIGHT)
         height, width, _ = image.shape
         self.assertEqual(PAGE_IMAGE_WIDTH, width)
         self.assertEqual(PAGE_IMAGE_HEIGHT, height)
@@ -119,7 +119,7 @@ class TestPDFDocumentPage(unittest.TestCase):
         self.assertEqual(255, alpha[position])
 
     def test_wider_aspect_ratio(self):
-        image = self.first_page.image(
+        image = self.first_page.render(
             PAGE_IMAGE_WIDTH + PAGE_IMAGE_HORIZONTAL_MARGIN,
             PAGE_IMAGE_HEIGHT,
         )
@@ -140,7 +140,7 @@ class TestPDFDocumentPage(unittest.TestCase):
             self.assertEqual(0, alpha[coordinates])
 
     def test_taller_aspect_ratio(self):
-        image = self.first_page.image(
+        image = self.first_page.render(
             PAGE_IMAGE_WIDTH,
             PAGE_IMAGE_HEIGHT + PAGE_IMAGE_VERTICAL_MARGIN,
         )

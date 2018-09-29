@@ -244,7 +244,7 @@ class RollingPearsonPageDetector(PageDetectorABC):
                     rolling_pearsons[moving_quadrangle][page] = RollingPearsonR(window_size)
                 rolling_pearson = rolling_pearsons[moving_quadrangle][page]
 
-                page_image = page.image(screen.width, screen.height)
+                page_image = page.render(screen.width, screen.height)
                 page_intensity = cv.cvtColor(page_image, cv.COLOR_RGBA2GRAY)
                 page_pixels = page_intensity[pixel_sample]
                 page_alpha = page_image[:, :, 3][pixel_sample]

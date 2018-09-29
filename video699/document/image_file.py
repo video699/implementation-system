@@ -38,6 +38,11 @@ class ImageFileDocumentPage(PageABC):
     number : int
         The page number, i.e. the position of the page in the document. Page indexing is one-based,
         i.e. the first page has number 1.
+    image : array_like
+        The image data of the page as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD
+        be completely disregarded in subsequent computation. Any margins added to the image data,
+        e.g. by keeping the aspect ratio of the page, MUST be fully transparent.
     """
 
     def __init__(self, document, number, image_pathname):
@@ -54,7 +59,7 @@ class ImageFileDocumentPage(PageABC):
         return self._number
 
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
-    def image(self, width=None, height=None):
+    def render(self, width=None, height=None):
         bgr_image = cv.imread(self._image_pathname)
         rgba_image = cv.cvtColor(bgr_image, cv.COLOR_BGR2RGBA)
         original_height, original_width, _ = rgba_image.shape

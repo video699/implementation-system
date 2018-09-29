@@ -37,6 +37,11 @@ class PDFDocumentPage(PageABC):
     ----------
     document : DocumentABC
         The document containing the page.
+    image : array_like
+        The image data of the page as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD
+        be completely disregarded in subsequent computation. Any margins added to the image data,
+        e.g. by keeping the aspect ratio of the page, MUST be fully transparent.
     number : int
         The page number, i.e. the position of the page in the document. Page indexing is one-based,
         i.e. the first page has number 1.
@@ -58,7 +63,7 @@ class PDFDocumentPage(PageABC):
         return self._page.number + 1
 
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
-    def image(self, width=None, height=None):
+    def render(self, width=None, height=None):
         rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
             rescale_and_keep_aspect_ratio(self._default_width, self._default_height, width, height)
         # Subtract 1, so that the dimensions of getPixmap(zoom_matrix) are never less than

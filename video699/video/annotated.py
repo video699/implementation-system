@@ -264,6 +264,11 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
     ----------
     document : DocumentABC
         The document containing the page.
+    image : array_like
+        The image data of the page as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+        denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha, SHOULD
+        be completely disregarded in subsequent computation. Any margins added to the image data,
+        e.g. by keeping the aspect ratio of the page, MUST be fully transparent.
     number : int
         The page number, i.e. the position of the page in the document. Page indexing is one-based,
         i.e. the first page has number 1.
@@ -306,8 +311,8 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
         )
         return pathname
 
-    def image(self, width, height):
-        return self._page.image(width, height)
+    def render(self, width=None, height=None):
+        return self._page.render(width, height)
 
 
 class AnnotatedSampledVideoDocument(DocumentABC):
