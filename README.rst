@@ -61,7 +61,7 @@ Next, install the package using Pip:
 
 ::
 
-   $ python install .
+   $ pip install .
 
 If you wish to run tests, or build the documentation, use Pip to download
 additional Python packages specified in the ``requirements.txt`` file:
