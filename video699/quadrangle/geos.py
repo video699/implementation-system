@@ -60,6 +60,8 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
         The height of the quadrangle in a screen coordinate system.
     area : scalar
         The area of the screen in the video frame coordinate system.
+    transform_matrix : 3x3 ndarray of scalar
+        The homography from the frame coordinate system to the screen coordinate system.
     """
 
     def __init__(self, top_left, top_right, bottom_left, bottom_right, aspect_ratio=None):
@@ -110,7 +112,7 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
                 (stretch_x, 0, 0),
                 (0, stretch_y, 0),
                 (0, 0, 1),
-            ]).dot(self.transform_matrix)
+            ], dtype=float).dot(self.transform_matrix)
 
     @property
     def top_left(self):

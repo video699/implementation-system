@@ -111,7 +111,7 @@ class ScreenAppearedEvent(ScreenEventABC):
         xml_element = Element('screen-appeared-event')
         xml_element.attrib['screen-id'] = self.screen_id
         xml_element.attrib['frame-number'] = str(frame.number)
-        xml_element.attrib['frame-time'] = xsd_duration
+        xml_element.attrib['frame-duration'] = xsd_duration
         xml_element.attrib['document-uri'] = document.uri
         xml_element.attrib['page-number'] = str(page.number)
 
@@ -179,7 +179,7 @@ class ScreenChangedContentEvent(ScreenEventABC):
         xml_element = Element('screen-changed-content-event')
         xml_element.attrib['screen-id'] = self.screen_id
         xml_element.attrib['frame-number'] = str(frame.number)
-        xml_element.attrib['frame-time'] = xsd_duration
+        xml_element.attrib['frame-duration'] = xsd_duration
         xml_element.attrib['document-uri'] = document.uri
         xml_element.attrib['page-number'] = str(page.number)
 
@@ -228,7 +228,7 @@ class ScreenMovedEvent(ScreenEventABC):
         xml_element = Element('screen-moved-event')
         xml_element.attrib['screen-id'] = self.screen_id
         xml_element.attrib['frame-number'] = str(frame.number)
-        xml_element.attrib['frame-time'] = xsd_duration
+        xml_element.attrib['frame-duration'] = xsd_duration
 
         x0, y0 = screen.coordinates.top_left
         xml_element.attrib['x0'] = str(x0)
@@ -302,7 +302,7 @@ class ScreenDisappearedEvent(ScreenEventABC):
         xml_element = Element('screen-disappeared-event')
         xml_element.attrib['screen-id'] = self.screen_id
         xml_element.attrib['frame-number'] = str(frame.number)
-        xml_element.attrib['frame-time'] = xsd_duration
+        xml_element.attrib['frame-duration'] = xsd_duration
 
         xf.write(xml_element)
 

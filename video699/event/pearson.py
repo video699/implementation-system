@@ -2,11 +2,12 @@
 
 r"""This module implements a screen event detector that matches document page image data with
 projection screen image data using the Pearson's rank correlation coefficient :math:`r` with a
-rolling window of video frames. Related classes and methods are also implemented.
+rolling window of video frames. Related classes and functions are also implemented.
 
 """
 
 from collections import deque
+from functools import lru_cache
 from itertools import chain
 from logging import getLogger
 from math import sqrt
@@ -15,7 +16,7 @@ import cv2 as cv
 import numpy as np
 from scipy.special import stdtr
 
-from ..common import benjamini_hochberg
+from ..common import COLOR_RGBA_TRANSPARENT, benjamini_hochberg
 from ..configuration import get_configuration
 from ..interface import EventDetectorABC, PageDetectorABC
 from .screen import ScreenEventDetector
@@ -24,9 +25,86 @@ from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 LOGGER = getLogger(__name__)
 CONFIGURATION = get_configuration()['RollingPearsonEventDetector']
-WINDOW_SIZE = int(CONFIGURATION['window_size'])
-SIGNIFICANCE_LEVEL = float(CONFIGURATION['significance_level'])
-SAMPLE_SIZE = int(CONFIGURATION['sample_size'])
+WINDOW_SIZE = CONFIGURATION.getint('window_size')
+CORRELATION_THRESHOLD = CONFIGURATION.getfloat('correlation_threshold')
+SIGNIFICANCE_LEVEL = CONFIGURATION.getfloat('significance_level')
+SAMPLE_SIZE = CONFIGURATION.getint('sample_size')
+LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
+FEATURE_DETECTOR = cv.__dict__['{}_create'.format(CONFIGURATION['feature_detector_type'])]()
+DESCRIPTOR_MATCHER = cv.DescriptorMatcher_create(CONFIGURATION['descriptor_matcher_type'])
+GOOD_MATCH_PERCENTAGE = CONFIGURATION.getfloat('good_match_percentage')
+FIND_HOMOGRAPHY_METHOD = cv.__dict__[CONFIGURATION['find_homography_method']]
+RESCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['rescale_interpolation']]
+
+
+@lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
+def _extract_features(image):
+    """Extracts features from an image.
+
+    Parameters
+    ----------
+    image : ImageABC
+        An image from which we will extract features.
+
+    Returns
+    -------
+    keypoints : list of KeyPoint
+        Features in the format returned by ``cv.Feature2D.compute()``.
+    descriptors : array_like
+        Feature descriptors in the format returned by ``cv.Feature2D.compute()``.
+    """
+
+    image_intensity = cv.cvtColor(image.image, cv.COLOR_RGBA2GRAY)
+    image_keypoints = FEATURE_DETECTOR.detect(image_intensity)
+    _, image_descriptors = FEATURE_DETECTOR.compute(image_intensity, image_keypoints)
+    # Flann-based descriptor matcher requires the descriptors to be 32-bit floats.
+    image_descriptors_float32 = np.float32(image_descriptors)
+    return (image_keypoints, image_descriptors_float32)
+
+
+def _find_homography(image, template):
+    """Finds a homography that aligns a template with an image.
+
+    Parameters
+    ----------
+    image : ImageABC
+        An image.
+    template : ImageABC
+        A template that we will align with the image.
+
+    Returns
+    -------
+    transform_matrix : 3x3 ndarray of scalar
+        The homography that aligns the template with the image.
+    """
+
+    image_keypoints, image_descriptors = _extract_features(image)
+    template_keypoints, template_descriptors = _extract_features(template)
+
+    transform_matrix = None
+
+    if len(image_keypoints) >= 4 and len(template_keypoints) >= 4:
+        matches = DESCRIPTOR_MATCHER.match(template_descriptors, image_descriptors)
+        matches.sort(key=lambda match: match.distance)
+        num_good_matches = int(len(matches) * GOOD_MATCH_PERCENTAGE)
+
+        if num_good_matches >= 4:
+            good_matches = matches[:num_good_matches]
+            template_points = np.zeros((len(good_matches), 2))
+            image_points = np.zeros((len(good_matches), 2))
+            for index, match in enumerate(good_matches):
+                template_points[index, :] = template_keypoints[match.queryIdx].pt
+                image_points[index, :] = image_keypoints[match.trainIdx].pt
+            transform_matrix, _ = cv.findHomography(
+                template_points,
+                image_points,
+                FIND_HOMOGRAPHY_METHOD,
+            )
+
+    if transform_matrix is None:
+        transform_matrix = np.identity(3)
+
+    return transform_matrix
 
 
 class RollingPearsonR(object):
@@ -142,24 +220,28 @@ class RollingPearsonR(object):
         if degrees_of_freedom > 0:
             mean_x = mean_x_sum / weights_sum
             mean_x2 = mean_x2_sum / weights_sum
-            var_x = mean_x2 - mean_x**2
+            var_x = np.clip(mean_x2 - mean_x**2, 0, None)
             std_x = sqrt(var_x)
 
             mean_y = mean_y_sum / weights_sum
             mean_y2 = mean_y2_sum / weights_sum
-            var_y = mean_y2 - mean_y**2
+            var_y = np.clip(mean_y2 - mean_y**2, 0, None)
             std_y = sqrt(var_y)
 
             mean_xy = mean_xy_sum / weights_sum
             cov_xy = mean_xy - (mean_x * mean_y)
 
-            pearsonr = np.clip(cov_xy / (std_x * std_y), 0, 1)
+            if std_x > 0 and std_y > 0:
+                pearsonr = np.clip(cov_xy / (std_x * std_y), 0, 1)
 
-            if pearsonr < 1:
-                t_star = pearsonr * sqrt(degrees_of_freedom) / sqrt(1 - pearsonr**2)
-                p_left_tail = stdtr(degrees_of_freedom, -abs(t_star))
-                p_value = np.clip(2 * p_left_tail, 0, 1)
+                if pearsonr < 1:
+                    t_star = pearsonr * sqrt(degrees_of_freedom) / sqrt(1 - pearsonr**2)
+                    p_left_tail = stdtr(degrees_of_freedom, -abs(t_star))
+                    p_value = np.clip(2 * p_left_tail, 0, 1)
+                else:
+                    p_value = 0.0
             else:
+                pearsonr = 0.0
                 p_value = 0.0
         else:
             pearsonr = 0.0
@@ -244,7 +326,15 @@ class RollingPearsonPageDetector(PageDetectorABC):
                     rolling_pearsons[moving_quadrangle][page] = RollingPearsonR(window_size)
                 rolling_pearson = rolling_pearsons[moving_quadrangle][page]
 
-                page_image = page.render(screen.width, screen.height)
+                transform_matrix = _find_homography(screen, page)
+                page_image = cv.warpPerspective(
+                    page.image,
+                    transform_matrix,
+                    (screen.width, screen.height),
+                    borderMode=cv.BORDER_CONSTANT,
+                    borderValue=COLOR_RGBA_TRANSPARENT,
+                    flags=RESCALE_INTERPOLATION,
+                )
                 page_intensity = cv.cvtColor(page_image, cv.COLOR_RGBA2GRAY)
                 page_pixels = page_intensity[pixel_sample]
                 page_alpha = page_image[:, :, 3][pixel_sample]
@@ -270,7 +360,7 @@ class RollingPearsonPageDetector(PageDetectorABC):
             rolling_pearson = rolling_pearsons[moving_quadrangle][page]
             rolling_pearson.next(screen_pixels, page_pixels, pixel_weights)
 
-            if q_value < SIGNIFICANCE_LEVEL and correlation_coefficient > 0:
+            if q_value <= SIGNIFICANCE_LEVEL and correlation_coefficient >= CORRELATION_THRESHOLD:
                 detected_page = page
             else:
                 detected_page = None

@@ -43,7 +43,7 @@
       page. The screen-id attribute is a unique identifier of the
       screen. The frame-number attribute is the number of a video
       frame where the screen appears (first frame has number 1) and
-      the frame-time is the time elapsed since the start of the
+      the frame-duration is the time elapsed since the start of the
       video in the frame where the screen appears. The xi, yi, i=0,
       1, 2, 3, attributes are four coordinates that specify the top
       left, top right, bottom left, and bottom right corners of a
@@ -57,10 +57,10 @@
       známého dokumentu. Atribut screen-id udává unikátní
       identifikátor projekčního plátna. Atribut frame-number zadává
       číslo snímku videa, ve kterém k výskytu došlo (indexuje se od
-      jedničky) a atribut frame-time zadává uplynulý čas od začátku
-      videa při snímku, ve kterém k výskytu došlo. Atributy xi, yi,
-      i=0, 1, 2, 3, zadávají levý horní, pravý horní, levý dolní a
-      pravý dolní roh čtyřúhelníku, který projekční plátno
+      jedničky) a atribut frame-duration zadává uplynulý čas od
+      začátku videa při snímku, ve kterém k výskytu došlo. Atributy
+      xi, yi, i=0, 1, 2, 3, zadávají levý horní, pravý horní, levý
+      dolní a pravý dolní roh čtyřúhelníku, který projekční plátno
       ohraničuje. Atribut document-uri zadává URI dokumentu
       zobrazeného na projekčním plátně. Atribut page-number zadává
       číslo stránky dokumentu zobrazeného na projekčním
@@ -70,7 +70,7 @@
     use="required" />
     <xs:attribute name="frame-number" type="xs:positiveInteger"
     use="required" />
-    <xs:attribute name="frame-time" type="xs:duration"
+    <xs:attribute name="frame-duration" type="xs:duration"
     use="required" />
     <xs:attribute name="x0" type="xs:decimal" use="required" />
     <xs:attribute name="y0" type="xs:decimal" use="required" />
@@ -92,8 +92,8 @@
       The screen-id attribute is a unique identifier of a screen,
       which appeared in an earlier frame. The frame-number
       attribute is the number of a video frame where the change
-      takes place (first frame has number 1) and the frame-time is
-      the time elapsed since the start of the video in the frame
+      takes place (first frame has number 1) and the frame-duration
+      is the time elapsed since the start of the video in the frame
       where the change takes place. The document-uri attribute
       specifies an URI of the document shown in the screen after
       the change. The page-number attribute specifies the number of
@@ -105,17 +105,17 @@
       identifikátor projekčního plátna, které se v dřívějším snímku
       objevilo. Atribut frame-number zadává číslo snímku videa, ve
       kterém ke změně došlo (indexuje se od jedničky) a atribut
-      frame-time zadává uplynulý čas od začátku videa při snímku,
-      ve kterém ke změně došlo. Atribut document-uri zadává URI
-      dokumentu zobrazeného na projekčním plátně po změně. Atribut
-      page-number zadává číslo stránky dokumentu zobrazeného na
-      projekčním plátně po změně.</xs:documentation>
+      frame-duration zadává uplynulý čas od začátku videa při
+      snímku, ve kterém ke změně došlo. Atribut document-uri zadává
+      URI dokumentu zobrazeného na projekčním plátně po změně.
+      Atribut page-number zadává číslo stránky dokumentu
+      zobrazeného na projekčním plátně po změně.</xs:documentation>
     </xs:annotation>
     <xs:attribute name="screen-id" type="xs:string"
     use="required" />
     <xs:attribute name="frame-number" type="xs:positiveInteger"
     use="required" />
-    <xs:attribute name="frame-time" type="xs:duration"
+    <xs:attribute name="frame-duration" type="xs:duration"
     use="required" />
     <xs:attribute name="document-uri" type="xs:anyURI"
     use="required" />
@@ -130,9 +130,9 @@
       a unique identifier of a screen, which appeared in an earlier
       frame. The frame-number attribute is the number of a video
       frame where the change takes place (first frame has number 1)
-      and the frame-time is the time elapsed since the start of the
-      video in the frame where the change takes place. The xi, yi,
-      i=0, 1, 2, 3, attributes are four new coordinates that
+      and the frame-duration is the time elapsed since the start of
+      the video in the frame where the change takes place. The xi,
+      yi, i=0, 1, 2, 3, attributes are four new coordinates that
       specify the top left, top right, bottom left, and bottom
       right corners of a quadrilateral delineating the frame area
       occupied by the screen.</xs:documentation>
@@ -141,17 +141,17 @@
       screen-id udává unikátní identifikátor projekčního plátna,
       které se v dřívějším snímku objevilo. Atribut frame-number
       zadává číslo snímku videa, ve kterém ke změně došlo (indexuje
-      se od jedničky) a atribut frame-time zadává uplynulý čas od
-      začátku videa při snímku, ve kterém ke změně došlo. Atributy
-      xi, yi, i=0, 1, 2, 3, zadávají levý horní, pravý horní, levý
-      dolní a pravý dolní roh čtyřúhelníku, který projekční plátno
-      ohraničuje po změně.</xs:documentation>
+      se od jedničky) a atribut frame-duration zadává uplynulý čas
+      od začátku videa při snímku, ve kterém ke změně došlo.
+      Atributy xi, yi, i=0, 1, 2, 3, zadávají levý horní, pravý
+      horní, levý dolní a pravý dolní roh čtyřúhelníku, který
+      projekční plátno ohraničuje po změně.</xs:documentation>
     </xs:annotation>
     <xs:attribute name="screen-id" type="xs:string"
     use="required" />
     <xs:attribute name="frame-number" type="xs:positiveInteger"
     use="required" />
-    <xs:attribute name="frame-time" type="xs:duration"
+    <xs:attribute name="frame-duration" type="xs:duration"
     use="required" />
     <xs:attribute name="x0" type="xs:decimal" use="required" />
     <xs:attribute name="y0" type="xs:decimal" use="required" />
@@ -169,23 +169,23 @@
       attribute is a unique identifier of a screen, which appeared
       in an earlier frame. The frame-number attribute is the number
       of a video frame where the screen disappears (first frame has
-      number 1) and the frame-time is the time elapsed since the
-      start of the video in the frame where the screen
+      number 1) and the frame-duration is the time elapsed since
+      the start of the video in the frame where the screen
       disappears.</xs:documentation>
       <xs:documentation xml:lang="cs">Tento element představuje
       zmizení osvětleného projekčního plátna. Atribut screen-id
       udává unikátní identifikátor projekčního plátna, které se v
       dřívějším snímku objevilo. Atribut frame-number zadává číslo
       snímku videa, ve kterém ke zmizení došlo (indexuje se od
-      jedničky) a atribut frame-time zadává uplynulý čas od začátku
-      videa při snímku, ve kterém ke zmizení
+      jedničky) a atribut frame-duration zadává uplynulý čas od
+      začátku videa při snímku, ve kterém ke zmizení
       došlo.</xs:documentation>
     </xs:annotation>
     <xs:attribute name="screen-id" type="xs:string"
     use="required" />
     <xs:attribute name="frame-number" type="xs:positiveInteger"
     use="required" />
-    <xs:attribute name="frame-time" type="xs:duration"
+    <xs:attribute name="frame-duration" type="xs:duration"
     use="required" />
   </xs:complexType>
 </xs:schema>
