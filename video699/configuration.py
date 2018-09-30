@@ -5,6 +5,7 @@
 """
 
 from configparser import ConfigParser
+from itertools import chain
 from logging import getLogger
 import os
 
@@ -22,11 +23,11 @@ WORKING_DIRECTORY_CONFIGURATION_FILE_PATHNAME = os.path.join(
     '.',
     '{}.ini'.format(RESOURCE_NAME),
 )
-CONFIGURATION_FILE_PATHNAMES = [
-    WORKING_DIRECTORY_CONFIGURATION_FILE_PATHNAME,
-    *reversed(list(load_config_paths(RESOURCE_NAME))),
-    DEFAULT_CONFIGURATION_FILE_PATHNAME,
-]
+CONFIGURATION_FILE_PATHNAMES = list(chain(
+    (WORKING_DIRECTORY_CONFIGURATION_FILE_PATHNAME,),
+    reversed(list(load_config_paths(RESOURCE_NAME))),
+    (DEFAULT_CONFIGURATION_FILE_PATHNAME,)
+))
 LOGGER = getLogger(__name__)
 
 

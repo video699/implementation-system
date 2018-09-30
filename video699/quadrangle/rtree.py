@@ -34,7 +34,16 @@ class RTreeConvexQuadrangleIndex(ConvexQuadrangleIndexABC):
             for quadrangle_id, quadrangle in self._quadrangles.items()
         }
         self._index = rtree.index.Index([
-            (quadrangle_id, (*quadrangle.top_left_bound, *quadrangle.bottom_right_bound), None)
+            (
+                quadrangle_id,
+                (
+                    quadrangle.top_left_bound[0],
+                    quadrangle.top_left_bound[1],
+                    quadrangle.bottom_right_bound[0],
+                    quadrangle.bottom_right_bound[1],
+                ),
+                None,
+            )
             for quadrangle_id, quadrangle in self._quadrangles.items()
         ])
 
@@ -47,13 +56,23 @@ class RTreeConvexQuadrangleIndex(ConvexQuadrangleIndexABC):
             self._quadrangles[id(quadrangle)] = quadrangle
             self._quadrangle_ids[quadrangle] = id(quadrangle)
             quadrangle_id = id(quadrangle)
-            coordinates = (*quadrangle.top_left_bound, *quadrangle.bottom_right_bound)
+            coordinates = (
+                quadrangle.top_left_bound[0],
+                quadrangle.top_left_bound[1],
+                quadrangle.bottom_right_bound[0],
+                quadrangle.bottom_right_bound[1],
+            )
             self._index.insert(quadrangle_id, coordinates)
 
     def discard(self, quadrangle):
         if quadrangle in self.quadrangles:
             quadrangle_id = self._quadrangle_ids[quadrangle]
-            coordinates = (*quadrangle.top_left_bound, *quadrangle.bottom_right_bound)
+            coordinates = (
+                quadrangle.top_left_bound[0],
+                quadrangle.top_left_bound[1],
+                quadrangle.bottom_right_bound[0],
+                quadrangle.bottom_right_bound[1],
+            )
             del self._quadrangles[quadrangle_id]
             del self._quadrangle_ids[quadrangle]
             self._index.delete(quadrangle_id, coordinates)
@@ -64,7 +83,12 @@ class RTreeConvexQuadrangleIndex(ConvexQuadrangleIndexABC):
         self._index = rtree.index.Index()
 
     def jaccard_indexes(self, input_quadrangle):
-        coordinates = (*input_quadrangle.top_left_bound, *input_quadrangle.bottom_right_bound)
+        coordinates = (
+            input_quadrangle.top_left_bound[0],
+            input_quadrangle.top_left_bound[1],
+            input_quadrangle.bottom_right_bound[0],
+            input_quadrangle.bottom_right_bound[1],
+        )
         intersection = self._index.intersection(coordinates)
         jaccard_indexes = {}
         for indexed_quadrangle_id in intersection:
