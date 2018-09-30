@@ -126,7 +126,7 @@ class PDFDocument(DocumentABC):
 
     def __init__(self, pathname):
         self.pathname = pathname
-        self._uri = Path(pathname).as_uri()
+        self._uri = Path(pathname).resolve().as_uri()
         self._document = fitz.open(pathname)
         if not self._document.isPDF:
             raise ValueError('The pathname "{}" does not specify a PDF document'.format(pathname))

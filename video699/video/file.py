@@ -121,7 +121,7 @@ class VideoFile(VideoABC, Iterator):
         self._width = int(self._cap.get(cv.CAP_PROP_FRAME_WIDTH))
         self._height = int(self._cap.get(cv.CAP_PROP_FRAME_HEIGHT))
         self._datetime = datetime
-        self._uri = Path(pathname).as_uri()
+        self._uri = Path(pathname).resolve().as_uri()
 
     @property
     def fps(self):

@@ -348,7 +348,7 @@ class AnnotatedSampledVideoDocument(DocumentABC):
         self.video = video
         self.filename = filename
         self._pathname = os.path.join(video.pathname, filename)
-        self._uri = Path(self._pathname).as_uri()
+        self._uri = Path(self._pathname).resolve().as_uri()
 
         document_annotations = DOCUMENT_ANNOTATIONS[video.uri][filename]
         self._pages = sorted([
