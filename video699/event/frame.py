@@ -19,8 +19,6 @@ class FrameEventABC(EventABC):
     ----------
     frame : FrameABC
         A frame in which the event takes place.
-    xml_element : xml.etree.ElementTree.Element
-        An XML representation of the event.
     """
 
     @property
