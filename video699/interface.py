@@ -111,6 +111,9 @@ class VideoABC(ABC, Iterable):
     Notes
     -----
     It MAY be possible to repeatedly iterate over all video frames.
+    A video MAY produce *non-consecutive* frames, i.e. frames with non-consecutive but increasing
+    frame numbers. This MUST be understood as an indication that no important events took place
+    between the two frames.
 
     Attributes
     ----------
@@ -856,6 +859,8 @@ class PageDetectorABC(ABC):
 
         Parameters
         ----------
+        frame : FrameABC
+            A current video frame.
         appeared_screens : iterator of (ScreenABC, MovingQuadrangleABC)
             Projection screens that did not exist in the previous video frame and exist in the
             current video frame, and their movements.

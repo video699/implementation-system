@@ -124,14 +124,25 @@ class RollingPearsonR(object):
         self._window_size = window_size
 
         self._sample_x = deque(maxlen=window_size)
+        self._sample_y = deque(maxlen=window_size)
+        self._weights = deque(maxlen=window_size)
+
+        self.clear()
+
+    def clear(self):
+        """Clears the sample.
+
+        """
+
+        self._sample_x.clear()
         self._mean_x_sum = 0
         self._mean_x2_sum = 0
 
-        self._sample_y = deque(maxlen=window_size)
+        self._sample_y.clear()
         self._mean_y_sum = 0
         self._mean_y2_sum = 0
 
-        self._weights = deque(maxlen=window_size)
+        self._weights.clear()
         self._weights_sum = 0
 
         self._mean_xy_sum = 0
@@ -294,13 +305,20 @@ class RollingPearsonPageDetector(PageDetectorABC):
         self._rolling_pearsons = {}
         self._correlation_coefficients = np.empty(len(pages))
         self._p_values = np.empty(len(pages))
+        self._previous_frame = None
 
-    def detect(self, appeared_screens, existing_screens, disappeared_screens):
+    def detect(self, frame, appeared_screens, existing_screens, disappeared_screens):
         pages = self._pages
         window_size = self._window_size
         rolling_pearsons = self._rolling_pearsons
         correlation_coefficients = self._correlation_coefficients
         p_values = self._p_values
+
+        if self._previous_frame is not None and frame.number != self._previous_frame.number + 1:
+            for rolling_pearson in rolling_pearsons:
+                rolling_pearson.clean()
+        self._previous_frame = frame
+
         detected_pages = {}
 
         for _, moving_quadrangle in disappeared_screens:

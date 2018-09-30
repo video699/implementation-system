@@ -473,7 +473,7 @@ class ScreenEventDetectorPageDetector(PageDetectorABC):
 
     """
 
-    def detect(self, appeared_screens, existing_screens, disappeared_screens):
+    def detect(self, frame, appeared_screens, existing_screens, disappeared_screens):
         detected_pages = {}
 
         for screen, _ in chain(appeared_screens, existing_screens):
@@ -590,6 +590,7 @@ class ScreenEventDetector(EventDetectorABC):
                 )
 
             pages = page_detector.detect(
+                frame,
                 map(moving_quadrangle_to_screen, appeared_quadrangles),
                 map(moving_quadrangle_to_screen, existing_quadrangles),
                 map(moving_quadrangle_to_previous_screen, disappeared_quadrangles),
