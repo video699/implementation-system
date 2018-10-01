@@ -485,6 +485,7 @@ class ConvexQuadrangleIndexABC(MutableSet):
         return len(self.quadrangles)
 
 
+@total_ordering
 class MovingConvexQuadrangleABC(ABC, Iterable):
     """An abstract convex quadrangle that moves in time.
 
@@ -776,6 +777,7 @@ class DocumentABC(ABC, Iterable):
         )
 
 
+@total_ordering
 class PageABC(ImageABC):
     """An abstract page of a document.
 
