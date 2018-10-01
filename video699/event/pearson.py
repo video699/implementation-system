@@ -9,7 +9,6 @@ rolling window of video frames. Related classes and functions are also implement
 from collections import deque
 from functools import lru_cache
 from itertools import chain
-from logging import getLogger
 from math import sqrt
 
 import cv2 as cv
@@ -23,14 +22,13 @@ from .screen import ScreenEventDetector
 from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
-LOGGER = getLogger(__name__)
 CONFIGURATION = get_configuration()['RollingPearsonEventDetector']
 WINDOW_SIZE = CONFIGURATION.getint('window_size')
 CORRELATION_THRESHOLD = CONFIGURATION.getfloat('correlation_threshold')
 SIGNIFICANCE_LEVEL = CONFIGURATION.getfloat('significance_level')
 SAMPLE_SIZE = CONFIGURATION.getint('sample_size')
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
-FEATURE_DETECTOR = cv.__dict__['{}_create'.format(CONFIGURATION['feature_detector_type'])]()
+FEATURE_DETECTOR = cv.ORB_create(CONFIGURATION.getint('num_features'))
 DESCRIPTOR_MATCHER = cv.DescriptorMatcher_create(CONFIGURATION['descriptor_matcher_type'])
 GOOD_MATCH_PERCENTAGE = CONFIGURATION.getfloat('good_match_percentage')
 FIND_HOMOGRAPHY_METHOD = cv.__dict__[CONFIGURATION['find_homography_method']]
