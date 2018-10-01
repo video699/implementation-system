@@ -22,7 +22,7 @@ from .screen import ScreenEventDetector
 from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
-CONFIGURATION = get_configuration()['RollingPearsonEventDetector']
+CONFIGURATION = get_configuration()['RollingPearsonPageDetector']
 WINDOW_SIZE = CONFIGURATION.getint('window_size')
 CORRELATION_THRESHOLD = CONFIGURATION.getfloat('correlation_threshold')
 SIGNIFICANCE_LEVEL = CONFIGURATION.getfloat('significance_level')
