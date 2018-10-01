@@ -37,19 +37,19 @@ RESCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['rescale_interpolation']]
 
 @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
 def _extract_features(image):
-    """Extracts features from an image.
+    """Extracts local features from an image.
 
     Parameters
     ----------
     image : ImageABC
-        An image from which we will extract features.
+        An image from which we will extract local features.
 
     Returns
     -------
     keypoints : list of KeyPoint
-        Features in the format returned by ``cv.Feature2D.compute()``.
+        Local features in the format returned by ``cv.Feature2D.compute()``.
     descriptors : array_like
-        Feature descriptors in the format returned by ``cv.Feature2D.compute()``.
+        Local feature descriptors in the format returned by ``cv.Feature2D.compute()``.
     """
 
     image_intensity = cv.cvtColor(image.image, cv.COLOR_RGBA2GRAY)
