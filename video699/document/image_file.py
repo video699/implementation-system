@@ -48,6 +48,7 @@ class ImageFileDocumentPage(PageABC):
     def __init__(self, document, number, image_pathname):
         self._document = document
         self._number = number
+        self._hash = hash((self.number, self.document))
         self._image_pathname = image_pathname
 
     @property
@@ -80,6 +81,9 @@ class ImageFileDocumentPage(PageABC):
             value=COLOR_RGBA_TRANSPARENT,
         )
         return rgba_image_rescaled_with_margins
+
+    def __hash__(self):
+        return self._hash
 
 
 class ImageFileDocument(DocumentABC):
@@ -117,15 +121,18 @@ class ImageFileDocument(DocumentABC):
     def __init__(self, image_pathnames, title=None, author=None):
         self._title = title
         self._author = author
+
+        self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
+            'document/image_file.py#ImageFileDocument:{}'.format(self._num_documents + 1)
+        self._num_documents += 1
+        self._hash = hash(self._uri)
+
         self._pages = [
             ImageFileDocumentPage(self, page_number + 1, image_pathname)
             for page_number, image_pathname in enumerate(image_pathnames)
         ]
         if not self._pages:
             raise ValueError('No pathnames to image files containing document pages were provided')
-        self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
-            'document/image_file.py#ImageFileDocument:{}'.format(self._num_documents + 1)
-        self._num_documents += 1
 
     @property
     def title(self):
@@ -141,3 +148,6 @@ class ImageFileDocument(DocumentABC):
 
     def __iter__(self):
         return iter(self._pages)
+
+    def __hash__(self):
+        return self._hash

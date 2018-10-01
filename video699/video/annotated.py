@@ -293,6 +293,7 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
         self.vgg256 = page_annotations.vgg256
 
         self._page = ImageFileDocumentPage(document, number, self.pathname)
+        self._hash = hash(self._page)
 
     @property
     def document(self):
@@ -312,6 +313,9 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
 
     def render(self, width=None, height=None):
         return self._page.render(width, height)
+
+    def __hash__(self):
+        return self._hash
 
 
 class AnnotatedSampledVideoDocument(DocumentABC):
@@ -353,6 +357,7 @@ class AnnotatedSampledVideoDocument(DocumentABC):
         self.filename = filename
         self._pathname = os.path.join(video.pathname, filename)
         self._uri = Path(self._pathname).resolve().as_uri()
+        self._hash = hash(self._uri)
 
         document_annotations = DOCUMENT_ANNOTATIONS[video.uri][filename]
         self._pages = sorted([
@@ -382,6 +387,9 @@ class AnnotatedSampledVideoDocument(DocumentABC):
 
     def __iter__(self):
         return iter(self._pages)
+
+    def __hash__(self):
+        return self._hash
 
 
 class _FrameAnnotations(object):

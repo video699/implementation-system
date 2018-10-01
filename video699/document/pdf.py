@@ -50,6 +50,7 @@ class PDFDocumentPage(PageABC):
     def __init__(self, document, page):
         self._document = document
         self._page = page
+        self._hash = hash((self.number, self.document))
         pixmap = page.getPixmap()
         self._default_width = pixmap.width
         self._default_height = pixmap.height
@@ -90,6 +91,9 @@ class PDFDocumentPage(PageABC):
         )
         return rgba_image_downscaled_with_margins
 
+    def __hash__(self):
+        return self._hash
+
 
 class PDFDocument(DocumentABC):
     """A PDF document read from a PDF document file.
@@ -128,11 +132,15 @@ class PDFDocument(DocumentABC):
     def __init__(self, pathname):
         self.pathname = pathname
         self._uri = Path(pathname).resolve().as_uri()
+        self._hash = hash(self._uri)
+
         self._document = fitz.open(pathname)
         if not self._document.isPDF:
             raise ValueError('The pathname "{}" does not specify a PDF document'.format(pathname))
+
         self._title = self._document.metadata['title']
         self._author = self._document.metadata['author']
+
         LOGGER.debug('Loading PDF document {}'.format(pathname))
         self._pages = [PDFDocumentPage(self, page) for page in self._document]
         if not self._pages:
@@ -152,3 +160,6 @@ class PDFDocument(DocumentABC):
 
     def __iter__(self):
         return iter(self._pages)
+
+    def __hash__(self):
+        return self._hash
