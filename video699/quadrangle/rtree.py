@@ -108,9 +108,19 @@ class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
     window_size : int or None, optional
         The maximum number of previous time frames for which the quadrangle movements are stored. If
         ``None`` or unspecified, then the number of time frames is unbounded.
+
+    Raises
+    ------
+    ValueError
+        If the window size is less than two.
     """
 
     def __init__(self, window_size=None):
+        if window_size is not None and window_size < 2:
+            raise ValueError(
+                'The window size must not be less than two due to the contract of method Moving'
+                'QuadrangleTrackerABC.update()'
+            )
         self._window_size = window_size
         self.clear()
 

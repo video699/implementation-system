@@ -510,7 +510,7 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
         Parameters
         ----------
         quadrangle : ConvexQuadrangleABC
-            The corners of the moving convex quadrangle at the following time frame.
+            The coordinates of the moving convex quadrangle at the following time frame.
         """
         pass
 
@@ -521,8 +521,8 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
         Returns
         -------
         quadrangles : iterator of ConvexQuadrangleABC
-            The corners of the moving convex quadrangle from the earliest time frame to the current
-            time frame.
+            The coordinates of the moving convex quadrangle from the earliest time frame to the
+            current time frame.
         """
         pass
 
@@ -533,8 +533,8 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
         Returns
         -------
         quadrangles : iterator of ConvexQuadrangleABC
-            The corners of the moving convex quadrangle from the current time frame to the earliest
-            time frame.
+            The coordinates of the moving convex quadrangle from the current time frame to the
+            earliest time frame.
         """
         pass
 
@@ -577,6 +577,11 @@ class ConvexQuadrangleTrackerABC(ABC, Iterable, Sized):
     @abstractmethod
     def update(self, quadrangles):
         """Records convex quadrangles that exist in the current time frame.
+
+        Notes
+        -----
+        The moving convex quadrangles that existed in the previous time frame MUST record the
+        coordinates of the moving convex quadrangle at the previous time frame.
 
         Parameters
         ----------

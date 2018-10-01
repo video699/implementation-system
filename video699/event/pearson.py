@@ -390,8 +390,8 @@ class RTreeDequeRollingPearsonEventDetector(EventDetectorABC):
 
     A :class:`ScreenEventDetector` is instantiated with the
     :class:`RTreeDequeConvexQuadrangleTracker` convex quadrangle tracker and the
-    :class:`RollingPearsonPageDetector` page detector. The window size for the convex quadrangle
-    tracker and for the page detector is taken from the configuration.
+    :class:`RollingPearsonPageDetector` page detector. The window size for the page detector is
+    taken from the configuration.
 
     Parameters
     ----------
@@ -409,7 +409,7 @@ class RTreeDequeRollingPearsonEventDetector(EventDetectorABC):
     """
 
     def __init__(self, video, screen_detector, documents):
-        quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(WINDOW_SIZE)
+        quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(2)
         page_detector = RollingPearsonPageDetector(documents, WINDOW_SIZE)
         self._event_detector = ScreenEventDetector(
             video,

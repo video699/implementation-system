@@ -28,12 +28,15 @@ class DequeMovingConvexQuadrangle(MovingConvexQuadrangleABC):
     Raises
     ------
     ValueError
-        If the window size is less than one.
+        If the window size is less than two.
     """
 
     def __init__(self, current_quadrangle, window_size=None):
-        if window_size is not None and window_size < 1:
-            raise ValueError('The window size must not be less than one')
+        if window_size is not None and window_size < 2:
+            raise ValueError(
+                'The window size must not be less than two due to the contract of method Moving'
+                'QuadrangleTrackerABC.update()'
+            )
         self._quadrangles = deque((current_quadrangle,), maxlen=window_size)
 
     def add(self, quadrangle):
