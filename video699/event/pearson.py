@@ -48,16 +48,20 @@ def _extract_features(image):
     -------
     keypoints : list of KeyPoint
         Local features in the format returned by ``cv.Feature2D.compute()``.
-    descriptors : array_like
-        Local feature descriptors in the format returned by ``cv.Feature2D.compute()``.
+    descriptors : array_like or None
+        Local feature descriptors in the format returned by ``cv.Feature2D.compute()``. The
+        descriptors are ``None`` if and only if no keypoints were extracted.
     """
 
     image_intensity = cv.cvtColor(image.image, cv.COLOR_RGBA2GRAY)
-    image_keypoints = FEATURE_DETECTOR.detect(image_intensity)
-    _, image_descriptors = FEATURE_DETECTOR.compute(image_intensity, image_keypoints)
-    # Flann-based descriptor matcher requires the descriptors to be 32-bit floats.
-    image_descriptors_float32 = np.float32(image_descriptors)
-    return (image_keypoints, image_descriptors_float32)
+    keypoints = FEATURE_DETECTOR.detect(image_intensity)
+    _, descriptors = FEATURE_DETECTOR.compute(image_intensity, keypoints)
+    if descriptors is not None:
+        # Flann-based descriptor matcher requires the descriptors to be 32-bit floats.
+        descriptors_float32 = np.float32(descriptors)
+    else:
+        descriptors_float32 = None
+    return (keypoints, descriptors_float32)
 
 
 def _find_homography(image, template):
