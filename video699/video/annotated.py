@@ -19,7 +19,6 @@ import numpy as np
 
 from ..quadrangle.geos import GEOSConvexQuadrangle
 from ..document.image_file import ImageFileDocumentPage
-from ..document.pdf import PDFDocument
 from ..frame.image import ImageFrame
 from ..interface import VideoABC, FrameABC, ScreenABC, ScreenDetectorABC, DocumentABC, PageABC
 
@@ -383,14 +382,6 @@ class AnnotatedSampledVideoDocument(DocumentABC):
 
     def __iter__(self):
         return iter(self._pages)
-
-    def __hash__(self):
-        return hash(self.pathname)
-
-    def __eq__(self, other):
-        if isinstance(other, (AnnotatedSampledVideoDocument, PDFDocument)):
-            return self.pathname == other.pathname
-        return NotImplemented
 
 
 class _FrameAnnotations(object):

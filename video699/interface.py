@@ -719,6 +719,7 @@ class ScreenDetectorABC(ABC):
         )
 
 
+@total_ordering
 class DocumentABC(ABC, Iterable):
     """An abstract text document.
 
@@ -765,6 +766,19 @@ class DocumentABC(ABC, Iterable):
             An iterable of the pages of the document.
         """
         pass
+
+    def __hash__(self):
+        return hash(self.uri)
+
+    def __eq__(self, other):
+        if isinstance(other, DocumentABC):
+            return self.uri == other.uri
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, DocumentABC):
+            return self.uri < other.uri
+        return NotImplemented
 
     def __repr__(self):
         formatted_title = ', "{0}"'.format(self.title) if self.title is not None else ''
@@ -841,13 +855,13 @@ class PageABC(ImageABC):
         return hash((self.document, self.number))
 
     def __eq__(self, other):
-        if isinstance(other, PageABC) and self.document == other.document:
-            return self.number == other.number
+        if isinstance(other, PageABC):
+            return (self.document, self.number) == (self.document, other.number)
         return NotImplemented
 
     def __lt__(self, other):
-        if isinstance(other, PageABC) and self.document == other.document:
-            return self.number < other.number
+        if isinstance(other, PageABC):
+            return (self.document, self.number) < (self.document, other.number)
         return NotImplemented
 
     def __repr__(self):

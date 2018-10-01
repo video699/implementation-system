@@ -152,6 +152,3 @@ class PDFDocument(DocumentABC):
 
     def __iter__(self):
         return iter(self._pages)
-
-    def __hash__(self):
-        return hash(self.pathname)
