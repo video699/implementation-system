@@ -342,6 +342,11 @@ class AnnotatedSampledVideoDocument(DocumentABC):
     uri : string
         An IRI, as defined in RFC3987_, that uniquely indentifies the document over the entire
         lifetime of a program.
+
+    Raises
+    ------
+    ValueError
+        If the document contains no pages.
     """
 
     def __init__(self, video, filename):
@@ -357,6 +362,8 @@ class AnnotatedSampledVideoDocument(DocumentABC):
                 page_annotations.key,
             ) for page_annotations in document_annotations.pages.values()
         ])
+        if not self._pages:
+            raise ValueError('Document contains no pages')
 
     @property
     def title(self):

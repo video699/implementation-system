@@ -726,6 +726,7 @@ class DocumentABC(ABC, Iterable):
     Notes
     -----
     It MUST be possible to repeatedly iterate over all document pages.
+    A document MUST contain a page.
 
     Attributes
     ----------

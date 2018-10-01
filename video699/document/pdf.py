@@ -121,7 +121,8 @@ class PDFDocument(DocumentABC):
     Raises
     ------
     ValueError
-        If the pathname does not specify a PDF document file.
+        If the pathname does not specify a PDF document file or if the PDF document contains no
+        pages.
     """
 
     def __init__(self, pathname):
@@ -134,6 +135,8 @@ class PDFDocument(DocumentABC):
         self._author = self._document.metadata['author']
         LOGGER.debug('Loading PDF document {}'.format(pathname))
         self._pages = [PDFDocumentPage(self, page) for page in self._document]
+        if not self._pages:
+            raise ValueError('PDF document at "{}" contains no pages'.format(pathname))
 
     @property
     def title(self):

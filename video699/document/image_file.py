@@ -105,6 +105,11 @@ class ImageFileDocument(DocumentABC):
     uri : string
         An IRI, as defined in RFC3987_, that uniquely indentifies the document over the entire
         lifetime of a program.
+
+    Raises
+    ------
+    ValueError
+        If no pathnames to image files containing document pages were provided.
     """
 
     _num_documents = 0
@@ -116,6 +121,8 @@ class ImageFileDocument(DocumentABC):
             ImageFileDocumentPage(self, page_number + 1, image_pathname)
             for page_number, image_pathname in enumerate(image_pathnames)
         ]
+        if not self._pages:
+            raise ValueError('No pathnames to image files containing document pages were provided')
         self._uri = 'https://github.com/video699/implementation-system/blob/master/video699/' \
             'document/image_file.py#ImageFileDocument:{}'.format(self._num_documents + 1)
         self._num_documents += 1
