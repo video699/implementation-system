@@ -135,10 +135,10 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
 
     Local features are extracted from the image data of the provided document pages and placed
     inside a vector database. Local features are then extracted from the image data in a screen
-    and for every feature, nearest neighbors are retrieved from the vector database. The document
+    and the nearest neighbors of every feature are retrieved from the vector database. The document
     page with the most nearest neighbors averaged across a small time window is detected as the page
-    shown in the screen. If only few local features are extracted from the image data in the screen
-    or if only few nearest neighbors are retrieved, then no page is detected in the screen.
+    shown in the screen. If only few local features are extracted from the screen image data or if
+    only few nearest neighbors are retrieved, then no page is detected in the screen.
 
     This technique was developed by [ParedesEtAl01]_ and shown to give state-of-the-art results for
     content-based information retrieval (CBIR) by [DeselaersEtAl07]_.

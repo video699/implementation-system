@@ -286,16 +286,16 @@ class RollingPearsonR(object):
 class RollingPearsonPageDetector(PageDetectorABC):
     """A page detector using rolling Pearson's correlation coefficient.
 
-    A random sample :math:`X` is taken from the intensities of the image data in a screen.
-    The alpha channel (A) in the original RGBA image data weighs the intensities. A temporal
-    rolling window is used to increase the sample size, i.e. the screens SHOULD originate from
+    A random sample :math:`X` is taken from the intensities of the image data in a projection
+    screen.  The alpha channel (A) in the original RGBA image data weighs the intensities. A
+    small time window is used to increase the sample size, i.e. the screens SHOULD originate from
     consecutive video frames. Analogously to :math:`X`, a random sample :math:`Y` of the same size
     is taken from the image data in a document page. Weighted Pearson's correlation coefficient
     :math:`r` between :math:`X` and :math:`Y` is computed. A significance test with the assumption
     that :math:`(X,Y)` is bivariate normal is performed to see if :math:`r` is sufficiently extreme
     to refuse the null hypothesis :math:`h_0: r = 0`. The page with the most extreme significant and
-    positive value of :math:`r` is said to *match* the screen. If no page has a significant value of
-    :math:`r`, then no page matches the screen.
+    positive value of :math:`r` is detected as the page shown in the screen. If no page has a
+    significant value of :math:`r`, then no page is detected in the screen.
 
     Parameters
     ----------
