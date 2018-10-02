@@ -126,6 +126,7 @@ class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
 
     def clear(self):
         self._moving_quadrangles = {}
+        self._previous_quadrangles = set()
         self._quadrangle_index = RTreeConvexQuadrangleIndex()
 
     def update(self, current_quadrangles):
@@ -153,46 +154,59 @@ class RTreeDequeConvexQuadrangleTracker(ConvexQuadrangleTrackerABC):
             The previous quadrangles that cross no current quadrangles.
         """
 
+        stationary_quadrangles = set()
+        moved_quadrangles = set()
         appeared_quadrangles = set()
-        existing_quadrangles = set()
         disappeared_quadrangles = set()
         window_size = self._window_size
         moving_quadrangles = self._moving_quadrangles
+        previous_quadrangles = self._previous_quadrangles
         quadrangle_index = self._quadrangle_index
 
-        for quadrangle in current_quadrangles:
-            jaccard_indexes = quadrangle_index.jaccard_indexes(quadrangle)
-            if jaccard_indexes:
-                (previous_quadrangle, _), *__ = sorted(
-                    jaccard_indexes.items(),
-                    key=lambda x: x[1],
-                    reverse=True
-                )
-                moving_quadrangle = moving_quadrangles[previous_quadrangle]
+        current_quadrangle_list = list(current_quadrangles)
+        for quadrangle in current_quadrangle_list:
+            if quadrangle in previous_quadrangles:
+                moving_quadrangle = moving_quadrangles[quadrangle]
                 moving_quadrangle.add(quadrangle)
-                quadrangle_index.remove(previous_quadrangle)
-                del moving_quadrangles[previous_quadrangle]
-                existing_quadrangles.add(moving_quadrangle)
+                stationary_quadrangles.add(moving_quadrangle)
             else:
-                moving_quadrangle = DequeMovingConvexQuadrangle(
-                    quadrangle,
-                    window_size,
-                )
-                appeared_quadrangles.add(moving_quadrangle)
+                jaccard_indexes = quadrangle_index.jaccard_indexes(quadrangle)
+                if jaccard_indexes:
+                    (previous_quadrangle, _), *__ = sorted(
+                        jaccard_indexes.items(),
+                        key=lambda x: x[1],
+                        reverse=True
+                    )
+                    moving_quadrangle = moving_quadrangles[previous_quadrangle]
+                    moving_quadrangle.add(quadrangle)
+                    quadrangle_index.remove(previous_quadrangle)
+                    del moving_quadrangles[previous_quadrangle]
+                    moved_quadrangles.add(moving_quadrangle)
+                else:
+                    moving_quadrangle = DequeMovingConvexQuadrangle(
+                        quadrangle,
+                        window_size,
+                    )
+                    appeared_quadrangles.add(moving_quadrangle)
+        self._previous_quadrangles = set(current_quadrangle_list)
 
-        current_moving_quadrangles = appeared_quadrangles | existing_quadrangles
-        for moving_quadrangle in current_moving_quadrangles:
+        reindexed_quadrangles = moved_quadrangles | appeared_quadrangles
+        for moving_quadrangle in reindexed_quadrangles:
             quadrangle = next(reversed(moving_quadrangle))
             moving_quadrangles[quadrangle] = moving_quadrangle
             quadrangle_index.add(quadrangle)
 
         for previous_quadrangle, moving_quadrangle in list(moving_quadrangles.items()):
-            if moving_quadrangle not in current_moving_quadrangles:
+            if moving_quadrangle not in reindexed_quadrangles | stationary_quadrangles:
                 quadrangle_index.remove(previous_quadrangle)
                 del moving_quadrangles[previous_quadrangle]
                 disappeared_quadrangles.add(moving_quadrangle)
 
-        return (appeared_quadrangles, existing_quadrangles, disappeared_quadrangles)
+        return (
+            appeared_quadrangles,
+            moved_quadrangles | stationary_quadrangles,
+            disappeared_quadrangles,
+        )
 
     def __iter__(self):
         return iter(self._moving_quadrangles)
