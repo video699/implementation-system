@@ -41,6 +41,7 @@ setup(
         'Tracker': 'https://github.com/video-699/implementation-system/issues',
     },
     install_requires=[
+        'annoy~=1.13.0',
         'lxml~=4.2.4',
         'numpy~=1.15.1',
         'opencv-python~=3.4.2',

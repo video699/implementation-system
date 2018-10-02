@@ -23,11 +23,11 @@ from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
 CONFIGURATION = get_configuration()['RollingPearsonPageDetector']
+LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
 WINDOW_SIZE = CONFIGURATION.getint('window_size')
 CORRELATION_THRESHOLD = CONFIGURATION.getfloat('correlation_threshold')
 SIGNIFICANCE_LEVEL = CONFIGURATION.getfloat('significance_level')
 SAMPLE_SIZE = CONFIGURATION.getint('sample_size')
-LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
 FEATURE_DETECTOR = cv.ORB_create(CONFIGURATION.getint('num_features'))
 DESCRIPTOR_MATCHER = cv.DescriptorMatcher_create(CONFIGURATION['descriptor_matcher_type'])
 GOOD_MATCH_PERCENTAGE = CONFIGURATION.getfloat('good_match_percentage')
@@ -54,7 +54,12 @@ def _extract_features(image):
     """
 
     image_intensity = cv.cvtColor(image.image, cv.COLOR_RGBA2GRAY)
-    keypoints = FEATURE_DETECTOR.detect(image_intensity)
+    image_alpha = image.image[:, :, 3]
+    keypoints = []
+    for keypoint in FEATURE_DETECTOR.detect(image_intensity):
+        x, y = keypoint.pt
+        if image_alpha[int(y), int(x)] > 0:
+            keypoints.append(keypoint)
     _, descriptors = FEATURE_DETECTOR.compute(image_intensity, keypoints)
     if descriptors is not None:
         # Flann-based descriptor matcher requires the descriptors to be 32-bit floats.
@@ -169,7 +174,8 @@ class RollingPearsonR(object):
         Returns
         -------
         correlation_coefficient : scalar
-            An estimate of the rolling weighted Pearson's correlation coefficient :math:`r`.
+            A pointwise estimate of the rolling weighted Pearson's correlation coefficient
+            :math:`r`.
         p_value : scalar
             The probability of obtaining an estimate of :math:`r` that is at least as extreme as the
             current estimate under the null hypothesis that :math:`r = 0`.
@@ -315,11 +321,13 @@ class RollingPearsonPageDetector(PageDetectorABC):
         rolling_pearsons = self._rolling_pearsons
         correlation_coefficients = self._correlation_coefficients
         p_values = self._p_values
+        previous_frame = self._previous_frame
 
-        if self._previous_frame is not None and frame.number != self._previous_frame.number + 1:
+        if previous_frame is not None and frame.number != previous_frame.number + 1:
             for rolling_pearson in rolling_pearsons:
                 rolling_pearson.clean()
-        self._previous_frame = frame
+        previous_frame = frame
+        self._previous_frame = previous_frame
 
         detected_pages = {}
 
