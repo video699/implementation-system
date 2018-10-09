@@ -6,6 +6,7 @@ import unittest
 from numpy.testing import assert_array_almost_equal
 from video699.common import (
     benjamini_hochberg,
+    binomial_confidence_interval,
     change_aspect_ratio_by_upscaling,
     rescale_and_keep_aspect_ratio,
 )
@@ -25,6 +26,30 @@ class TestBenjaminiHochberg(unittest.TestCase):
         p_values = (0.005, 0.009, 0.05, 0.1, 0.2, 0.3)
         q_values = tuple(benjamini_hochberg(p_values))
         assert_array_almost_equal((0.027, 0.027, 0.1, 0.15, 0.24, 0.3), q_values)
+
+
+class TestBinomialConfidenceInterval(unittest.TestCase):
+    """Tests the ability of the binomial_confidence_interval function to give confidence intervals.
+
+    """
+
+    def test_zero_trials(self):
+        with self.assertRaises(ValueError):
+            binomial_confidence_interval(num_successes=0, num_trials=0, significance_level=0.05)
+
+    def test_more_successes_than_trials(self):
+        with self.assertRaises(ValueError):
+            binomial_confidence_interval(num_successes=10, num_trials=5, significance_level=0.05)
+
+    def test_nonempty(self):
+        pointwise_estimate, lower_bound, upper_bound = binomial_confidence_interval(
+            num_successes=520,
+            num_trials=1000,
+            significance_level=0.05,
+        )
+        self.assertEqual(520 / 1000, pointwise_estimate)
+        self.assertAlmostEqual(0.4890176, lower_bound)
+        self.assertAlmostEqual(0.5508293, upper_bound)
 
 
 class TestChangeAspectRatioByUpscaling(unittest.TestCase):
