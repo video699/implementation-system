@@ -5,6 +5,7 @@ related classes.
 
 """
 
+from collections.abc import Sized
 import json
 from fractions import Fraction
 from logging import getLogger
@@ -546,7 +547,7 @@ class _VideoAnnotations(object):
         self.height = height
 
 
-class AnnotatedSampledVideo(VideoABC):
+class AnnotatedSampledVideo(VideoABC, Sized):
     """A sample of a video file extracted from a dataset with XML human annotations.
 
     Notes
@@ -643,6 +644,16 @@ class AnnotatedSampledVideo(VideoABC):
 
     def __iter__(self):
         return iter(self._frames)
+
+    def __len__(self):
+        """Produces the number of video frames.
+
+        Returns
+        -------
+        length : int
+            The number of video frames.
+        """
+        return len(self._frames)
 
 
 class _KeyRefAnnotations(object):
