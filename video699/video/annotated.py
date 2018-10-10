@@ -6,6 +6,7 @@ related classes.
 """
 
 from collections.abc import Sized
+from itertools import chain
 import json
 from fractions import Fraction
 from logging import getLogger
@@ -18,11 +19,23 @@ from dateutil.parser import parse as datetime_parse
 from lxml import etree
 import numpy as np
 
-from ..quadrangle.geos import GEOSConvexQuadrangle
 from ..document.image_file import ImageFileDocumentPage
+from ..event.screen import (
+    ScreenEventDetectorABC,
+    ScreenAppearedEvent,
+    ScreenChangedContentEvent,
+    ScreenDisappearedEvent,
+)
 from ..frame.image import ImageFrame
-from ..interface import VideoABC, FrameABC, ScreenABC, ScreenDetectorABC, DocumentABC, PageABC
-
+from ..interface import (
+    DocumentABC,
+    FrameABC,
+    PageABC,
+    ScreenABC,
+    ScreenDetectorABC,
+    VideoABC,
+)
+from ..quadrangle.geos import GEOSConvexQuadrangle
 
 LOGGER = getLogger(__name__)
 RESOURCES_PATHNAME = os.path.join(os.path.dirname(__file__), 'annotated')
@@ -836,7 +849,8 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
         - ``obstacle`` specifies that a part of the screen or the projector light is partially
           obscured by either a physical obstacle, or by a different GUI window.
 
-        Screens with inadmissible conditions will not be detected.
+        Screens with inadmissible conditions will not be detected. When unspecified, all conditions
+        are admissible.
     """
 
     def __init__(self, conditions=set(['pristine', 'windowed', 'obstacle'])):
@@ -861,6 +875,84 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
                 if screen.condition in self._conditions
             ]
         return ()
+
+
+def evaluate_event_detector(annotated_video, event_detector):
+    """Processes a video using a screen event detector and counts successful trials.
+
+    A video file is processed using a screen event detector. When an annotated video frame is
+    encountered, a trial takes place. If the pages detected in projection screens according to the
+    screen event detector equal the matching pages in projection screens according to the human
+    annotations, then the trial is successful. Otherwise, the trial is unsuccessful.
+
+    Parameters
+    ----------
+    AnnotatedSampledVideo
+        An annotated video file.
+    ScreenEventDetectorABC
+        The screen event detector.
+
+    Returns
+    -------
+    num_successes : int
+        The number of successful trials.
+    num_trials : int
+        The number of trials.
+
+    """
+
+    assert isinstance(annotated_video, AnnotatedSampledVideo)
+    assert isinstance(event_detector, ScreenEventDetectorABC)
+
+    pristine_screen_detector = AnnotatedSampledVideoScreenDetector(('pristine',))
+    nonpristine_screen_detector = AnnotatedSampledVideoScreenDetector(('windowed', 'obstacle'))
+
+    remaining_annotated_frames = iter(annotated_video)
+    peeked_remaining_annotated_frames = ()
+    num_successes = 0
+    num_trials = len(annotated_video)
+
+    detected_page_dict = {}
+    for event in chain(event_detector, (None,)):
+        # The None event processes all the remaining annotated frames at the end of a video
+        for frame in chain(peeked_remaining_annotated_frames, remaining_annotated_frames):
+            if event is not None and frame.number >= event.frame.number:
+                peeked_remaining_annotated_frames = (frame,)
+                break
+
+            detected_pages = set(detected_page_dict.values())
+            pristine_screens = pristine_screen_detector.detect(frame)
+            nonpristine_screens = nonpristine_screen_detector.detect(frame)
+            pristine_matching_pages = set()
+            for screen in pristine_screens:
+                pristine_matching_pages |= set(screen.matching_pages())
+            detected_nonmatching_pages = detected_pages - pristine_matching_pages
+
+            if not (pristine_matching_pages - detected_pages) \
+                    and len(detected_nonmatching_pages) <= len(nonpristine_screens):
+                LOGGER.info('Successful trial of {} at {}, detected pages: {}'.format(
+                    event_detector,
+                    frame,
+                    detected_pages,
+                ))
+                num_successes += 1
+            else:
+                LOGGER.info(
+                    'Unsuccessful trial of {} at {}, false negatives: {}, '
+                    'false positives: {}'.format(
+                        event_detector,
+                        frame,
+                        pristine_matching_pages - detected_pages,
+                        detected_pages - pristine_matching_pages,
+                    ),
+                )
+
+        if isinstance(event, (ScreenAppearedEvent, ScreenChangedContentEvent)):
+            detected_page_dict[event.screen_id] = event.page
+        elif isinstance(event, ScreenDisappearedEvent):
+            del detected_page_dict[event.screen_id]
+
+    return (num_successes, num_trials)
 
 
 _init_dataset()
