@@ -487,8 +487,29 @@ class ScreenEventDetectorPageDetector(PageDetectorABC):
         return detected_pages
 
 
-class ScreenEventDetector(EventDetectorABC):
-    r"""An event detector that detects screen events in a video.
+class ScreenEventDetectorABC(EventDetectorABC):
+    """An abstract detector that detects screen events in a video.
+
+    Attributes
+    ----------
+    video : VideoABC
+        The video in which the events are detected.
+    """
+
+    @abstractmethod
+    def __iter__(self):
+        """Produces an iterator of all screen events detected in a video.
+
+        Returns
+        -------
+        frames : iterator of ScreenEventABC
+            An iterable of screen events.
+        """
+        pass
+
+
+class ScreenEventDetector(ScreenEventDetectorABC):
+    r"""A detector that detects screen events in a video.
 
     In each frame of a video, screens are detected using a provided screen detector. The detected
     screens are tracked over time using a provided convex quadrangle tracker. New screens that

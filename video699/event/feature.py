@@ -16,8 +16,8 @@ from annoy import AnnoyIndex
 import cv2 as cv
 
 from ..configuration import get_configuration
-from ..interface import EventDetectorABC, PageDetectorABC
-from .screen import ScreenEventDetector
+from ..interface import PageDetectorABC
+from .screen import ScreenEventDetector, ScreenEventDetectorABC
 from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
@@ -250,7 +250,7 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
         return detected_pages
 
 
-class RTreeDequeLocalFeatureKNNEventDetector(EventDetectorABC):
+class RTreeDequeLocalFeatureKNNEventDetector(ScreenEventDetectorABC):
     r"""A screen event detector that wraps :class:`ScreenEventDetector` and serves as a facade.
 
     A :class:`ScreenEventDetector` is instantiated with the

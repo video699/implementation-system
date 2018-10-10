@@ -17,8 +17,8 @@ from scipy.special import stdtr
 
 from ..common import COLOR_RGBA_TRANSPARENT, benjamini_hochberg
 from ..configuration import get_configuration
-from ..interface import EventDetectorABC, PageDetectorABC
-from .screen import ScreenEventDetector
+from ..interface import PageDetectorABC
+from .screen import ScreenEventDetector, ScreenEventDetectorABC
 from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
@@ -397,7 +397,7 @@ class RollingPearsonPageDetector(PageDetectorABC):
         return detected_pages
 
 
-class RTreeDequeRollingPearsonEventDetector(EventDetectorABC):
+class RTreeDequeRollingPearsonEventDetector(ScreenEventDetectorABC):
     r"""A screen event detector that wraps :class:`ScreenEventDetector` and serves as a facade.
 
     A :class:`ScreenEventDetector` is instantiated with the
