@@ -840,7 +840,7 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
 
     Parameters
     ----------
-    conditions : set of str, optional
+    conditions : iterable of str, optional
         A set of admissible conditions of a screen. The following condition strings are legal:
 
         - ``pristine`` specifies that there is no significant degradation beyond photon noise.
@@ -853,8 +853,8 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
         are admissible.
     """
 
-    def __init__(self, conditions=set(['pristine', 'windowed', 'obstacle'])):
-        self._conditions = conditions
+    def __init__(self, conditions=('pristine', 'windowed', 'obstacle')):
+        self._conditions = set(conditions)
 
     def detect(self, frame):
         """Converts an annotated frame to screens using human annotations.
