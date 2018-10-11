@@ -660,7 +660,7 @@ class ScreenEventDetector(ScreenEventDetectorABC):
                                     page,
                                 )
                             )
-                            screen_id = 'screen-{}'.format(num_screens)
+                            screen_id = 'screen-{}'.format(num_screens + 1)
                             num_screens += 1
                             screen_ids[moving_quadrangle] = screen_id
                             yield ScreenAppearedEvent(screen, screen_id, page)

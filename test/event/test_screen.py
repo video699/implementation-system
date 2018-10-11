@@ -109,29 +109,34 @@ class TestScreenEventDetector(unittest.TestCase):
 
         screen_event = next(screen_event_iterator)
         self.assertTrue(isinstance(screen_event, ScreenAppearedEvent))
+        screen_id = screen_event.screen_id
         self.assertEqual(1, screen_event.frame.number)
         self.assertEqual(FIRST_COORDINATES, screen_event.screen.coordinates)
         self.assertEqual(self.first_page, screen_event.page)
 
         screen_event = next(screen_event_iterator)
         self.assertTrue(isinstance(screen_event, ScreenChangedContentEvent))
+        self.assertEqual(screen_id, screen_event.screen_id)
         self.assertEqual(2, screen_event.frame.number)
         self.assertEqual(FIRST_COORDINATES, screen_event.screen.coordinates)
         self.assertEqual(self.second_page, screen_event.page)
 
         screen_event = next(screen_event_iterator)
         self.assertTrue(isinstance(screen_event, ScreenMovedEvent))
+        self.assertEqual(screen_id, screen_event.screen_id)
         self.assertEqual(3, screen_event.frame.number)
         self.assertEqual(SECOND_COORDINATES, screen_event.screen.coordinates)
 
         screen_event = next(screen_event_iterator)
         self.assertTrue(isinstance(screen_event, ScreenChangedContentEvent))
+        self.assertEqual(screen_id, screen_event.screen_id)
         self.assertEqual(4, screen_event.frame.number)
         self.assertEqual(SECOND_COORDINATES, screen_event.screen.coordinates)
         self.assertEqual(self.first_page, screen_event.page)
 
         screen_event = next(screen_event_iterator)
         self.assertTrue(isinstance(screen_event, ScreenDisappearedEvent))
+        self.assertEqual(screen_id, screen_event.screen_id)
         self.assertEqual(5, screen_event.frame.number)
         self.assertEqual(SECOND_COORDINATES, screen_event.screen.coordinates)
 
