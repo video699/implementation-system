@@ -15,7 +15,6 @@ import cv2 as cv
 
 CONFIGURATION = get_configuration()['ImageFileDocumentPage']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
-RESCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['rescale_interpolation']]
 
 
 class ImageFileDocumentPage(PageABC):
@@ -66,10 +65,11 @@ class ImageFileDocumentPage(PageABC):
         original_height, original_width, _ = rgba_image.shape
         rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
             rescale_and_keep_aspect_ratio(original_width, original_height, width, height)
+        rescale_interpolation = cv.__dict__[CONFIGURATION['rescale_interpolation']]
         rgba_image_rescaled = cv.resize(
             rgba_image,
             (rescaled_width, rescaled_height),
-            RESCALE_INTERPOLATION
+            rescale_interpolation,
         )
         rgba_image_rescaled_with_margins = cv.copyMakeBorder(
             rgba_image_rescaled,

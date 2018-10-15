@@ -15,7 +15,6 @@ from ..configuration import get_configuration
 from ..interface import ConvexQuadrangleABC
 
 CONFIGURATION = get_configuration()['GEOSConvexQuadrangle']
-RESCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['rescale_interpolation']]
 
 
 class GEOSConvexQuadrangle(ConvexQuadrangleABC):
@@ -181,13 +180,14 @@ class GEOSConvexQuadrangle(ConvexQuadrangleABC):
         return NotImplemented
 
     def transform(self, frame_image):
+        rescale_interpolation = cv.__dict__[CONFIGURATION['rescale_interpolation']]
         return cv.warpPerspective(
             frame_image,
             self.transform_matrix,
             (self.width, self.height),
             borderMode=cv.BORDER_CONSTANT,
             borderValue=COLOR_RGBA_TRANSPARENT,
-            flags=RESCALE_INTERPOLATION,
+            flags=rescale_interpolation,
         )
 
     def __hash__(self):

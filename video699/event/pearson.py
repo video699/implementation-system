@@ -24,15 +24,44 @@ from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 CONFIGURATION = get_configuration()['RollingPearsonPageDetector']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
-WINDOW_SIZE = CONFIGURATION.getint('window_size')
-CORRELATION_THRESHOLD = CONFIGURATION.getfloat('correlation_threshold')
-SIGNIFICANCE_LEVEL = CONFIGURATION.getfloat('significance_level')
-SAMPLE_SIZE = CONFIGURATION.getint('sample_size')
-FEATURE_DETECTOR = cv.ORB_create(CONFIGURATION.getint('num_features'))
-DESCRIPTOR_MATCHER = cv.DescriptorMatcher_create(CONFIGURATION['descriptor_matcher_type'])
-GOOD_MATCH_PERCENTAGE = CONFIGURATION.getfloat('good_match_percentage')
-FIND_HOMOGRAPHY_METHOD = cv.__dict__[CONFIGURATION['find_homography_method']]
-RESCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['rescale_interpolation']]
+
+
+@lru_cache()
+def _get_feature_detector(num_features):
+    """Returns an ORB feature detector.
+
+    Parameters
+    ----------
+    num_features : int
+        The number of ORB features detected by the detector.
+
+    Returns
+    -------
+    feature_detector : cv.ORB
+        The ORB feature detector.
+    """
+
+    feature_detector = cv.ORB_create(num_features)
+    return feature_detector
+
+
+@lru_cache()
+def _get_descriptor_matcher(descriptor_matcher_type):
+    """Returns a descriptor matcher.
+
+    Parameters
+    ----------
+    descriptor_matcher_type : str
+        The type of a descriptor matcher recognized by the ``cv.DescriptorMatcher_create`` method.
+
+    Returns
+    -------
+    descriptor_matcher : cv.DescriptorMatcher
+        The descriptor matcher.
+    """
+
+    descriptor_matcher = cv.DescriptorMatcher_create(descriptor_matcher_type)
+    return descriptor_matcher
 
 
 @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
@@ -56,11 +85,13 @@ def _extract_features(image):
     image_intensity = cv.cvtColor(image.image, cv.COLOR_RGBA2GRAY)
     image_alpha = image.image[:, :, 3]
     keypoints = []
-    for keypoint in FEATURE_DETECTOR.detect(image_intensity):
+    num_features = CONFIGURATION.getint('num_features')
+    feature_detector = _get_feature_detector(num_features)
+    for keypoint in feature_detector.detect(image_intensity):
         x, y = keypoint.pt
         if image_alpha[int(y), int(x)] > 0:
             keypoints.append(keypoint)
-    _, descriptors = FEATURE_DETECTOR.compute(image_intensity, keypoints)
+    _, descriptors = feature_detector.compute(image_intensity, keypoints)
     if descriptors is not None:
         # Flann-based descriptor matcher requires the descriptors to be 32-bit floats.
         descriptors_float32 = np.float32(descriptors)
@@ -91,9 +122,12 @@ def _find_homography(image, template):
     transform_matrix = None
 
     if len(image_keypoints) >= 4 and len(template_keypoints) >= 4:
-        matches = DESCRIPTOR_MATCHER.match(template_descriptors, image_descriptors)
+        descriptor_matcher_type = CONFIGURATION['descriptor_matcher_type']
+        descriptor_matcher = _get_descriptor_matcher(descriptor_matcher_type)
+        matches = descriptor_matcher.match(template_descriptors, image_descriptors)
         matches.sort(key=lambda match: match.distance)
-        num_good_matches = int(len(matches) * GOOD_MATCH_PERCENTAGE)
+        good_match_percentage = CONFIGURATION.getfloat('good_match_percentage')
+        num_good_matches = int(len(matches) * good_match_percentage)
 
         if num_good_matches >= 4:
             good_matches = matches[:num_good_matches]
@@ -102,10 +136,11 @@ def _find_homography(image, template):
             for index, match in enumerate(good_matches):
                 template_points[index, :] = template_keypoints[match.queryIdx].pt
                 image_points[index, :] = image_keypoints[match.trainIdx].pt
+            find_homography_method = cv.__dict__[CONFIGURATION['find_homography_method']]
             transform_matrix, _ = cv.findHomography(
                 template_points,
                 image_points,
-                FIND_HOMOGRAPHY_METHOD,
+                find_homography_method,
             )
 
     if transform_matrix is None:
@@ -316,6 +351,11 @@ class RollingPearsonPageDetector(PageDetectorABC):
         self._previous_frame = None
 
     def detect(self, frame, appeared_screens, existing_screens, disappeared_screens):
+        correlation_threshold = CONFIGURATION.getfloat('correlation_threshold')
+        rescale_interpolation = cv.__dict__[CONFIGURATION['rescale_interpolation']]
+        significance_level = CONFIGURATION.getfloat('significance_level')
+        sample_size = CONFIGURATION.getint('sample_size')
+
         pages = self._pages
         window_size = self._window_size
         rolling_pearsons = self._rolling_pearsons
@@ -341,8 +381,8 @@ class RollingPearsonPageDetector(PageDetectorABC):
                 rolling_pearsons[moving_quadrangle] = {}
 
             pixel_sample = (
-                np.random.random_integers(0, screen.height - 1, SAMPLE_SIZE),
-                np.random.random_integers(0, screen.width - 1, SAMPLE_SIZE),
+                np.random.random_integers(0, screen.height - 1, sample_size),
+                np.random.random_integers(0, screen.width - 1, sample_size),
             )
 
             screen_intensity = cv.cvtColor(screen.image, cv.COLOR_RGBA2GRAY)
@@ -361,7 +401,7 @@ class RollingPearsonPageDetector(PageDetectorABC):
                     (screen.width, screen.height),
                     borderMode=cv.BORDER_CONSTANT,
                     borderValue=COLOR_RGBA_TRANSPARENT,
-                    flags=RESCALE_INTERPOLATION,
+                    flags=rescale_interpolation,
                 )
                 page_intensity = cv.cvtColor(page_image, cv.COLOR_RGBA2GRAY)
                 page_pixels = page_intensity[pixel_sample]
@@ -388,7 +428,7 @@ class RollingPearsonPageDetector(PageDetectorABC):
             rolling_pearson = rolling_pearsons[moving_quadrangle][page]
             rolling_pearson.next(screen_pixels, page_pixels, pixel_weights)
 
-            if q_value <= SIGNIFICANCE_LEVEL and correlation_coefficient >= CORRELATION_THRESHOLD:
+            if q_value <= significance_level and correlation_coefficient >= correlation_threshold:
                 detected_page = page
             else:
                 detected_page = None
@@ -422,7 +462,8 @@ class RTreeDequeRollingPearsonEventDetector(ScreenEventDetectorABC):
 
     def __init__(self, video, screen_detector, documents):
         quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(2)
-        page_detector = RollingPearsonPageDetector(documents, WINDOW_SIZE)
+        window_size = CONFIGURATION.getint('window_size')
+        page_detector = RollingPearsonPageDetector(documents, window_size)
         self._event_detector = ScreenEventDetector(
             video,
             quadrangle_tracker,

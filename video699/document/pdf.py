@@ -20,7 +20,6 @@ from ..interface import DocumentABC, PageABC
 LOGGER = getLogger(__name__)
 CONFIGURATION = get_configuration()['PDFDocumentPage']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
-DOWNSCALE_INTERPOLATION = cv.__dict__[CONFIGURATION['downscale_interpolation']]
 
 
 class PDFDocumentPage(PageABC):
@@ -75,10 +74,11 @@ class PDFDocumentPage(PageABC):
         pixmap = self._page.getPixmap(zoom_matrix, alpha=False)
         rgb_image = np.frombuffer(pixmap.samples, dtype=np.uint8).reshape((pixmap.h, pixmap.w, 3))
         rgba_image = cv.cvtColor(rgb_image, cv.COLOR_RGB2RGBA)
+        downscale_interpolation = cv.__dict__[CONFIGURATION['downscale_interpolation']]
         rgba_image_downscaled = cv.resize(
             rgba_image,
             (rescaled_width, rescaled_height),
-            DOWNSCALE_INTERPOLATION
+            downscale_interpolation,
         )
         rgba_image_downscaled_with_margins = cv.copyMakeBorder(
             rgba_image_downscaled,

@@ -24,20 +24,26 @@ from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 LOGGER = getLogger(__name__)
 CONFIGURATION = get_configuration()['LocalFeatureKNNPageDetector']
 LRU_CACHE_MAXSIZE = CONFIGURATION.getint('lru_cache_maxsize')
-WINDOW_SIZE = CONFIGURATION.getint('window_size')
-NUM_FEATURES = CONFIGURATION.getint('num_features')
-FEATURE_DETECTOR = cv.ORB_create(NUM_FEATURES)
-MIN_NUM_SCREEN_FEATURES = int(CONFIGURATION.getfloat('min_feature_percentage') * NUM_FEATURES)
-MIN_NUM_NEAREST_FEATURES = CONFIGURATION.getint('min_num_nearest_features')
-NUM_NEAREST_FEATURES = CONFIGURATION.getint('num_nearest_features')
-MIN_PAGE_VOTE_PERCENTAGE = CONFIGURATION.getfloat('min_page_vote_percentage')
-MIN_NUM_PAGE_FEATURES = int(
-    MIN_PAGE_VOTE_PERCENTAGE * NUM_NEAREST_FEATURES * MIN_NUM_SCREEN_FEATURES
-)
-DISTANCE_METRIC = CONFIGURATION['distance_metric']
 NUM_FEATURE_DIMENSIONS = 32
-ANNOY_N_TREES = CONFIGURATION.getint('annoy_n_trees')
-ANNOY_SEARCH_K = CONFIGURATION.getint('annoy_search_k')
+
+
+@lru_cache()
+def _get_feature_detector(num_features):
+    """Returns an ORB feature detector.
+
+    Parameters
+    ----------
+    num_features : int
+        The number of ORB features detected by the detector.
+
+    Returns
+    -------
+    feature_detector : cv.ORB
+        The ORB feature detector.
+    """
+
+    feature_detector = cv.ORB_create(num_features)
+    return feature_detector
 
 
 @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
@@ -59,11 +65,13 @@ def _extract_features(image):
     image_intensity = cv.cvtColor(image.image, cv.COLOR_RGBA2GRAY)
     image_alpha = image.image[:, :, 3]
     keypoints = []
-    for keypoint in FEATURE_DETECTOR.detect(image_intensity):
+    num_features = CONFIGURATION.getint('num_features')
+    feature_detector = _get_feature_detector(num_features)
+    for keypoint in feature_detector.detect(image_intensity):
         x, y = keypoint.pt
         if image_alpha[int(y), int(x)] > 0:
             keypoints.append(keypoint)
-    _, descriptors = FEATURE_DETECTOR.compute(image_intensity, keypoints)
+    _, descriptors = feature_detector.compute(image_intensity, keypoints)
     return descriptors
 
 
@@ -157,14 +165,26 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
     """
 
     def __init__(self, documents, window_size):
-        LOGGER.debug('Building an ANNOY index with {} trees'.format(ANNOY_N_TREES))
-        annoy_index = AnnoyIndex(NUM_FEATURE_DIMENSIONS, metric=DISTANCE_METRIC)
+        annoy_n_trees = CONFIGURATION.getint('annoy_n_trees')
+        distance_metric = CONFIGURATION['distance_metric']
+        min_page_vote_percentage = CONFIGURATION.getfloat('min_page_vote_percentage')
+        num_features = CONFIGURATION.getint('num_features')
+        num_nearest_features = CONFIGURATION.getint('num_nearest_features')
+        min_num_screen_features = int(
+            CONFIGURATION.getfloat('min_feature_percentage') * num_features
+        )
+        min_num_page_features = int(
+            min_page_vote_percentage * num_nearest_features * min_num_screen_features
+        )
+
+        LOGGER.debug('Building an ANNOY index with {} trees'.format(annoy_n_trees))
+        annoy_index = AnnoyIndex(NUM_FEATURE_DIMENSIONS, metric=distance_metric)
         pages = []
         page_indices = []
         base_index = 0
         for page in chain(*documents):
             page_descriptors = _extract_features(page)
-            if page_descriptors is None or len(page_descriptors) < MIN_NUM_PAGE_FEATURES:
+            if page_descriptors is None or len(page_descriptors) < min_num_page_features:
                 LOGGER.warn('Skipping {}, since we extracted no or few local features'.format(page))
                 continue
             pages.append(page)
@@ -173,7 +193,7 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
             for index, page_descriptor in enumerate(page_descriptors):
                 annoy_index.add_item(base_index + index, page_descriptor)
             base_index += num_page_descriptors
-        annoy_index.build(ANNOY_N_TREES)
+        annoy_index.build(annoy_n_trees)
 
         self._window_size = window_size
         self._annoy_index = annoy_index
@@ -183,6 +203,14 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
         self._previous_frame = None
 
     def detect(self, frame, appeared_screens, existing_screens, disappeared_screens):
+        annoy_search_k = CONFIGURATION.getint('annoy_search_k')
+        num_features = CONFIGURATION.getint('num_features')
+        num_nearest_features = CONFIGURATION.getint('num_nearest_features')
+        min_num_screen_features = int(
+            CONFIGURATION.getfloat('min_feature_percentage') * num_features
+        )
+        min_page_vote_percentage = CONFIGURATION.getfloat('min_page_vote_percentage')
+
         window_size = self._window_size
         annoy_index = self._annoy_index
         pages = self._pages
@@ -211,15 +239,15 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
 
             num_screen_descriptors, _ = screen_descriptors.shape
 
-            if num_screen_descriptors < MIN_NUM_SCREEN_FEATURES:
+            if num_screen_descriptors < min_num_screen_features:
                 continue
 
             page_votes = {}
             for screen_descriptor in screen_descriptors:
                 descriptor_indices = annoy_index.get_nns_by_vector(
                     screen_descriptor,
-                    NUM_NEAREST_FEATURES,
-                    search_k=ANNOY_SEARCH_K,
+                    num_nearest_features,
+                    search_k=annoy_search_k,
                 )
                 for descriptor_index in descriptor_indices:
                     page_index = bisect(page_indices, descriptor_index) - 1
@@ -242,7 +270,7 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
             page, mean_num_page_votes = max(page_mean_votes.items(), key=lambda x: (x[1], x[0]))
 
             min_mean_num_page_votes = int(
-                MIN_PAGE_VOTE_PERCENTAGE * NUM_NEAREST_FEATURES * len(screen_descriptors)
+                min_page_vote_percentage * num_nearest_features * len(screen_descriptors)
             )
             if mean_num_page_votes >= min_mean_num_page_votes:
                 detected_pages[screen] = page
@@ -275,7 +303,8 @@ class RTreeDequeLocalFeatureKNNEventDetector(ScreenEventDetectorABC):
 
     def __init__(self, video, screen_detector, documents):
         quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(2)
-        page_detector = LocalFeatureKNNPageDetector(documents, WINDOW_SIZE)
+        window_size = CONFIGURATION.getint('window_size')
+        page_detector = LocalFeatureKNNPageDetector(documents, window_size)
         self._event_detector = ScreenEventDetector(
             video,
             quadrangle_tracker,
