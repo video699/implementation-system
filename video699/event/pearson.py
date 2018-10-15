@@ -394,15 +394,19 @@ class RollingPearsonPageDetector(PageDetectorABC):
                     rolling_pearsons[moving_quadrangle][page] = RollingPearsonR(window_size)
                 rolling_pearson = rolling_pearsons[moving_quadrangle][page]
 
-                transform_matrix = _find_homography(screen, page)
-                page_image = cv.warpPerspective(
-                    page.image,
-                    transform_matrix,
-                    (screen.width, screen.height),
-                    borderMode=cv.BORDER_CONSTANT,
-                    borderValue=COLOR_RGBA_TRANSPARENT,
-                    flags=rescale_interpolation,
-                )
+                use_homography = (CONFIGURATION['use_homography'].lower() == 'true')
+                if use_homography:
+                    transform_matrix = _find_homography(screen, page)
+                    page_image = cv.warpPerspective(
+                        page.image,
+                        transform_matrix,
+                        (screen.width, screen.height),
+                        borderMode=cv.BORDER_CONSTANT,
+                        borderValue=COLOR_RGBA_TRANSPARENT,
+                        flags=rescale_interpolation,
+                    )
+                else:
+                    page_image = page.image
                 page_intensity = cv.cvtColor(page_image, cv.COLOR_RGBA2GRAY)
                 page_pixels = page_intensity[pixel_sample]
                 page_alpha = page_image[:, :, 3][pixel_sample]
