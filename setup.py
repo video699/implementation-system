@@ -10,7 +10,9 @@ setup(
     packages=[
         'video699',
         'video699.document',
+        'video699.event',
         'video699.frame',
+        'video699.quadrangle',
         'video699.screen',
         'video699.video',
     ],
