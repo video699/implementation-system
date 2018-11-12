@@ -231,6 +231,25 @@ class TestAnnotatedSampledVideoScreen(unittest.TestCase):
         self.first_screen = next(iter(screen_detector.detect(first_frame)))
         self.second_screen = next(iter(screen_detector.detect(eleventh_frame)))
 
+    def test_related_pages(self):
+        self.assertEqual(
+            set([
+                page.key
+                for page in self.first_screen.related_pages()
+            ]), set([
+                'slides01-02',
+                'slides01-03',
+            ])
+        )
+        self.assertEqual(
+            set([
+                page.key
+                for page in self.second_screen.related_pages()
+            ]), set([
+                'slides02-04',
+            ])
+        )
+
     def test_matching_pages(self):
         self.assertEqual(
             set([

@@ -805,21 +805,47 @@ class AnnotatedSampledVideoScreen(ScreenABC):
     def coordinates(self):
         return self._coordinates
 
-    def matching_pages(self):
-        r"""Returns an iterable of document pages matching the screen based on human annotations.
+    def related_pages(self):
+        r"""Returns an iterable of pages related to the screen :math:`s` based on human annotations.
 
         Note
         ----
         When a projection screen :math:`s` shows a document page :math:`p`, we write :math:`s\approx
         p`.  When a single logical document page is split across several document pages :math:`p`
         and a projection screen :math:`s` shows the same logical page as :math:`p`, we write
-        :math:`s\sim p`. A document page :math:`p` is matching a projection screen :math:`s` if and
+        :math:`s\sim p`. A document page :math:`p` is *related* to a projection screen :math:`s` if
+        and only if :math:`s\approx p\lor s \sim p`.
+
+        Returns
+        -------
+        related_pages : iterable of AnnotatedSampledVideoDocumentPage
+            An iterable of document pages related to :math:`s`.
+        """
+        video_uri = self._frame.video.uri
+        frame_number = self._frame.number
+        frame_annotations = FRAME_ANNOTATIONS[video_uri][frame_number]
+        screen_index = self._screen_index
+        screen_annotations = frame_annotations.screens[screen_index]
+        keyrefs = screen_annotations.keyrefs.values()
+        pages = PAGES[self._frame.video.uri]
+        related_pages = [pages[keyref.key] for keyref in keyrefs]
+        return related_pages
+
+    def matching_pages(self):
+        r"""Returns an iterable of pages matching the screen :math:`s` based on human annotations.
+
+        Note
+        ----
+        When a projection screen :math:`s` shows a document page :math:`p`, we write :math:`s\approx
+        p`.  When a single logical document page is split across several document pages :math:`p`
+        and a projection screen :math:`s` shows the same logical page as :math:`p`, we write
+        :math:`s\sim p`. A document page :math:`p` *matches* a projection screen :math:`s` if and
         only if :math:`s\approx p\lor (\nexists p'(s\approx p') \land s \sim p)`.
 
         Returns
         -------
         matching_pages : iterable of AnnotatedSampledVideoDocumentPage
-            An iterable of document pages matching the projection screen based on human annotations.
+            An iterable of document pages that match :math:`s`.
         """
         video_uri = self._frame.video.uri
         frame_number = self._frame.number
