@@ -226,46 +226,88 @@ class TestAnnotatedSampledVideoScreen(unittest.TestCase):
         video = VIDEOS[VIDEO_URI]
         frames = list(video)
         screen_detector = AnnotatedSampledVideoScreenDetector()
-        first_frame = frames[0]
-        eleventh_frame = frames[10]
-        self.first_screen = next(iter(screen_detector.detect(first_frame)))
-        self.second_screen = next(iter(screen_detector.detect(eleventh_frame)))
+        self.first_screen = next(iter(screen_detector.detect(frames[0])))
+        self.second_screen = next(iter(screen_detector.detect(frames[10])))
+        self.third_screen = next(iter(screen_detector.detect(frames[13])))
 
-    def test_related_pages(self):
+    def test_fully_matching_pages(self):
         self.assertEqual(
             set([
                 page.key
-                for page in self.first_screen.related_pages()
-            ]), set([
+                for page in self.first_screen.matching_pages()[0]
+            ]),
+            set([
                 'slides01-02',
+            ]),
+        )
+        self.assertFalse(
+            set([
+                page.key
+                for page in self.second_screen.matching_pages()[0]
+            ]),
+        )
+        self.assertEqual(
+            set([
+                page.key
+                for page in self.third_screen.matching_pages()[0]
+            ]),
+            set([
+                'slides02-07',
+            ]),
+        )
+
+    def test_incrementally_matching_pages(self):
+        self.assertEqual(
+            set([
+                page.key
+                for page in self.first_screen.matching_pages()[1]
+            ]),
+            set([
                 'slides01-03',
-            ])
+            ]),
         )
         self.assertEqual(
             set([
                 page.key
-                for page in self.second_screen.related_pages()
-            ]), set([
+                for page in self.second_screen.matching_pages()[1]
+            ]),
+            set([
                 'slides02-04',
-            ])
+            ]),
+        )
+        self.assertFalse(
+            set([
+                page.key
+                for page in self.third_screen.matching_pages()[1]
+            ]),
         )
 
-    def test_matching_pages(self):
+    def test_closest_matching_pages(self):
         self.assertEqual(
             set([
                 page.key
-                for page in self.first_screen.matching_pages()
+                for page in self.first_screen.matching_pages()[2]
             ]), set([
                 'slides01-02',
-            ])
+            ]),
         )
         self.assertEqual(
             set([
                 page.key
-                for page in self.second_screen.matching_pages()
-            ]), set([
+                for page in self.second_screen.matching_pages()[2]
+            ]),
+            set([
                 'slides02-04',
-            ])
+            ]),
+        )
+        self.assertEqual(
+            set([
+                page.key
+                for page in self.third_screen.matching_pages()[2]
+            ]),
+            set([
+                'slides02-07',
+            ]),
         )
 
     def test_aspect_ratio(self):

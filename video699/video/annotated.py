@@ -805,21 +805,29 @@ class AnnotatedSampledVideoScreen(ScreenABC):
     def coordinates(self):
         return self._coordinates
 
-    def related_pages(self):
+    def matching_pages(self):
         r"""Returns an iterable of pages related to the screen :math:`s` based on human annotations.
 
         Note
         ----
-        When a projection screen :math:`s` shows a document page :math:`p`, we write :math:`s\approx
-        p`.  When a single logical document page is split across several document pages :math:`p`
-        and a projection screen :math:`s` shows the same logical page as :math:`p`, we write
-        :math:`s\sim p`. A document page :math:`p` is *related* to a projection screen :math:`s` if
-        and only if :math:`s\approx p\lor s \sim p`.
+        When a projection screen :math:`s` shows a document page :math:`p`, we say that the
+        :math:`s` *fully matches* :math:`p` and we write :math:`s\approx p`.
+
+        When a single logical document page is split across several document pages :math:`p` and a
+        projection screen :math:`s` shows the same logical page as :math:`p`, we say that :math:`s`
+        *incrementally matches* :math:`p` and we write :math:`s\sim p`.
+
+        We say that :math:`s` *matches* :math:`p` *the closest* if and only if :math:`s\approx p\lor
+        (\nexists p'(s\approx p') \land s \sim p)`.
 
         Returns
         -------
-        related_pages : iterable of AnnotatedSampledVideoDocumentPage
-            An iterable of document pages related to :math:`s`.
+        full_matches : iterable of AnnotatedSampledVideoDocumentPage
+            An iterable of all document pages :math:`p` that fully match :math:`s`.
+        incremental_matches : iterable of AnnotatedSampledVideoDocumentPage
+            An iterable of all document pages :math:`p` that incrementally match :math:`s`.
+        closest_matches : iterable of AnnotatedSampledVideoDocumentPage
+            An iterable of all document pages :math:`p` that match :math:`s` the closest.
         """
         video_uri = self._frame.video.uri
         frame_number = self._frame.number
@@ -828,37 +836,15 @@ class AnnotatedSampledVideoScreen(ScreenABC):
         screen_annotations = frame_annotations.screens[screen_index]
         keyrefs = screen_annotations.keyrefs.values()
         pages = PAGES[self._frame.video.uri]
-        related_pages = [pages[keyref.key] for keyref in keyrefs]
-        return related_pages
 
-    def matching_pages(self):
-        r"""Returns an iterable of pages matching the screen :math:`s` based on human annotations.
-
-        Note
-        ----
-        When a projection screen :math:`s` shows a document page :math:`p`, we write :math:`s\approx
-        p`.  When a single logical document page is split across several document pages :math:`p`
-        and a projection screen :math:`s` shows the same logical page as :math:`p`, we write
-        :math:`s\sim p`. A document page :math:`p` *matches* a projection screen :math:`s` if and
-        only if :math:`s\approx p\lor (\nexists p'(s\approx p') \land s \sim p)`.
-
-        Returns
-        -------
-        matching_pages : iterable of AnnotatedSampledVideoDocumentPage
-            An iterable of document pages that match :math:`s`.
-        """
-        video_uri = self._frame.video.uri
-        frame_number = self._frame.number
-        frame_annotations = FRAME_ANNOTATIONS[video_uri][frame_number]
-        screen_index = self._screen_index
-        screen_annotations = frame_annotations.screens[screen_index]
-        keyrefs = screen_annotations.keyrefs.values()
-        pages = PAGES[self._frame.video.uri]
-        full_matches = [pages[keyref.key] for keyref in keyrefs if keyref.similarity == 'full']
-        if full_matches:
-            return full_matches
-        incremental_matches = [pages[keyref.key] for keyref in keyrefs]
-        return incremental_matches
+        full_matches = [
+            pages[keyref.key] for keyref in keyrefs if keyref.similarity == 'full'
+        ]
+        incremental_matches = [
+            pages[keyref.key] for keyref in keyrefs if keyref.similarity == 'incremental'
+        ]
+        closest_matches = full_matches if full_matches else incremental_matches
+        return full_matches, incremental_matches, closest_matches
 
 
 class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
@@ -907,9 +893,12 @@ def evaluate_event_detector(annotated_video, event_detector):
     """Processes a video using a screen event detector and counts successful trials.
 
     A video file is processed using a screen event detector. When an annotated video frame is
-    encountered, a trial takes place. If the pages detected in projection screens according to the
-    screen event detector equal the matching pages in projection screens according to the human
-    annotations, then the trial is successful. Otherwise, the trial is unsuccessful.
+    encountered, a trial takes place.  A trial is successful if and only if:
+
+    1. the set of pages detected by the screen event detector is a superset of the set of pages that
+       match the pristine screens the closest according to the human annotations and
+    2. the number of additional detected pages is less than or equal to the number of pages that
+       match the non-pristine screens the closest according to the human annotations.
 
     Parameters
     ----------
@@ -951,10 +940,12 @@ def evaluate_event_detector(annotated_video, event_detector):
             nonpristine_screens = nonpristine_screen_detector.detect(frame)
             pristine_matching_pages = set()
             for screen in pristine_screens:
-                pristine_matching_pages |= set(screen.matching_pages())
+                full_matches, incremental_matches, closest_matches = screen.matching_pages()
+                pristine_matching_pages |= set(closest_matches)
+            pristine_matching_pages_were_detected = not (pristine_matching_pages - detected_pages)
             detected_nonmatching_pages = detected_pages - pristine_matching_pages
 
-            if not (pristine_matching_pages - detected_pages) \
+            if pristine_matching_pages_were_detected \
                     and len(detected_nonmatching_pages) <= len(nonpristine_screens):
                 LOGGER.info('Successful trial of {} at {}, detected pages: {}'.format(
                     event_detector,
