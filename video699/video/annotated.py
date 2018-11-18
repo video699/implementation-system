@@ -810,8 +810,8 @@ class AnnotatedSampledVideoScreen(ScreenABC):
 
         Note
         ----
-        When a projection screen :math:`s` shows a document page :math:`p`, we say that the
-        :math:`s` *fully matches* :math:`p` and we write :math:`s\approx p`.
+        When a projection screen :math:`s` shows a document page :math:`p`, we say that :math:`s`
+        *fully matches* :math:`p` and we write :math:`s\approx p`.
 
         When a single logical document page is split across several document pages :math:`p` and a
         projection screen :math:`s` shows the same logical page as :math:`p`, we say that :math:`s`
