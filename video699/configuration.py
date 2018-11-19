@@ -45,7 +45,7 @@ def get_configuration():
 for pathname in CONFIGURATION_FILE_PATHNAMES:
     LOGGER.debug("Reading configuration file {}".format(pathname))
     try:
-        with open(pathname) as f:
+        with open(pathname, 'r', encoding='utf8') as f:
             CONFIGURATION.read_file(f)
     except OSError as err:
         LOGGER.debug("Failed to read configuration file {0}: {1}".format(pathname, err))
