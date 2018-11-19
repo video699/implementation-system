@@ -76,11 +76,11 @@ def rescale_and_keep_aspect_ratio(original_width, original_height, new_width=Non
     new_width : int
         The new width of the image including the margins. When unspecified or ``None`` and the new
         height is specified, the new height minimizes the margins. When both the new width and the
-        new height are unspecified or ``None``, the new height equals the original height.
+        new width are unspecified or ``None``, the new width equals the original width.
     new_height : int
         The new height of the image including the margins. When unspecified or ``None`` and the new
         width is specified, the new height minimizes the margins. When both the new width and the
-        new height are unspecified or ``None``, the new width equals the original width.
+        new height are unspecified or ``None``, the new height equals the original height.
 
     Returns
     -------
