@@ -14,11 +14,16 @@ from collections.abc import Iterable, MutableSet, Sized
 from datetime import timedelta
 from functools import lru_cache, total_ordering
 
+import cv2 as cv
+
+from .common import rescale_and_keep_aspect_ratio, COLOR_RGBA_TRANSPARENT
 from .configuration import get_configuration
 
 
 SCREENABC_CONFIGURATION = get_configuration()['ScreenABC']
 SCREENABC_LRU_CACHE_MAXSIZE = SCREENABC_CONFIGURATION.getint('lru_cache_maxsize')
+IMAGEABC_CONFIGURATION = get_configuration()['ImageABC']
+IMAGEABC_LRU_CACHE_MAXSIZE = IMAGEABC_CONFIGURATION.getint('lru_cache_maxsize')
 
 
 class EventABC(ABC):
@@ -192,6 +197,54 @@ class ImageABC(ABC):
     @abstractmethod
     def image(self):
         pass
+
+    @lru_cache(maxsize=IMAGEABC_LRU_CACHE_MAXSIZE, typed=False)
+    def render(self, width=None, height=None):
+        """Renders the image at the specified dimensions.
+
+        Parameters
+        ----------
+        width : int or None, optional
+            The width of the image data. When unspecified or ``None``, the implementation MUST pick
+            a width at its own discretion.
+        height : int or None, optional
+            The height of the image data. When unspecified or ``None``, the implementation MUST pick
+            a height at its own discretion.
+
+        Returns
+        -------
+        image : array_like
+            The image data of the page as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
+            denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha,
+            SHOULD be completely disregarded in subsequent computation. Any margins added to the
+            image data, e.g. by keeping the aspect ratio of the image, MUST be fully transparent.
+
+        Raises
+        ------
+        ValueError
+            When either the width or the height is zero.
+        """
+
+        rgba_image = self.image
+        original_height, original_width, _ = rgba_image.shape
+        rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \
+            rescale_and_keep_aspect_ratio(original_width, original_height, width, height)
+        rescale_interpolation = cv.__dict__[IMAGEABC_CONFIGURATION['rescale_interpolation']]
+        rgba_image_rescaled = cv.resize(
+            rgba_image,
+            (rescaled_width, rescaled_height),
+            rescale_interpolation,
+        )
+        rgba_image_rescaled_with_margins = cv.copyMakeBorder(
+            rgba_image_rescaled,
+            top_margin,
+            bottom_margin,
+            left_margin,
+            right_margin,
+            borderType=cv.BORDER_CONSTANT,
+            value=COLOR_RGBA_TRANSPARENT,
+        )
+        return rgba_image_rescaled_with_margins
 
 
 @total_ordering
@@ -818,38 +871,6 @@ class PageABC(ImageABC):
     @abstractmethod
     def number(self):
         pass
-
-    @abstractmethod
-    def render(self, width=None, height=None):
-        """Renders the image data of the document page at the specified dimensions.
-
-        Parameters
-        ----------
-        width : int or None, optional
-            The width of the image data. When unspecified or ``None``, the implementation MUST pick
-            a width at its own discretion.
-        height : int or None, optional
-            The height of the image data. When unspecified or ``None``, the implementation MUST pick
-            a height at its own discretion.
-
-        Returns
-        -------
-        image : array_like
-            The image data of the page as an OpenCV CV_8UC3 RGBA matrix, where the alpha channel (A)
-            denotes the weight of a pixel. Fully transparent pixels, i.e. pixels with zero alpha,
-            SHOULD be completely disregarded in subsequent computation. Any margins added to the
-            image data, e.g. by keeping the aspect ratio of the page, MUST be fully transparent.
-
-        Raises
-        ------
-        ValueError
-            When either the width or the height is zero.
-        """
-        pass
-
-    @property
-    def image(self):
-        return self.render()
 
     def __hash__(self):
         return hash((self.document, self.number))

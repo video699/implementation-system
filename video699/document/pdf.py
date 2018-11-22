@@ -62,6 +62,11 @@ class PDFDocumentPage(PageABC):
     def number(self):
         return self._page.number + 1
 
+    @property
+    def image(self):
+        rgba_image = self.render()
+        return rgba_image
+
     @lru_cache(maxsize=LRU_CACHE_MAXSIZE, typed=False)
     def render(self, width=None, height=None):
         rescaled_width, rescaled_height, top_margin, bottom_margin, left_margin, right_margin = \

@@ -325,8 +325,9 @@ class AnnotatedSampledVideoDocumentPage(PageABC):
         )
         return pathname
 
-    def render(self, width=None, height=None):
-        return self._page.render(width, height)
+    @property
+    def image(self):
+        return self._page.image
 
     def __hash__(self):
         return self._hash
