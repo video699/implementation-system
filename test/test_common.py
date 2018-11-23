@@ -8,8 +8,30 @@ from video699.common import (
     benjamini_hochberg,
     binomial_confidence_interval,
     change_aspect_ratio_by_upscaling,
+    get_batches,
     rescale_and_keep_aspect_ratio,
 )
+
+
+class TestBatching(unittest.TestCase):
+    """Tests the ability of the get_batches function to produce batches.
+
+    """
+
+    def test_empty(self):
+        self.assertEqual([], list(get_batches([], 10)))
+
+    def test_smaller_than_batch(self):
+        self.assertEqual([tuple(range(3))], list(get_batches(range(3), 10)))
+
+    def test_batch_sized(self):
+        self.assertEqual([tuple(range(10))], list(get_batches(range(10), 10)))
+
+    def test_largr_than_batch(self):
+        self.assertEqual([
+            tuple(range(10)),
+            tuple(range(10, 16)),
+        ], list(get_batches(range(16), 10)))
 
 
 class TestBenjaminiHochberg(unittest.TestCase):

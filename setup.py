@@ -20,6 +20,11 @@ setup(
         'video699': [
             'configuration/default.ini',
         ],
+        'video699.event': [
+            'siamese/pretrained/convnet.h5',
+            'siamese/pretrained/moments.npz',
+            'siamese/pretrained/training_history.pkl',
+        ],
         'video699.screen': [
             'annotated/LICENSE',
             'annotated/*.xml',
@@ -44,7 +49,9 @@ setup(
     },
     install_requires=[
         'annoy~=1.13.0',
+        'Keras~=2.2.4',
         'lxml~=4.2.4',
+        'npstreams~=1.5.1',
         'numpy~=1.15.1',
         'opencv-python~=3.4.2',
         'PyMuPDF~=1.13.18',
@@ -53,6 +60,7 @@ setup(
         'Rtree~=0.8.3',
         'scipy~=1.1.0',
         'Shapely~=1.6.4.post2',
+        'tensorflow~=1.12.0',
     ],
     long_description=long_description,
     classifiers=[

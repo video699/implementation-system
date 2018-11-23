@@ -4,6 +4,7 @@
 
 """
 
+from itertools import islice
 from math import ceil, floor, sqrt
 
 import numpy as np
@@ -11,6 +12,28 @@ from scipy.stats import norm
 
 
 COLOR_RGBA_TRANSPARENT = (0, 0, 0, 0)
+
+
+def get_batches(iterable, batch_size):
+    """Returns an iterator of batches produced from an iterable.
+
+    Parameters
+    ----------
+    iterable : iterable
+        An iterable.
+    batch_size : int
+        The size of every batch with the exception of the last one, which may contain fewer
+        elements.
+
+    Returns
+    -------
+    batches : iterable of tuple
+        An iterable of batches.
+
+    """
+
+    iterator = iter(iterable)
+    return iter(lambda: tuple(islice(iterator, batch_size)), ())
 
 
 def change_aspect_ratio_by_upscaling(original_width, original_height, new_aspect_ratio):

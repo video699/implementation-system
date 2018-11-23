@@ -63,6 +63,11 @@ Next, install the package using Pip:
 
    $ pip install .
 
+If you wish to use the GPU to accelerate tensor operations in the
+``video699.event.siamese`` module, consult the documentation of the
+`TensorFlow <https://www.tensorflow.org/install/gpu>`__ package. Pip
+will only install the CPU version of the package by default.
+
 If you wish to run tests, or build the documentation, use Pip to download
 additional Python packages specified in the ``requirements.txt`` file:
 

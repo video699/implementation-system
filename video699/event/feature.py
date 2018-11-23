@@ -139,7 +139,7 @@ class RollingMean(object):
 
 
 class LocalFeatureKNNPageDetector(PageDetectorABC):
-    """A page detector using local image feature nearest neighbor search.
+    """A page detector using approximate nearest neighbor search of local image features.
 
     Local features are extracted from the image data of the provided document pages and placed
     inside a vector database. Local features are then extracted from the image data in a screen
