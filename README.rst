@@ -88,16 +88,16 @@ additional Python packages specified in the ``requirements.txt`` file:
 .. End with an example of getting some data out of the system or using it
 .. for a little demo
 
-.. Running the tests
-.. -----------------
+Running the tests
+-----------------
 
-.. Running automated tests is a good way to check that you installed the package
-.. correctly, or that your change to the package did not break any functionality
-.. covered by the tests. To run automated tests, use the following command:
+Running automated tests is a good way to check that you installed the package
+correctly, or that your change to the package did not break any functionality
+covered by the tests. To run automated tests, use the following command:
 
-.. ::
+::
 
-..    $ python setup.py test
+   $ python setup.py test
 
 .. Explain how to run the automated tests for this system
 
@@ -141,32 +141,33 @@ additional Python packages specified in the ``requirements.txt`` file:
 .. for details on our code of conduct, and the process for submitting pull
 .. requests to us.
 
-.. Versioning
-.. ----------
+Versioning
+----------
 
-.. We use `SemVer <http://semver.org/>`__ for versioning. For the versions
-.. available, see the `tags on this
-.. repository <https://github.com/your/project/tags>`__.
+We use `SemVer <http://semver.org/>`__ for versioning. For the versions
+available, see the `tags on this
+repository <https://github.com/video699/implementation-system/tags>`__.
 
-.. Authors
-.. -------
+Authors
+-------
 
-.. -  **Billie Thompson** - *Initial work* -
-..    `PurpleBooth <https://github.com/PurpleBooth>`__
+-  **Vít Novotný** - *Initial work* – `witiko <https://github.com/witiko>`__
 
-.. See also the list of
-.. `contributors <https://github.com/your/project/contributors>`__ who
-.. participated in this project.
+See also the list of `contributors
+<https://github.com/video699/implementation-system/contributors>`__ who
+participated in this project.
 
-.. License
-.. -------
+License
+-------
 
-.. This project is licensed under the MIT License - see the
-.. `LICENSE <LICENSE>`__ file for details
+This project is licensed under the GNU GPLv3 License – see the
+`LICENSE <LICENSE>`__ file for details.  Note that the project uses
+the `PyMuPDF <https://pypi.org/project/PyMuPDF/>`__ library, which is
+released under AGPLv3. Under clause 13 of the AGPLv3, you must provide access
+to source code of PyMuPDF if you use video699 in a web service.
 
 .. Acknowledgments
 .. ---------------
-
 .. -  Hat tip to anyone whose code was used
 .. -  Inspiration
 .. -  etc
