@@ -1,8 +1,9 @@
 SHELL=/bin/bash -O extglob
 
-.PHONY: init develop test docs
+.PHONY: init test docs
 
 init:
+	pip install -U pip setuptools
 	pip install -e .
 	pip install -r requirements.txt
 
