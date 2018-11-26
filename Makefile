@@ -14,7 +14,6 @@ test: init
 	python setup.py test
 
 docs:
-	rm -f docs/!(index).rst
 	rm -r -f docs/_build/html
 	sphinx-apidoc -o docs video699
 	make -C docs html

@@ -3,6 +3,8 @@ video699 – Aligns lecture recordings with study materials
 
 .. image:: https://circleci.com/gh/video699/implementation-system/tree/master.svg?style=shield
     :target: https://circleci.com/gh/video699/implementation-system/tree/master
+.. image:: https://readthedocs.org/projects/video699/badge/?version=latest
+    :target: https://readthedocs.org/projects/video699/builds/
 
 One Paragraph of project description goes here
 

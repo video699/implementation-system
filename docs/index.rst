@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to video699's documentation!
-===========================================
+Documentation of video699
+=========================
 
 .. toctree::
    :maxdepth: 2

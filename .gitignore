@@ -101,8 +101,5 @@ Session.vim
 tags
 [._]*.un~
 
-# Sphinx generated documentation
-docs/*.rst
-
 # Website links
 docs/notebooks/*.url
