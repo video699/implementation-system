@@ -920,13 +920,13 @@ class PageDetectorABC(ABC):
         ----------
         frame : FrameABC
             A current video frame.
-        appeared_screens : iterator of (ScreenABC, MovingQuadrangleABC)
+        appeared_screens : iterator of (ScreenABC, MovingConvexQuadrangleABC)
             Projection screens that did not exist in the previous video frame and exist in the
             current video frame, and their movements.
-        existing_screens : iterator of (ScreenABC, MovingQuadrangleABC)
+        existing_screens : iterator of (ScreenABC, MovingConvexQuadrangleABC)
             Projection screens that existed in the previous video frame and exist in the current
             video frame, and their movements.
-        disappeared_screens : iterator of (ScreenABC, MovingQuadrangleABC)
+        disappeared_screens : iterator of (ScreenABC, MovingConvexQuadrangleABC)
             Projection screens that existed in the previous video frame and do not exist in the
             current video frame, and their movements.
 
