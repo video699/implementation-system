@@ -190,6 +190,7 @@ class TestAnnotatedSampledVideoScreenDetector(unittest.TestCase):
         frames = list(video)
         self.first_frame = frames[0]
         self.fifth_frame = frames[4]
+        self.twentyfirst_frame = frames[20]
         self.twentysecond_frame = frames[21]
 
     def test_pristine_screen(self):
@@ -215,6 +216,12 @@ class TestAnnotatedSampledVideoScreenDetector(unittest.TestCase):
         )
         self.assertEqual(1, len(list(first_screen_detector.detect(self.fifth_frame))))
         self.assertEqual(0, len(list(second_screen_detector.detect(self.fifth_frame))))
+
+    def test_beyond_bounds(self):
+        first_screen_detector = AnnotatedSampledVideoScreenDetector()
+        second_screen_detector = AnnotatedSampledVideoScreenDetector(beyond_bounds=False)
+        self.assertEqual(2, len(list(first_screen_detector.detect(self.twentyfirst_frame))))
+        self.assertEqual(1, len(list(second_screen_detector.detect(self.twentyfirst_frame))))
 
 
 class TestAnnotatedSampledVideoScreen(unittest.TestCase):

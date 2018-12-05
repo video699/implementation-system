@@ -864,10 +864,15 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
 
         Screens with inadmissible conditions will not be detected. When unspecified, all conditions
         are admissible.
+
+    beyond_bounds : bool, optional
+        Whether a screen may extend beyond the bounds of a video frame. When unspecified, a screen
+        may extend beyond the bounds.
     """
 
-    def __init__(self, conditions=('pristine', 'windowed', 'obstacle')):
+    def __init__(self, conditions=('pristine', 'windowed', 'obstacle'), beyond_bounds=True):
         self._conditions = set(conditions)
+        self._beyond_bounds = beyond_bounds
 
     def detect(self, frame):
         """Converts an annotated frame to screens using human annotations.
@@ -883,9 +888,11 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
             An iterable of detected lit projection screens.
         """
         if isinstance(frame, AnnotatedSampledVideoFrame):
+            conditions = self._conditions
+            beyond_bounds = self._beyond_bounds
             return [
                 screen for screen in SCREENS[frame.video.uri][frame.number]
-                if screen.condition in self._conditions
+                if screen.condition in conditions and (beyond_bounds or not screen.is_beyond_bounds)
             ]
         return ()
 

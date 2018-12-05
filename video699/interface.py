@@ -702,6 +702,8 @@ class ScreenABC(ImageABC):
         The width of the image data.
     height : int
         The height of the image data.
+    is_beyond_bounds : bool
+        Whether the projection screen extends beyond the bounds of the video frame.
     """
 
     @property
@@ -726,6 +728,20 @@ class ScreenABC(ImageABC):
     @property
     def height(self):
         return self.coordinates.height
+
+    @property
+    def is_beyond_bounds(self):
+        frame = self.frame
+        coordinates = self.coordinates
+        return any(
+            point[0] < 0 or point[0] >= frame.width or point[1] < 0 or point[1] >= frame.height
+            for point in (
+                coordinates.top_left,
+                coordinates.top_right,
+                coordinates.bottom_left,
+                coordinates.bottom_right,
+            )
+        )
 
     def __hash__(self):
         return hash((self.frame, self.coordinates))
