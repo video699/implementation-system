@@ -940,7 +940,7 @@ def evaluate_event_detector(annotated_video, event_detector):
         # The None event processes all the remaining annotated frames at the end of a video
         for frame in chain(peeked_remaining_annotated_frames, remaining_annotated_frames):
             if event is not None and frame.number >= event.frame.number:
-                peeked_remaining_annotated_frames = (frame,)
+                peeked_remaining_annotated_frames = (frame for frame in (frame,))
                 break
 
             detected_pages = set(detected_page_dict.values())
@@ -961,6 +961,7 @@ def evaluate_event_detector(annotated_video, event_detector):
                     detected_pages,
                 ))
                 num_successes += 1
+                assert num_successes <= num_trials
             else:
                 LOGGER.info(
                     'Unsuccessful trial of {} at {}, false negatives: {}, '
