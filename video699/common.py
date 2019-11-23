@@ -145,9 +145,9 @@ def rescale_and_keep_aspect_ratio(original_width, original_height, new_width=Non
             rescaled_height = original_height
         elif new_width is not None:
             rescaled_width = new_width
-            rescaled_height = new_width / original_width * original_height
+            rescaled_height = int(new_width / original_width * original_height)
         else:
-            rescaled_width = new_height / original_height * original_width
+            rescaled_width = int(new_height / original_height * original_width)
             rescaled_height = new_height
     else:
         aspect_ratio = min(new_width / original_width, new_height / original_height)
