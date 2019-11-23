@@ -21,9 +21,10 @@ setup(
             'configuration/default.ini',
         ],
         'video699.event': [
-            'siamese/pretrained/convnet.h5',
-            'siamese/pretrained/moments.npz',
+            'siamese/pretrained/classification_model.h5',
+            'siamese/pretrained/training_moments.npz',
             'siamese/pretrained/training_history.pkl',
+            'siamese/pretrained/format_version',
         ],
         'video699.screen': [
             'annotated/LICENSE',
