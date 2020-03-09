@@ -1,0 +1,9 @@
+sudo: required
+language: generic
+services:
+- docker
+
+install:
+- docker build -t video699:${TRAVIS_COMMIT} --pull=true  .
+
+script: docker run -ia video699:${TRAVIS_COMMIT} make test
