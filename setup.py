@@ -53,7 +53,7 @@ setup(
         'Keras~=2.2.4',
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
-        'numpy~=1.15.1',
+        'numpy~=1.16.0',
         'opencv-python~=3.4.2',
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',
@@ -61,7 +61,8 @@ setup(
         'Rtree~=0.8.3',
         'scipy~=1.1.0',
         'Shapely~=1.6.4.post2',
-        'tensorflow~=1.12.0',
+        'tensorflow~=1.13.0',
+        'fastai~=1.0.60',
     ],
     long_description=long_description,
     classifiers=[
