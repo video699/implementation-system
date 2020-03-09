@@ -62,6 +62,7 @@ setup(
         'scipy~=1.1.0',
         'Shapely~=1.6.4.post2',
         'tensorflow~=1.15.0',
+        'fastai~=1.0.60',
     ],
     long_description=long_description,
     classifiers=[
