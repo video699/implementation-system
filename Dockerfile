@@ -14,9 +14,8 @@ WORKDIR /implementation-system
 
 RUN pip install .
 
+RUN pip install -r requirements.txt 
+
 RUN pip install jupyter notebook
-
-RUN jupyter notebook --generate-config
-
 
 ENTRYPOINT ["jupyter", "notebook", "--port=8888", "--ip=*", "--no-browser", "--allow-root"]

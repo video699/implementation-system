@@ -63,6 +63,7 @@ setup(
         'Shapely~=1.6.4.post2',
         'tensorflow~=1.13.0',
         'fastai~=1.0.60',
+        'scikit-learn~=0.22.2.post1',
     ],
     long_description=long_description,
     classifiers=[
@@ -75,7 +76,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Education',
         'Topic :: Multimedia :: Video :: Conversion',
         'Topic :: Scientific/Engineering :: Image Recognition',
