@@ -5,6 +5,7 @@ semantic segmentation U-Net architecture implemented with FastAI library and pos
 ConvexQuadrangles
 
 """
+import logging
 from functools import partial
 from logging import getLogger
 from pathlib import Path
@@ -21,14 +22,15 @@ from video699.interface import (
     ScreenABC,
     ScreenDetectorABC
 )
-from video699.screen.common import NotFittedException, acc, iou, get_label_from_image_name, \
-    parse_methods, \
-    cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, get_top_left_x, create_labels
-from video699.screen.postprocessing import approximate
+from video699.screen.fastai.common import NotFittedException, acc, iou, get_label_from_image_name, \
+    parse_methods, cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, get_top_left_x, \
+    create_labels, parse_lr
+from video699.screen.fastai.postprocessing import approximate
 from video699.video.annotated import get_videos
 
-# TODO logging.basicConfig(filename='example.log',level=logging.DEBUG)
+logging.basicConfig(filename='example.log', level=logging.DEBUG)
 LOGGER = getLogger(__name__)
+
 ALL_VIDEOS = set(get_videos().values())
 CONFIGURATION = get_configuration()['FastaiVideoScreenDetector']
 VIDEOS_ROOT = Path(ALL_VIDEOS.pop().pathname).parents[2]
@@ -120,8 +122,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         frozen_epochs = CONFIGURATION.getint('frozen_epochs')
         unfrozen_epochs = CONFIGURATION.getint('unfrozen_epochs')
-        frozen_lr = CONFIGURATION.getfloat('frozen_lr')
-        unfrozen_lr = eval(CONFIGURATION['unfrozen_lr'])
+        frozen_lr = parse_lr(CONFIGURATION['frozen_lr'])
+        unfrozen_lr = parse_lr(CONFIGURATION['unfrozen_lr'])
 
         learn.fit_one_cycle(frozen_epochs, slice(frozen_lr))
 

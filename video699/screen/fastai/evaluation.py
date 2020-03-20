@@ -1,5 +1,5 @@
 from tqdm import tqdm
-from video699.screen.postprocessing import iou
+from video699.screen.fastai.postprocessing import iou
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -55,7 +55,8 @@ def evaluate(actuals, preds):
 def all_videos_eval(videos, actual_detector, pred_detector):
     all_wrong_screen_count_frames, all_ious, all_really_bad_ious = [], [], []
     for video in videos:
-        wrong_screen_count_frames, ious, really_bad_ious = single_video_eval(video, actual_detector, pred_detector)
+        wrong_screen_count_frames, ious, really_bad_ious = single_video_eval(video, actual_detector,
+                                                                             pred_detector)
         all_wrong_screen_count_frames.extend(wrong_screen_count_frames)
         all_ious.extend(ious)
         all_really_bad_ious.extend(really_bad_ious)
@@ -68,8 +69,10 @@ def single_video_eval(video, actual_detector, pred_detector):
     really_bad_ious = []
     for frame in tqdm(video):
         frame_ious = []
-        actual_screens = sorted(actual_detector.detect(frame), key=lambda screen: screen.coordinates.top_left[0])
-        pred_screens = sorted(pred_detector.detect(frame), key=lambda screen: screen.coordinates.top_left[0])
+        actual_screens = sorted(actual_detector.detect(frame),
+                                key=lambda screen: screen.coordinates.top_left[0])
+        pred_screens = sorted(pred_detector.detect(frame),
+                              key=lambda screen: screen.coordinates.top_left[0])
         if len(actual_screens) != len(pred_screens):
             wrong_screen_count_frames.append(frame)
             # Think about what to do !!!
@@ -95,8 +98,10 @@ def legend_without_duplicate_labels(ax):
 
 
 def single_frame_visualization(frame, actual_detector, pred_detector):
-    actual_screens = sorted(actual_detector.detect(frame), key=lambda screen: screen.coordinates.top_left[0])
-    pred_screens = sorted(pred_detector.detect(frame), key=lambda screen: screen.coordinates.top_left[0])
+    actual_screens = sorted(actual_detector.detect(frame),
+                            key=lambda screen: screen.coordinates.top_left[0])
+    pred_screens = sorted(pred_detector.detect(frame),
+                          key=lambda screen: screen.coordinates.top_left[0])
 
     fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(20, 4), sharex='row', sharey='row')
     fig.tight_layout()
