@@ -11,7 +11,7 @@ test: init
 	python setup.py check
 	make docs
 	flake8 docs test video699
-	#python setup.py test
+	python setup.py test
 
 docs:
 	rm -r -f docs/_build/html

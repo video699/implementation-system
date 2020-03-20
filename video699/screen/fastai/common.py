@@ -1,6 +1,7 @@
 import os
 from functools import partial
 from logging import getLogger
+from typing import List
 
 import cv2
 import numpy as np
@@ -57,7 +58,8 @@ def create_labels(videos, labels_path):
                         screen.coordinates.bottom_right,
                         screen.coordinates.bottom_left
                     )
-                    cv2.fillConvexPoly(mask, np.array([[[xi, yi]] for xi, yi in points]).astype(np.int32),
+                    cv2.fillConvexPoly(mask,
+                                       np.array([[[xi, yi]] for xi, yi in points]).astype(np.int32),
                                        (1, 1, 1))
 
                 mask_gray = cv2.cvtColor(mask, cv2.COLOR_RGB2GRAY)
@@ -79,6 +81,22 @@ def create_images(videos, images_path):
                 copyfile(frame.pathname, str(frame_path.absolute()))
 
 
+def parse_factors(factors_string: str) -> List[float]:
+    return list(map(float, factors_string.split(', ')))
+
+
+def parse_lr(lr_string):
+    lrs = list(map(float, lr_string.split(', ')))
+    if len(lrs) == 1:
+        lr = lrs[0]
+    elif len(lrs) == 2:
+        lr = slice(lrs[0], lrs[1])
+    else:
+        LOGGER.error("Format of learning rate not understood. Using default 1e-03.")
+        lr = 1e-03
+    return lr
+
+
 def parse_methods(config):
     # TODO Re-write
     methods = {}
@@ -92,7 +110,7 @@ def parse_methods(config):
         try:
             methods['base'] = {'lower_bound': config.getint('base_lower_bound'),
                                'upper_bound': config.getint('base_upper_bound'),
-                               'factors': eval(config['base_factors']),
+                               'factors': parse_factors(config['base_factors']),
                                }
         except KeyError as ex:
             LOGGER.error(f"{ex.__traceback__}")
@@ -102,7 +120,7 @@ def parse_methods(config):
         try:
             methods['erode_dilate'] = {'lower_bound': config.getint('erode_dilate_lower_bound'),
                                        'upper_bound': config.getint('erode_dilate_upper_bound'),
-                                       'factors': eval(config['erode_dilate_factors']),
+                                       'factors': parse_factors(config['erode_dilate_factors']),
                                        'iterations': config.getint('erode_dilate_iterations'),
                                        }
         except KeyError as ex:
@@ -136,8 +154,5 @@ def get_label_from_image_name(labels_output_path, fname):
     return os.path.join(labels_output_path, os.path.join(*str(fname).split('/')[-2:]))
 
 
-# def iou(pred, actual):
-#     return dice(pred, actual, iou=True)
-
-
-iou = partial(dice, iou=True)
+def iou(pred, actual):
+    return dice(pred, actual, iou=True)
