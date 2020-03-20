@@ -65,6 +65,13 @@ setup(
         'fastai~=1.0.60',
         'scikit-learn~=0.22.2.post1',
     ],
+    test_requires=[
+        'bootstrapped~=0.0.2',
+        'flake8~=3.5.0',
+        'Sphinx~=1.7.7',
+        'sphinx-rtd-theme~=0.4.2',
+        'codecov~=2.0.16',
+    ],
     long_description=long_description,
     classifiers=[
         'Development Status :: 4 - Alpha',

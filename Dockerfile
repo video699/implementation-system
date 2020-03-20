@@ -1,12 +1,12 @@
-FROM python:3.7
+FROM python:3.7-slim
 
-MAINTAINER Mikulas Bankovic
+MAINTAINER mikulas.bankovic27@gmail.com
 
 RUN apt-get update && apt-get install -y sudo git
-
+RUN apt
 RUN ln -fs /usr/bin/python3 /usr/bin/python
-
 RUN pip3 install --upgrade pip==20.0.2 setuptools wheel
+
 
 COPY requirements.txt /implementation-system/
 
