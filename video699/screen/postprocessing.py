@@ -44,7 +44,6 @@ def approximate_baseline(pred, lower_bound, upper_bound, factors):
 
 
 def approximate_erose_dilate(pred, lower_bound, upper_bound, iterations, factors):
-    # TODO contours rozdelit po jednom erose a dilatace.
     erosed = cv2.erode(pred, None, iterations=iterations)
     _, contours, _ = cv2.findContours(erosed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     quadrangles = contour_approx(contours, lower_bound, upper_bound, factors)

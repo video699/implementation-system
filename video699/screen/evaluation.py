@@ -94,20 +94,20 @@ def legend_without_duplicate_labels(ax):
     ax.legend(*zip(*unique))
 
 
-def single_frame_visualization(frame, actual_detector, pred_detector, methods=['erose_dilate', 'ratio_split']):
+def single_frame_visualization(frame, actual_detector, pred_detector):
     actual_screens = sorted(actual_detector.detect(frame), key=lambda screen: screen.coordinates.top_left[0])
     pred_screens = sorted(pred_detector.detect(frame), key=lambda screen: screen.coordinates.top_left[0])
 
     fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(20, 4), sharex='row', sharey='row')
     fig.tight_layout()
     for screen in actual_screens:
-        polygon = screen.coordinates.polygon
+        polygon = screen.coordinates._polygon
         axes[0].set_title("Actual")
         axes[0].plot(*polygon.exterior.xy, c='tab:orange')
         axes[2].plot(*polygon.exterior.xy, c='tab:orange', label="Actual")
 
     for screen in pred_screens:
-        polygon = screen.coordinates.polygon
+        polygon = screen.coordinates._polygon
         axes[1].set_title("Prediction")
         axes[1].plot(*polygon.exterior.xy, c='tab:blue')
         axes[2].plot(*polygon.exterior.xy, c='tab:blue', label="Predicted")
