@@ -5,6 +5,7 @@ video699 – Aligns lecture recordings with study materials
     :target: https://circleci.com/gh/xbankov/implementation-system/tree/master
 .. image:: https://readthedocs.org/projects/xbankov/badge/?version=latest
     :target: https://readthedocs.org/projects/xbankov/builds/
+    :alt: Documentation Status
 
 One Paragraph of project description goes here
 
