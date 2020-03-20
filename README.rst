@@ -14,10 +14,10 @@ video699 – Aligns lecture recordings with study materials
       :target: https://img.shields.io/badge/python-3.7-3776AB.svg?logo=python
       :alt: Python Version
 .. image:: https://img.shields.io/badge/platform-linux-%23AA4400.svg?logo=linux
-      :target: https://img.shields.io/badge/python-3.7-3776AB.svg?logo=python
+      :target: https://img.shields.io/badge/platform-linux-%23AA4400.svg?logo=linux
       :alt: Platform
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
-      :target: https://img.shields.io/badge/python-3.7-3776AB.svg?logo=python
+      :target: https://img.shields.io/badge/License-GPLv3-blue.svg
       :alt: License
       
 One Paragraph of project description goes here
