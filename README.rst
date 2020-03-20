@@ -2,10 +2,21 @@ video699 – Aligns lecture recordings with study materials
 =========================================================
 
 .. image:: https://circleci.com/gh/xbankov/implementation-system/tree/master.svg?style=shield
-    :target: https://circleci.com/gh/xbankov/implementation-system/tree/master
-.. image:: https://readthedocs.org/projects/xbankov/badge/?version=latest
-    :target: https://readthedocs.org/projects/xbankov/builds/
-    :alt: Documentation Status
+      :target: https://circleci.com/gh/xbankov/implementation-system/tree/master
+      :alt: Continuous Integration Status
+
+.. image:: https://readthedocs.org/projects/implementation-system/badge/?version=latest
+   :target: https://implementation-system.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+      :alt: License
+
+.. image:: https://img.shields.io/badge/platform-linux-%23AA4400.svg?logo=linux
+      :alt: Platform
+
+.. image:: https://img.shields.io/badge/python-3.7-3776AB.svg?logo=python
+      :alt: Python Version
 
 One Paragraph of project description goes here
 
