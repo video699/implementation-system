@@ -8,14 +8,11 @@ RUN ln -fs /usr/bin/python3 /usr/bin/python
 
 RUN pip3 install --upgrade pip==20.0.2 setuptools wheel
 
-COPY . /implementation-system/
+COPY requirements.txt /implementation-system/
 
 WORKDIR /implementation-system
+RUN pip install -r requirements.txt
 
-RUN pip install .
+ADD . /implementation-system
 
-RUN pip install -r requirements.txt 
-
-RUN pip install jupyter notebook
-
-ENTRYPOINT ["jupyter", "notebook", "--port=8888", "--ip=*", "--no-browser", "--allow-root"]
+RUN python setup.py develop

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-"""This module implements automatic detection and localization of projector screens on video using semantic
-segmentation U-Net architecture implemented with FastAI library and post-processed into ConvexQuadrangles
+"""This module implements automatic detection and localization of projector screens on video using
+semantic segmentation U-Net architecture implemented with FastAI library and post-processed into
+ConvexQuadrangles
 
 """
 from functools import partial
@@ -11,7 +12,8 @@ from pathlib import Path
 import numpy as np
 import torch
 from fastai.metrics import dice
-from fastai.vision import load_learner, defaults, SegmentationLabelList, open_mask, SegmentationItemList, \
+from fastai.vision import load_learner, defaults, SegmentationLabelList, open_mask, \
+    SegmentationItemList, \
     get_transforms, imagenet_stats, unet_learner, models
 
 from video699.configuration import get_configuration
@@ -19,11 +21,13 @@ from video699.interface import (
     ScreenABC,
     ScreenDetectorABC
 )
-from video699.screen.common import NotFittedException, acc, iou, get_label_from_image_name, parse_methods, \
+from video699.screen.common import NotFittedException, acc, iou, get_label_from_image_name, \
+    parse_methods, \
     cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, get_top_left_x, create_labels
 from video699.screen.postprocessing import approximate
 from video699.video.annotated import get_videos
 
+# TODO logging.basicConfig(filename='example.log',level=logging.DEBUG)
 LOGGER = getLogger(__name__)
 ALL_VIDEOS = set(get_videos().values())
 CONFIGURATION = get_configuration()['FastaiVideoScreenDetector']
@@ -37,8 +41,8 @@ defaults.device = torch.device('cpu')
 
 class SegLabelListCustom(SegmentationLabelList):
     """
-    Semantic segmentation custom label list that opens labels in binary mode. It is inherited from fastai class with
-    RGB images.
+    Semantic segmentation custom label list that opens labels in binary mode. It is inherited from
+    fastai class with RGB images.
     """
 
     def open(self, fn): return open_mask(fn, div=False, convert_mode='L')
@@ -73,7 +77,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
         self.model_path = model_path
         self.labels_path = labels_path
         self.videos_path = videos_path
-        self.src_shape = np.array([CONFIGURATION.getint('image_width'), CONFIGURATION.getint('image_height')])
+        self.src_shape = np.array(
+            [CONFIGURATION.getint('image_width'), CONFIGURATION.getint('image_height')])
         if methods:
             self.methods = methods
         else:
@@ -82,10 +87,12 @@ class FastAIScreenDetector(ScreenDetectorABC):
         self.is_fitted = False
 
         try:
-            self.learner = load_learner(path=self.model_path.parent, file=self.model_path.name, bs=1)
+            self.learner = load_learner(path=self.model_path.parent, file=self.model_path.name,
+                                        bs=1)
             self.is_fitted = True
         except FileNotFoundError:
-            LOGGER.info(f"Learner was not found in path: {self.model_path}. New training initialized.")
+            LOGGER.info(
+                f"Learner was not found in path: {self.model_path}. New training initialized.")
             self.train()
 
     def train(self):
@@ -124,7 +131,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         learn.export(self.model_path)
         self.is_fitted = True
 
-    def detect(self, frame):
+    def detect(self, frame, seg_debug=False):
         if not self.is_fitted:
             raise NotFittedException()
 
@@ -133,7 +140,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
         tensor = self.learner.predict(tensor)
         pred = tensor_to_cv_binary_image(tensor)
         resized = resize_pred(pred, tuple(self.src_shape))
-
+        if seg_debug:
+            return resized
         # Screen retrieval (Post processing)
         geos_quadrangles = approximate(resized, methods=self.methods)
 
@@ -141,5 +149,6 @@ class FastAIScreenDetector(ScreenDetectorABC):
         sorted_by_top_left_corner = sorted(geos_quadrangles, key=get_top_left_x)
 
         # Create screens (System Data Types)
-        return [FastAIScreenDetectorVideoScreen(frame, screen_index, quadrangle) for screen_index, quadrangle in
+        return [FastAIScreenDetectorVideoScreen(frame, screen_index, quadrangle) for
+                screen_index, quadrangle in
                 enumerate(sorted_by_top_left_corner)]

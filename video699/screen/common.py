@@ -3,13 +3,14 @@ from functools import partial
 from logging import getLogger
 
 import cv2
-from fastai.metrics import dice
 import numpy as np
 import torch
+from fastai.metrics import dice
 from fastai.vision import Image
 
-from video699.interface import ScreenABC
 from video699.quadrangle.geos import GEOSConvexQuadrangle
+from video699.video.annotated import AnnotatedSampledVideoScreenDetector
+from shutil import copyfile
 
 LOGGER = getLogger(__name__)
 
@@ -32,6 +33,50 @@ def tensor_to_cv_binary_image(tensor):
 def resize_pred(pred, new_size):
     predicted_resized = cv2.resize(pred, dsize=new_size)
     return predicted_resized
+
+
+def create_labels(videos, labels_path):
+    actual_detector = AnnotatedSampledVideoScreenDetector()
+    if not labels_path.absolute().exists():
+        os.mkdir(labels_path.absolute())
+
+    for video in videos:
+        video_dir = labels_path / video.filename
+        if not video_dir.exists():
+            os.mkdir(video_dir.absolute())
+
+        for frame in video:
+            frame_path = video_dir / frame.filename
+            if not frame_path.exists():
+                mask = np.zeros((frame.height, frame.width, 3), dtype=np.uint8)
+                screens = actual_detector.detect(frame=frame)
+                for screen in screens:
+                    points = (
+                        screen.coordinates.top_left,
+                        screen.coordinates.top_right,
+                        screen.coordinates.bottom_right,
+                        screen.coordinates.bottom_left
+                    )
+                    cv2.fillConvexPoly(mask, np.array([[[xi, yi]] for xi, yi in points]).astype(np.int32),
+                                       (1, 1, 1))
+
+                mask_gray = cv2.cvtColor(mask, cv2.COLOR_RGB2GRAY)
+                cv2.imwrite(str(frame_path.absolute()), mask_gray)
+
+
+def create_images(videos, images_path):
+    if not images_path.absolute().exists():
+        os.mkdir(images_path.absolute())
+
+    for video in videos:
+        video_dir = images_path / video.filename
+        if not video_dir.exists():
+            os.mkdir(video_dir.absolute())
+
+        for frame in video:
+            frame_path = video_dir / frame.filename
+            if not frame_path.exists():
+                copyfile(frame.pathname, str(frame_path.absolute()))
 
 
 def parse_methods(config):
@@ -91,4 +136,8 @@ def get_label_from_image_name(labels_output_path, fname):
     return os.path.join(labels_output_path, os.path.join(*str(fname).split('/')[-2:]))
 
 
-IOU = partial(dice, iou=True)
+# def iou(pred, actual):
+#     return dice(pred, actual, iou=True)
+
+
+iou = partial(dice, iou=True)
