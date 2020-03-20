@@ -1,6 +1,10 @@
 video699 – Aligns lecture recordings with study materials
 =========================================================
 
+.. image:: https://api.codacy.com/project/badge/Grade/9f68a717ab764173a60a2f7b916a25f0
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/manual/xbankov/implementation-system?utm_source=github.com&utm_medium=referral&utm_content=xbankov/implementation-system&utm_campaign=Badge_Grade_Dashboard
+
 .. image:: https://circleci.com/gh/xbankov/implementation-system/tree/master.svg?style=shield
       :target: https://circleci.com/gh/xbankov/implementation-system/tree/master
       :alt: Continuous Integration Status
