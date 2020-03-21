@@ -19,7 +19,9 @@ video699 – Aligns lecture recordings with study materials
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
       :target: https://img.shields.io/badge/License-GPLv3-blue.svg
       :alt: License
-      
+.. image:: https://codecov.io/gh/xbankov/implementation-system/branch/master/graph/badge.svg
+      :target: https://codecov.io/gh/xbankov/implementation-system
+      :alt: Code Coverage
 One Paragraph of project description goes here
 
 Getting Started
