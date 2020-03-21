@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      default: off
+      video699_screen:        
+        target: 50%
+        flags: video699_screen
+flags:
+  video699_screen:
+    paths:
+      - video699/screen
+    assume: true
+  tests:
+    paths:
+      - tests/
