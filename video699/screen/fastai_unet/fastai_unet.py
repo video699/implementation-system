@@ -22,10 +22,11 @@ from video699.interface import (
     ScreenABC,
     ScreenDetectorABC
 )
-from video699.screen.fastai.common import NotFittedException, acc, iou, get_label_from_image_name, \
+from video699.screen.fastai_unet.common import NotFittedException, acc, iou, \
+    get_label_from_image_name, \
     parse_methods, cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, get_top_left_x, \
     create_labels, parse_lr
-from video699.screen.fastai.postprocessing import approximate
+from video699.screen.fastai_unet.postprocessing import approximate
 from video699.video.annotated import get_videos
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG)
@@ -89,6 +90,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         self.is_fitted = False
 
         try:
+            self.learner = self.load(filename=self.model_path)
             self.learner = load_learner(path=self.model_path.parent, file=self.model_path.name,
                                         bs=1)
             self.is_fitted = True
@@ -96,6 +98,12 @@ class FastAIScreenDetector(ScreenDetectorABC):
             LOGGER.info(
                 f"Learner was not found in path: {self.model_path}. New training initialized.")
             self.train()
+
+    def save(self):
+        pass
+
+    def load(self, filename):
+        pass
 
     def train(self):
         create_labels(videos=ALL_VIDEOS, labels_path=self.labels_path)

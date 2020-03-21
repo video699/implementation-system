@@ -15,6 +15,8 @@ setup(
         'video699.quadrangle',
         'video699.screen',
         'video699.video',
+        # TODO Is this really right approach? Seems a little bit weird.
+        'video699.screen.fastai_unet'
     ],
     package_data={
         'video699': [
@@ -39,7 +41,7 @@ setup(
             'annotated/*/*.pdf',
         ],
     },
-    version='v1.0.0a1+2018.04',
+    version='1.0.0a1+2018.4',
     description='System for lecture slide page retrieval based on lecture recordings',
     author='Vit Novotny',
     author_email='witiko@mail.muni.cz',
@@ -53,7 +55,7 @@ setup(
         'Keras~=2.2.4',
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
-        'numpy~=1.16.0',
+        'numpy~=1.16.6',
         'opencv-python~=3.4.2',
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',
@@ -65,7 +67,7 @@ setup(
         'fastai~=1.0.60',
         'scikit-learn~=0.22.2.post1',
     ],
-    test_requires=[
+    tests_require=[
         'bootstrapped~=0.0.2',
         'flake8~=3.5.0',
         'Sphinx~=1.7.7',

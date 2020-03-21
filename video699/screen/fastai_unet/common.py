@@ -1,6 +1,6 @@
 import os
-from functools import partial
 from logging import getLogger
+from shutil import copyfile
 from typing import List
 
 import cv2
@@ -11,7 +11,6 @@ from fastai.vision import Image
 
 from video699.quadrangle.geos import GEOSConvexQuadrangle
 from video699.video.annotated import AnnotatedSampledVideoScreenDetector
-from shutil import copyfile
 
 LOGGER = getLogger(__name__)
 
@@ -149,10 +148,10 @@ def acc(pred, actual):
     return (pred.argmax(dim=1) == actual).float().mean()
 
 
+def iou(pred, actual):
+    return dice(pred, actual, iou=True)
+
+
 def get_label_from_image_name(labels_output_path, fname):
     # TODO Try to do it through pathlib.Path (maybe all pathing should be created with it.
     return os.path.join(labels_output_path, os.path.join(*str(fname).split('/')[-2:]))
-
-
-def iou(pred, actual):
-    return dice(pred, actual, iou=True)
