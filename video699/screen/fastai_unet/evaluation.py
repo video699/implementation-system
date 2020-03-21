@@ -1,5 +1,5 @@
 from tqdm import tqdm
-from video699.screen.fastai.postprocessing import iou
+from video699.screen.fastai_unet.postprocessing import iou
 import numpy as np
 from matplotlib import pyplot as plt
 

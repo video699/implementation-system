@@ -21,8 +21,7 @@ from video699.event.screen import (
 )
 from video699.quadrangle.geos import GEOSConvexQuadrangle
 from video699.quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
-from ..document.test_image_file import FIRST_PAGE_IMAGE_PATHNAME, SECOND_PAGE_IMAGE_PATHNAME
-
+from test.document.test_image_file import FIRST_PAGE_IMAGE_PATHNAME, SECOND_PAGE_IMAGE_PATHNAME
 
 VIDEO_FPS = 15
 VIDEO_WIDTH = 720
