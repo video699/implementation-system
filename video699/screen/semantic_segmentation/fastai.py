@@ -22,11 +22,11 @@ from video699.interface import (
     ScreenABC,
     ScreenDetectorABC
 )
-from video699.screen.fastai_unet.common import NotFittedException, acc, iou, \
+from video699.screen.semantic_segmentation.common import NotFittedException, acc, iou, \
     get_label_from_image_name, \
     parse_methods, cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, get_top_left_x, \
     create_labels, parse_lr
-from video699.screen.fastai_unet.postprocessing import approximate
+from video699.screen.semantic_segmentation.postprocessing import approximate
 from video699.video.annotated import get_videos
 
 logging.basicConfig(filename='example.log', level=logging.DEBUG)
@@ -38,8 +38,6 @@ VIDEOS_ROOT = Path(ALL_VIDEOS.pop().pathname).parents[2]
 DEFAULT_VIDEO_PATH = VIDEOS_ROOT / 'video' / 'annotated'
 DEFAULT_LABELS_PATH = VIDEOS_ROOT / 'screen' / 'labels'
 DEFAULT_MODEL_PATH = VIDEOS_ROOT / 'screen' / 'models' / 'production.pkl'
-
-defaults.device = torch.device('cpu')
 
 
 class SegLabelListCustom(SegmentationLabelList):
@@ -76,12 +74,14 @@ class FastAIScreenDetectorVideoScreen(ScreenABC):
 
 class FastAIScreenDetector(ScreenDetectorABC):
     def __init__(self, model_path=DEFAULT_MODEL_PATH, labels_path=DEFAULT_LABELS_PATH,
-                 videos_path=DEFAULT_VIDEO_PATH, methods=None):
+                 videos_path=DEFAULT_VIDEO_PATH, methods=None, device='cpu'):
+        defaults.device = torch.device(device)
         self.model_path = model_path
         self.labels_path = labels_path
         self.videos_path = videos_path
         self.src_shape = np.array(
             [CONFIGURATION.getint('image_width'), CONFIGURATION.getint('image_height')])
+
         if methods:
             self.methods = methods
         else:
@@ -90,12 +90,12 @@ class FastAIScreenDetector(ScreenDetectorABC):
         self.is_fitted = False
 
         try:
-            self.learner = self.load(filename=self.model_path)
+            # self.learner = self.load(filename=self.model_path)
             self.learner = load_learner(path=self.model_path.parent, file=self.model_path.name,
                                         bs=1)
             self.is_fitted = True
         except FileNotFoundError:
-            LOGGER.info(
+            LOGGER.warning(
                 f"Learner was not found in path: {self.model_path}. New training initialized.")
             self.train()
 
@@ -152,6 +152,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         resized = resize_pred(pred, tuple(self.src_shape))
         if seg_debug:
             return resized
+
         # Screen retrieval (Post processing)
         geos_quadrangles = approximate(resized, methods=self.methods)
 
