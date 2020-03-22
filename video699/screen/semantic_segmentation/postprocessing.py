@@ -4,14 +4,17 @@ from matplotlib import pyplot as plt
 from shapely.geometry import LineString
 from shapely.ops import split
 
+from video699.configuration import get_configuration
 from video699.quadrangle.geos import GEOSConvexQuadrangle
+
+CONFIGURATION = get_configuration()['FastaiVideoScreenDetector']
+image_area = CONFIGURATION.getint('image_width') * CONFIGURATION.getint('image_height')
 
 
 def contour_approx(contours, lower_bound, upper_bound, factors, debug=False):
     quadrangles = []
     for cnt in contours:
-        # TODO make percentage from it
-        if upper_bound > cv2.contourArea(cnt) > lower_bound:
+        if is_between_percentage(cv2.contourArea(cnt), lower_bound, upper_bound):
             for factor in factors:
                 epsilon = factor * cv2.arcLength(cnt, True)
                 polygon = cv2.approxPolyDP(cnt, epsilon, True)
@@ -23,6 +26,11 @@ def contour_approx(contours, lower_bound, upper_bound, factors, debug=False):
                         quadrangles.append(polygon)
                         break
     return quadrangles
+
+
+def is_between_percentage(contour_area, lower_area_percentage, upper_area_percentage):
+    contour_percentage = contour_area * 100 / image_area
+    return lower_area_percentage < contour_percentage < upper_area_percentage
 
 
 def approximate(pred, methods, debug=False):

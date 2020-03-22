@@ -16,7 +16,7 @@ setup(
         'video699.screen',
         'video699.video',
         # TODO Is this really right approach? Seems a little bit weird.
-        'video699.screen.fastai_unet'
+        'video699.screen.semantic_segmentation'
     ],
     package_data={
         'video699': [
