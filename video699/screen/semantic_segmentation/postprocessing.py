@@ -33,10 +33,10 @@ def is_between_percentage(contour_area, lower_area_percentage, upper_area_percen
     return lower_area_percentage < contour_percentage < upper_area_percentage
 
 
-def approximate(pred, methods, debug=False):
+def approximate(pred, methods):
     quadrangles = []
     if 'base' in methods.keys():
-        quadrangles = approximate_baseline(pred, **methods['base'], debug=False)
+        quadrangles = approximate_baseline(pred, **methods['base'])
 
     if 'erose_dilate' in methods.keys():
         erose_dilate_quadrangles = approximate_erose_dilate(pred, **methods['erose_dilate'])
@@ -52,13 +52,13 @@ def approximate(pred, methods, debug=False):
     return quadrangles
 
 
-def approximate_baseline(pred, lower_bound, upper_bound, factors, debug=False):
+def approximate_baseline(pred, lower_bound, upper_bound, factors):
     _, contours, _ = cv2.findContours(pred, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     quadrangles = contour_approx(contours, lower_bound, upper_bound, factors)
     return quadrangles
 
 
-def approximate_erose_dilate(pred, lower_bound, upper_bound, iterations, factors, debug=False):
+def approximate_erose_dilate(pred, lower_bound, upper_bound, iterations, factors):
     erosed = cv2.erode(pred, None, iterations=iterations)
     _, contours, _ = cv2.findContours(erosed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     quadrangles = contour_approx(contours, lower_bound, upper_bound, factors)
@@ -74,7 +74,7 @@ def approximate_erose_dilate(pred, lower_bound, upper_bound, iterations, factors
     return erosed_dilated_quadrangles
 
 
-def approximate_ratio_split(quadrangles, lower_bound, upper_bound, debug=False):
+def approximate_ratio_split(quadrangles, lower_bound, upper_bound):
     ratio_split_quadrangles = []
     for quadrangle in quadrangles:
         result = []
