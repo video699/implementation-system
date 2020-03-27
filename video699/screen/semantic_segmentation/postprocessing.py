@@ -35,16 +35,16 @@ def is_between_percentage(contour_area, lower_area_percentage, upper_area_percen
 
 def approximate(pred, methods):
     quadrangles = []
-    if 'base' in methods.keys():
-        quadrangles = approximate_baseline(pred, **methods['base'])
+    if methods['base']:
+        quadrangles = approximate_baseline(pred, **methods)
 
-    if 'erose_dilate' in methods.keys():
-        erose_dilate_quadrangles = approximate_erose_dilate(pred, **methods['erose_dilate'])
-        quadrangles = erose_dilate_quadrangles if len(erose_dilate_quadrangles) > len(
+    if methods['erode_dilate']:
+        erode_dilate_quadrangles = approximate_erose_dilate(pred, **methods)
+        quadrangles = erode_dilate_quadrangles if len(erode_dilate_quadrangles) > len(
             quadrangles) else quadrangles
 
-    if 'ratio_split' in methods.keys():
-        quadrangles = approximate_ratio_split(quadrangles, **methods['ratio_split'])
+    if methods['ratio_split']:
+        quadrangles = approximate_ratio_split(quadrangles, **methods)
 
     else:
         quadrangles = [GEOSConvexQuadrangle(**get_coordinates(quadrangle)) for quadrangle in
@@ -52,46 +52,47 @@ def approximate(pred, methods):
     return quadrangles
 
 
-def approximate_baseline(pred, lower_bound, upper_bound, factors):
+def approximate_baseline(pred, base_lower_bound, base_upper_bound, base_factors, **params):
     _, contours, _ = cv2.findContours(pred, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    quadrangles = contour_approx(contours, lower_bound, upper_bound, factors)
+    quadrangles = contour_approx(contours, base_lower_bound, base_upper_bound, base_factors)
     return quadrangles
 
 
-def approximate_erose_dilate(pred, lower_bound, upper_bound, iterations, factors):
-    erosed = cv2.erode(pred, None, iterations=iterations)
+def approximate_erose_dilate(pred, erode_dilate_lower_bound, erode_dilate_upper_bound,
+                             erode_dilate_iterations, erode_dilate_factors, **params):
+    erosed = cv2.erode(pred, None, iterations=erode_dilate_iterations)
     _, contours, _ = cv2.findContours(erosed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    quadrangles = contour_approx(contours, lower_bound, upper_bound, factors)
+    quadrangles = contour_approx(contours, erode_dilate_lower_bound, erode_dilate_upper_bound, erode_dilate_factors)
     erosed_dilated_quadrangles = []
     for quadrangle in quadrangles:
         zeros = np.zeros(pred.shape, dtype='uint8')
         erosed_quadrangle = draw_polygon(quadrangle, zeros)
-        dilated_quadrangle = cv2.dilate(erosed_quadrangle, None, iterations=iterations)
+        dilated_quadrangle = cv2.dilate(erosed_quadrangle, None, iterations=erode_dilate_iterations)
         _, contours, _ = cv2.findContours(dilated_quadrangle, cv2.RETR_TREE,
                                           cv2.CHAIN_APPROX_SIMPLE)
         erosed_dilated_quadrangles.extend(
-            contour_approx(contours, lower_bound, upper_bound, factors))
+            contour_approx(contours, erode_dilate_lower_bound, erode_dilate_upper_bound, erode_dilate_factors))
     return erosed_dilated_quadrangles
 
 
-def approximate_ratio_split(quadrangles, lower_bound, upper_bound):
+def approximate_ratio_split(quadrangles, ratio_split_lower_bound, ratio_split_upper_bound, **params):
     ratio_split_quadrangles = []
     for quadrangle in quadrangles:
         result = []
         geos_quadrangle = GEOSConvexQuadrangle(**get_coordinates(quadrangle))
 
-        if lower_bound < geos_quadrangle.height / geos_quadrangle.width < upper_bound or \
+        if ratio_split_lower_bound < geos_quadrangle.height / geos_quadrangle.width < ratio_split_upper_bound or \
                 geos_quadrangle.area < 80000:
             ratio_split_quadrangles.append(geos_quadrangle)
             continue
 
-        if not lower_bound < geos_quadrangle.height / geos_quadrangle.width:
+        if not ratio_split_lower_bound < geos_quadrangle.height / geos_quadrangle.width:
             upper_midpoint = midpoint(geos_quadrangle.top_left, geos_quadrangle.top_right)
             lower_midpoint = midpoint(geos_quadrangle.bottom_left, geos_quadrangle.bottom_right)
             line = LineString([upper_midpoint, lower_midpoint])
             result = split(geos_quadrangle._polygon, line)
 
-        elif not geos_quadrangle.height / geos_quadrangle.width < upper_bound:
+        elif not geos_quadrangle.height / geos_quadrangle.width < ratio_split_upper_bound:
             left_midpoint = midpoint(geos_quadrangle.top_left, geos_quadrangle.bottom_left)
             right_midpoint = midpoint(geos_quadrangle.top_right, geos_quadrangle.bottom_right)
             line = LineString([left_midpoint, right_midpoint])

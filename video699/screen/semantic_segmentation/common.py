@@ -1,5 +1,5 @@
 import os
-from logging import getLogger
+from logging import getLogger, DEBUG
 from shutil import copyfile
 from typing import List
 
@@ -13,6 +13,7 @@ from video699.quadrangle.geos import GEOSConvexQuadrangle
 from video699.video.annotated import AnnotatedSampledVideoScreenDetector
 
 LOGGER = getLogger(__name__)
+LOGGER.setLevel(DEBUG)
 
 
 def get_top_left_x(screen: GEOSConvexQuadrangle) -> int:
@@ -87,7 +88,7 @@ def parse_factors(factors_string: str) -> List[float]:
 def parse_lr(lr_string):
     lrs = list(map(float, lr_string.split(', ')))
     if len(lrs) == 1:
-        lr = lrs[0]
+        lr = slice(lrs[0])
     elif len(lrs) == 2:
         lr = slice(lrs[0], lrs[1])
     else:
@@ -97,44 +98,37 @@ def parse_lr(lr_string):
 
 
 def parse_methods(config):
-    # TODO Re-write
-    methods = {}
     base = config.getboolean('base')
     erode_dilate = config.getboolean('erode_dilate')
     ratio_split = config.getboolean('ratio_split')
+
     if not (base or erode_dilate or ratio_split):
         LOGGER.error("No valid arguments provided in default.ini")
 
-    if base:
-        try:
-            methods['base'] = {'lower_bound': config.getint('base_lower_bound'),
-                               'upper_bound': config.getint('base_upper_bound'),
-                               'factors': parse_factors(config['base_factors']),
-                               }
-        except KeyError as ex:
-            LOGGER.error(f"{ex.__traceback__}")
-            LOGGER.error(f"Required parameter does not exists in default.ini")
+    methods = {}
+    try:
+        if base:
+            methods.update({'base_lower_bound': config.getint('base_lower_bound'),
+                            'base_upper_bound': config.getint('base_upper_bound'),
+                            'base_factors': parse_factors(config['base_factors']),
+                            })
 
-    if erode_dilate:
-        try:
-            methods['erode_dilate'] = {'lower_bound': config.getint('erode_dilate_lower_bound'),
-                                       'upper_bound': config.getint('erode_dilate_upper_bound'),
-                                       'factors': parse_factors(config['erode_dilate_factors']),
-                                       'iterations': config.getint('erode_dilate_iterations'),
-                                       }
-        except KeyError as ex:
-            LOGGER.error(f"{ex.__traceback__}")
-            LOGGER.error(f"Required parameter does not exists in default.ini")
+        if erode_dilate:
+            methods.update({'erode_dilate_lower_bound': config.getint('erode_dilate_lower_bound'),
+                            'erode_dilate_upper_bound': config.getint('erode_dilate_upper_bound'),
+                            'erode_dilate_factors': parse_factors(config['erode_dilate_factors']),
+                            'erode_dilate_iterations': config.getint('erode_dilate_iterations'),
+                            })
 
-    if ratio_split:
-        try:
-            methods['ratio_split'] = {'lower_bound': config.getfloat('ratio_split_lower_bound'),
-                                      'upper_bound': config.getfloat('ratio_split_upper_bound'),
-                                      }
-        except KeyError as ex:
-            LOGGER.error(f"{ex.__traceback__}")
-            LOGGER.error(f"Required parameter does not exists in default.ini")
+        if ratio_split:
+            methods.update(
+                {'ratio_split_lower_bound': config.getfloat('ratio_split_lower_bound'),
+                 'ratio_split_upper_bound': config.getfloat('ratio_split_upper_bound'),
+                 })
 
+    except KeyError as ex:
+        LOGGER.error(f"{ex.__traceback__}")
+        LOGGER.error(f"Required parameter does not exists in default.ini")
     return methods
 
 

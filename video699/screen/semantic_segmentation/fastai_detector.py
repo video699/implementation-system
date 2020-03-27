@@ -30,7 +30,7 @@ from video699.screen.semantic_segmentation.common import NotFittedException, acc
 from video699.screen.semantic_segmentation.postprocessing import approximate
 from video699.video.annotated import get_videos
 
-logging.basicConfig(filename='example.log', level=logging.DEBUG)
+logging.basicConfig(filename='example.log', level=logging.WARNING)
 LOGGER = getLogger(__name__)
 
 ALL_VIDEOS = set(get_videos().values())
@@ -116,7 +116,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         frozen_lr = self.train_params['frozen_lr']
         unfrozen_lr = self.train_params['unfrozen_lr']
 
-        self.learner.fit_one_cycle(frozen_epochs, slice(frozen_lr))
+        self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
 
         LOGGER.info("Unfreeze backbone part of the network.")
         self.learner.unfreeze()
