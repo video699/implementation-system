@@ -1,9 +1,10 @@
 import unittest
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from video699.interface import ScreenDetectorABC
-from video699.screen.semantic_segmentation.fastai_detector import FastAIScreenDetector
-
+from video699.screen.semantic_segmentation.fastai_detector import FastAIScreenDetector, ALL_VIDEOS
+import numpy as np
 
 class TestFastAIScreenDetector(unittest.TestCase):
     """
@@ -11,7 +12,10 @@ class TestFastAIScreenDetector(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.detector = FastAIScreenDetector()
+        self.detector = FastAIScreenDetector(
+            filtered_by=lambda name: 'frame002000' in str(name),
+            train_params={'unfrozen_epochs': 1, 'frozen_epochs': 1})
+        self.test_frame = list(ALL_VIDEOS.pop())[0]
 
     def test_init(self):
         self.assertIsInstance(self.detector, ScreenDetectorABC)
@@ -35,6 +39,28 @@ class TestFastAIScreenDetector(unittest.TestCase):
                             'frozen_lr', 'unfrozen_lr'}
         self.assertSetEqual(set(self.detector.train_params.keys()), all_train_params)
 
+    def test_save_load(self):
+        self.detector.train()
+        before_save = self.detector.semantic_segmentation(self.test_frame)
+        self.detector.save()
+        self.detector.load()
+        after_save = self.detector.semantic_segmentation(self.test_frame)
+        self.assertTrue(np.allclose(before_save, after_save, rtol=1e-05, atol=1e-08))
+
+    def test_save_load_custom_dir(self):
+        self.detector.train()
+        tmp = NamedTemporaryFile()
+        before_save = self.detector.semantic_segmentation(self.test_frame)
+        self.detector.save(Path(tmp.name))
+        self.detector.load(Path(tmp.name))
+        after_save = self.detector.semantic_segmentation(self.test_frame)
+        self.assertTrue(np.allclose(before_save, after_save, rtol=1e-05, atol=1e-08))
+
+    def test_semantic_segmentation(self):
+        pass
+
+    def test_post_processing(self):
+        pass
 
 
 if __name__ == '__main__':

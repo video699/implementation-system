@@ -88,7 +88,7 @@ def parse_factors(factors_string: str) -> List[float]:
 def parse_lr(lr_string):
     lrs = list(map(float, lr_string.split(', ')))
     if len(lrs) == 1:
-        lr = slice(lrs[0])
+        lr = lrs[0]
     elif len(lrs) == 2:
         lr = slice(lrs[0], lrs[1])
     else:
