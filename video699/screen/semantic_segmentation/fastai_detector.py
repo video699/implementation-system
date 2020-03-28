@@ -101,12 +101,13 @@ class FastAIScreenDetector(ScreenDetectorABC):
         if not self.filtered_by:
             self.filtered_by = lambda name: 'frame' in str(name)
 
-        if not self.train_params:
-            params = {}
-            for param in ['batch_size', 'resize_factor', 'frozen_epochs', 'unfrozen_epochs', 'frozen_lr',
-                          'unfrozen_lr']:
-                params[param] = parse_lr(CONFIGURATION[param]) if '_lr' in param else CONFIGURATION.getint(param)
-            self.train_params = params
+        train_params_keywords = ['batch_size', 'resize_factor', 'frozen_epochs', 'unfrozen_epochs', 'frozen_lr',
+                                 'unfrozen_lr']
+        if not self.train_params or not set(self.train_params.keys()) == set(train_params_keywords):
+            for param in train_params_keywords:
+                if param not in self.train_params:
+                    self.train_params[param] = parse_lr(
+                        CONFIGURATION[param]) if '_lr' in param else CONFIGURATION.getint(param)
 
     def train(self):
         create_labels(videos=ALL_VIDEOS, labels_path=self.labels_path)
@@ -116,11 +117,11 @@ class FastAIScreenDetector(ScreenDetectorABC):
         frozen_lr = self.train_params['frozen_lr']
         unfrozen_lr = self.train_params['unfrozen_lr']
 
-        self.learner.fit_one_cycle(frozen_epochs, slice(frozen_lr))
+        self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
 
         LOGGER.info("Unfreeze backbone part of the network.")
         self.learner.unfreeze()
-        self.learner.fit_one_cycle(unfrozen_epochs, slice(unfrozen_lr))
+        self.learner.fit_one_cycle(unfrozen_epochs, unfrozen_lr)
 
         self.is_fitted = True
 
@@ -164,8 +165,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
             part_number = 1
             chunk = stream.read(chunk_size)
             while chunk:
-                part_name = str(model_path.parent) + str(model_path.stem) + str(part_number) + model_path.suffix
-                with open(part_name , mode='wb+') as chunk_file:
+                part_name = model_path.parent / (str(model_path.stem) + str(part_number) + model_path.suffix)
+                with open(part_name, mode='wb+') as chunk_file:
                     chunk_file.write(chunk)
                 part_number += 1
                 chunk = stream.read(chunk_size)
@@ -175,8 +176,9 @@ class FastAIScreenDetector(ScreenDetectorABC):
             model_path = self.model_path
         part_number = 1
         chunks = []
-        while os.path.exists(str(model_path) + str(part_number) + '.mdl'):
-            with open(str(model_path) + str(part_number) + '.mdl', mode='rb') as chunk_file:
+        while (model_path.parent / (str(model_path.stem) + str(part_number) + model_path.suffix)).exists():
+            with open(model_path.parent / (str(model_path.stem) + str(part_number) + model_path.suffix),
+                      mode='rb') as chunk_file:
                 chunks.append(chunk_file.read())
             part_number += 1
 
