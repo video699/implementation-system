@@ -105,7 +105,7 @@ def parse_methods(config):
     if not (base or erode_dilate or ratio_split):
         LOGGER.error("No valid arguments provided in default.ini")
 
-    methods = {}
+    methods = {'base': base, 'erode_dilate': erode_dilate, 'ratio_split': ratio_split}
     try:
         if base:
             methods.update({'base_lower_bound': config.getint('base_lower_bound'),
