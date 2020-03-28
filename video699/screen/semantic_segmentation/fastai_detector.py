@@ -38,7 +38,7 @@ CONFIGURATION = get_configuration()['FastaiVideoScreenDetector']
 VIDEOS_ROOT = Path(list(ALL_VIDEOS)[0].pathname).parents[2]
 DEFAULT_VIDEO_PATH = VIDEOS_ROOT / 'video' / 'annotated'
 DEFAULT_LABELS_PATH = VIDEOS_ROOT / 'screen' / 'labels'
-DEFAULT_MODEL_PATH = VIDEOS_ROOT / 'screen' / 'models' / 'model'
+DEFAULT_MODEL_PATH = VIDEOS_ROOT / 'screen' / 'model' / 'model.pkl'
 
 
 class SegLabelListCustom(SegmentationLabelList):
@@ -116,11 +116,11 @@ class FastAIScreenDetector(ScreenDetectorABC):
         frozen_lr = self.train_params['frozen_lr']
         unfrozen_lr = self.train_params['unfrozen_lr']
 
-        self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
+        self.learner.fit_one_cycle(frozen_epochs, slice(frozen_lr))
 
         LOGGER.info("Unfreeze backbone part of the network.")
         self.learner.unfreeze()
-        self.learner.fit_one_cycle(unfrozen_epochs, unfrozen_lr)
+        self.learner.fit_one_cycle(unfrozen_epochs, slice(unfrozen_lr))
 
         self.is_fitted = True
 
@@ -164,7 +164,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
             part_number = 1
             chunk = stream.read(chunk_size)
             while chunk:
-                with open(str(model_path) + str(part_number) + '.mdl', mode='wb+') as chunk_file:
+                part_name = str(model_path.parent) + str(model_path.stem) + str(part_number) + model_path.suffix
+                with open(part_name , mode='wb+') as chunk_file:
                     chunk_file.write(chunk)
                 part_number += 1
                 chunk = stream.read(chunk_size)
@@ -184,14 +185,22 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         self.is_fitted = True
 
+    # TODO try GPU optimized code using fastai framework like add_test dataset and get_preds function
     def semantic_segmentation_batch(self, frames):
-        pass
+        return [self.semantic_segmentation(frame) for frame in frames]
 
-    def post_processing_batch(self, pred, methods):
-        pass
+    def post_processing_batch(self, preds, frames, methods):
+        if methods is None:
+            methods = self.methods
+        return [self.post_processing(preds, frames, methods) for preds, frames in zip(preds, frames)]
 
-    def detect_batch(self, frames):
-        pass
+    def detect_batch(self, frames, methods=None):
+        if not self.is_fitted:
+            raise NotFittedException()
+
+        preds = self.semantic_segmentation_batch(frames)
+        screens = self.post_processing_batch(preds, frames, methods)
+        return screens
 
     def init_model(self):
         size = self.src_shape // self.train_params['resize_factor']
