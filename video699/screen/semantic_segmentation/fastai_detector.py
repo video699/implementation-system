@@ -103,7 +103,12 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         train_params_keywords = ['batch_size', 'resize_factor', 'frozen_epochs', 'unfrozen_epochs', 'frozen_lr',
                                  'unfrozen_lr']
-        if not self.train_params or not set(self.train_params.keys()) == set(train_params_keywords):
+        if not self.train_params:
+            for param in train_params_keywords:
+                self.train_params[param] = parse_lr(CONFIGURATION[param]) if '_lr' in param else CONFIGURATION.getint(
+                    param)
+                
+        elif not set(self.train_params.keys()) == set(train_params_keywords):
             for param in train_params_keywords:
                 if param not in self.train_params:
                     self.train_params[param] = parse_lr(
