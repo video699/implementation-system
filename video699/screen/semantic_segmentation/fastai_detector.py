@@ -82,12 +82,12 @@ class FastAIScreenDetector(ScreenDetectorABC):
         self.labels_path = labels_path
         self.videos_path = videos_path
 
-        self.init_params()
-
-        self.filtered_by = filtered_by
-        self.valid_func = valid_func
         self.train_params = train_params
         self.methods = methods
+        self.filtered_by = filtered_by
+        self.valid_func = valid_func
+
+        self.init_params()
 
         self.src_shape = np.array(
             [CONFIGURATION.getint('image_width'), CONFIGURATION.getint('image_height')])
@@ -105,11 +105,12 @@ class FastAIScreenDetector(ScreenDetectorABC):
         train_params_keywords = ['batch_size', 'resize_factor', 'frozen_epochs', 'unfrozen_epochs', 'frozen_lr',
                                  'unfrozen_lr']
         extra_params = self.train_params
-
+        self.train_params = {}
         for param in train_params_keywords:
-            self.train_params = {
-                param: parse_lr(CONFIGURATION[param]) if '_lr' in param else CONFIGURATION.getint(param)}
-        self.train_params.update(extra_params)
+            self.train_params[param] = parse_lr(CONFIGURATION[param]) if '_lr' in param else CONFIGURATION.getint(param)
+
+        if extra_params:
+            self.train_params.update(extra_params)
 
     def train(self):
         create_labels(videos=ALL_VIDEOS, labels_path=self.labels_path)
