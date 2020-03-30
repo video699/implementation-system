@@ -17,4 +17,4 @@ RUN pip install -r requirements.txt
 
 ADD . /implementation-system
 
-RUN python setup.py develop
+RUN pip install .
