@@ -53,7 +53,7 @@ def approximate(pred, methods):
 
 
 def approximate_baseline(pred, base_lower_bound, base_upper_bound, base_factors, **params):
-    _, contours, _ = cv2.findContours(pred, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(pred, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     quadrangles = contour_approx(contours, base_lower_bound, base_upper_bound, base_factors)
     return quadrangles
 
@@ -61,15 +61,15 @@ def approximate_baseline(pred, base_lower_bound, base_upper_bound, base_factors,
 def approximate_erose_dilate(pred, erode_dilate_lower_bound, erode_dilate_upper_bound,
                              erode_dilate_iterations, erode_dilate_factors, **params):
     erosed = cv2.erode(pred, None, iterations=erode_dilate_iterations)
-    _, contours, _ = cv2.findContours(erosed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(erosed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     quadrangles = contour_approx(contours, erode_dilate_lower_bound, erode_dilate_upper_bound, erode_dilate_factors)
     erosed_dilated_quadrangles = []
     for quadrangle in quadrangles:
         zeros = np.zeros(pred.shape, dtype='uint8')
         erosed_quadrangle = draw_polygon(quadrangle, zeros)
         dilated_quadrangle = cv2.dilate(erosed_quadrangle, None, iterations=erode_dilate_iterations)
-        _, contours, _ = cv2.findContours(dilated_quadrangle, cv2.RETR_TREE,
-                                          cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(dilated_quadrangle, cv2.RETR_TREE,
+                                       cv2.CHAIN_APPROX_SIMPLE)
         erosed_dilated_quadrangles.extend(
             contour_approx(contours, erode_dilate_lower_bound, erode_dilate_upper_bound, erode_dilate_factors))
     return erosed_dilated_quadrangles

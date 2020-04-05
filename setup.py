@@ -73,6 +73,7 @@ setup(
         'Sphinx~=1.7.7',
         'sphinx-rtd-theme~=0.4.2',
         'codecov~=2.0.16',
+        'sphinx-autoapi~=1.2.1',
     ],
     long_description=long_description,
     classifiers=[
