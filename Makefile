@@ -16,6 +16,7 @@ test: init
 	codecov -t 0a5f01f0-3df8-412a-afd7-7ab9a45d1fdd
 
 docs:
+	pip install docs/requirements.txt
 	rm -r -f docs/_build/html
 	sphinx-apidoc -o docs video699
 	make -C docs html
