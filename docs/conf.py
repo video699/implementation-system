@@ -43,7 +43,11 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'autoapi.extension',
 ]
+
+# Directory of amain package
+autoapi_dirs = ['../video699']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
