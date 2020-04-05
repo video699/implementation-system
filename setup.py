@@ -56,7 +56,7 @@ setup(
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
         'numpy~=1.16.6',
-        'opencv-python~=3.4.2',
+        'opencv-python~=4.1.2',
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',
         'pyxdg~=0.26',
