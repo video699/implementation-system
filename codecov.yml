@@ -2,7 +2,7 @@ coverage:
   status:
     project:
       default: off
-      video699_screen:        
+      video699_screen:
         target: 50%
         flags: video699_screen
 flags:
