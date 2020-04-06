@@ -6,7 +6,6 @@ ConvexQuadrangles
 
 """
 import io
-import logging
 import os
 from functools import partial
 from logging import getLogger
@@ -16,6 +15,7 @@ from typing import Callable
 import numpy as np
 import torch
 from fastai.metrics import dice
+from fastai.utils.mod_display import progress_disabled_ctx
 from fastai.vision import load_learner, defaults, SegmentationLabelList, open_mask, \
     SegmentationItemList, get_transforms, imagenet_stats, unet_learner, models
 
@@ -26,11 +26,10 @@ from video699.interface import (
 )
 from video699.screen.semantic_segmentation.common import NotFittedException, acc, iou, get_label_from_image_name, \
     parse_methods, cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, get_top_left_x, create_labels, parse_lr
-
 from video699.screen.semantic_segmentation.postprocessing import approximate
 from video699.video.annotated import get_videos
 
-logging.basicConfig(filename='example.log', level=logging.WARNING)
+# logging.basicConfig(filename='example.log', level=logging.WARNING)
 LOGGER = getLogger(__name__)
 
 ALL_VIDEOS = set(get_videos().values())
@@ -76,8 +75,13 @@ class FastAIScreenDetectorVideoScreen(ScreenABC):
 class FastAIScreenDetector(ScreenDetectorABC):
     def __init__(self, model_path=DEFAULT_MODEL_PATH, labels_path=DEFAULT_LABELS_PATH,
                  videos_path=DEFAULT_VIDEO_PATH, methods=None, train_params=None, filtered_by: Callable = None,
-                 valid_func: Callable = None, device='cpu'):
+                 valid_func: Callable = None, device=None, progressbar=False):
+
+        # CPU vs GPU
+        if not device:
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
         defaults.device = torch.device(device)
+        self.progressbar = progressbar
         self.model_path = model_path
         self.labels_path = labels_path
         self.videos_path = videos_path
@@ -120,11 +124,20 @@ class FastAIScreenDetector(ScreenDetectorABC):
         frozen_lr = self.train_params['frozen_lr']
         unfrozen_lr = self.train_params['unfrozen_lr']
 
-        self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
+        # TODO refactor
+        if self.progressbar:
+            self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
 
-        LOGGER.info("Unfreeze backbone part of the network.")
-        self.learner.unfreeze()
-        self.learner.fit_one_cycle(unfrozen_epochs, unfrozen_lr)
+            LOGGER.info("Unfreeze backbone part of the network.")
+            self.learner.unfreeze()
+            self.learner.fit_one_cycle(unfrozen_epochs, unfrozen_lr)
+        else:
+            with progress_disabled_ctx(self.learner) as self.learner:
+                self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
+
+                LOGGER.info("Unfreeze backbone part of the network.")
+                self.learner.unfreeze()
+                self.learner.fit_one_cycle(unfrozen_epochs, unfrozen_lr)
 
         self.is_fitted = True
 
