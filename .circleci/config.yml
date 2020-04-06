@@ -53,7 +53,4 @@ jobs:
           rm -rf ./spatialindex
           . ~/venv/bin/activate
           make test
-    - codecov/upload:
-        name: "Codecov upload"
-        file: {{ coverage_report_filepath }}
           
