@@ -67,10 +67,12 @@ setup(
         'fastai~=1.0.60',
         'scikit-learn~=0.22.2.post1',
     ],
-    tests_require=[
-        'codecov~=2.0.16',
-        'coverage~=5.0.2',
-    ],
+    extras_require={
+        'tests': [
+            'codecov~=2.0.16',
+            'coverage~=5.0.2',
+        ],
+    },
     long_description=long_description,
     classifiers=[
         'Development Status :: 4 - Alpha',
