@@ -13,8 +13,8 @@ RUN pip3 install --upgrade pip==20.0.2 setuptools wheel
 COPY requirements.txt /implementation-system/
 
 WORKDIR /implementation-system
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 ADD . /implementation-system
 
-RUN pip install .
+RUN pip3 install .
