@@ -1,5 +1,5 @@
 import os
-from logging import getLogger, DEBUG
+from logging import getLogger
 from shutil import copyfile
 from typing import List
 
@@ -13,7 +13,6 @@ from video699.quadrangle.geos import GEOSConvexQuadrangle
 from video699.video.annotated import AnnotatedSampledVideoScreenDetector
 
 LOGGER = getLogger(__name__)
-LOGGER.setLevel(DEBUG)
 
 
 def get_top_left_x(screen: GEOSConvexQuadrangle) -> int:
