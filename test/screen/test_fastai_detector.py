@@ -1,9 +1,14 @@
+import warnings
+
 import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+from video699.screen.semantic_segmentation.common import create_labels
+
 from video699.interface import ScreenDetectorABC
-from video699.screen.semantic_segmentation.fastai_detector import FastAIScreenDetector, ALL_VIDEOS
+from video699.screen.semantic_segmentation.fastai_detector import FastAIScreenDetector, ALL_VIDEOS, \
+    DEFAULT_LABELS_PATH
 import numpy as np
 
 
@@ -11,6 +16,10 @@ class TestFastAIScreenDetector(unittest.TestCase):
     """
     Tests the ability of the AnnotatedScreenVideo class to detect its dimensions and produce frames.
     """
+
+    def __init__(self, methodName):
+        super().__init__(methodName)
+        create_labels(ALL_VIDEOS, DEFAULT_LABELS_PATH)
 
     def setUp(self) -> None:
         self.detector = FastAIScreenDetector(
