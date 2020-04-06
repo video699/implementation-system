@@ -44,6 +44,7 @@ def approximate(pred, methods):
             quadrangles) else quadrangles
 
     if methods['ratio_split']:
+        # TODO add warning or error when empty quadrangles
         quadrangles = approximate_ratio_split(quadrangles, **methods)
 
     else:

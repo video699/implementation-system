@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/repo
     docker:
-    - image: xbankov/cci-video699:0.0.2
+    - image: circleci/python:3.7
     steps:
     - checkout
     - run:
