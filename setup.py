@@ -68,12 +68,8 @@ setup(
         'scikit-learn~=0.22.2.post1',
     ],
     tests_require=[
-        'bootstrapped~=0.0.2',
-        'flake8~=3.5.0',
-        'Sphinx~=1.7.7',
-        'sphinx-rtd-theme~=0.4.2',
         'codecov~=2.0.16',
-        'sphinx-autoapi~=1.2.1',
+        'coverage~=5.0.2',
     ],
     long_description=long_description,
     classifiers=[
