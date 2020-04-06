@@ -7,6 +7,7 @@ init:
 	pip install -e .
 
 test: init
+	pip install -e .[tests]
 	python setup.py check
 	make docs
 	flake8 docs test video699
@@ -18,5 +19,5 @@ test: init
 docs:
 	pip install -r docs/requirements.txt
 	rm -r -f docs/_build/html
-	sphinx-apidoc -o docs video699
+	# sphinx-apidoc -o docs video699
 	make -C docs html
