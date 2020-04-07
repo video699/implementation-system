@@ -3,7 +3,9 @@ FROM python:3.7-stretch
 ENV DEBIAN_FRONTEND noninteractive
 MAINTAINER mikulas.bankovic27@gmail.com
 
-RUN apt-get update && apt-get install -y sudo git
+RUN apt-get update && apt-get install -y python \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN yes | apt-get install libspatialindex-dev libxml2-dev libxslt-dev python-dev
 
