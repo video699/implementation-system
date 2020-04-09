@@ -55,7 +55,7 @@ setup(
         'Keras~=2.2.4',
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
-        'numpy~=1.16.6',
+        'numpy~=1.18.2',
         'opencv-python~=4.1.2',
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',

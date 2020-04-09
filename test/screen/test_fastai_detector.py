@@ -22,7 +22,9 @@ class TestFastAIScreenDetector(unittest.TestCase):
     def setUp(self) -> None:
         self.detector = FastAIScreenDetector(
             filtered_by=lambda name: 'frame002000' in str(name),
-            train_params={'unfrozen_epochs': 1, 'frozen_epochs': 1})
+            train_params={'unfrozen_epochs': 1, 'frozen_epochs': 1, 'resize_factor': 8},
+            progressbar=False
+            )
         self.test_frame = list(ALL_VIDEOS.pop())[0]
 
     def test_init(self):
@@ -48,7 +50,7 @@ class TestFastAIScreenDetector(unittest.TestCase):
         self.assertSetEqual(set(self.detector.train_params.keys()), all_train_params)
 
     def test_init_params_custom(self):
-        self.detector = FastAIScreenDetector(train_params={'batch_size': 4})
+        self.detector = FastAIScreenDetector(train_params={'batch_size': 4}, progressbar=False)
         all_params = {'base', 'base_lower_bound', 'base_upper_bound', 'base_factors', 'erode_dilate',
                       'erode_dilate_lower_bound', 'erode_dilate_upper_bound', 'erode_dilate_factors',
                       'erode_dilate_iterations', 'ratio_split', 'ratio_split_lower_bound', 'ratio_split_upper_bound'}

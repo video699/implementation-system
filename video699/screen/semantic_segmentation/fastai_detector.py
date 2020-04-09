@@ -75,7 +75,7 @@ class FastAIScreenDetectorVideoScreen(ScreenABC):
 class FastAIScreenDetector(ScreenDetectorABC):
     def __init__(self, model_path=DEFAULT_MODEL_PATH, labels_path=DEFAULT_LABELS_PATH,
                  videos_path=DEFAULT_VIDEO_PATH, methods=None, train_params=None, filtered_by: Callable = None,
-                 valid_func: Callable = None, device=None, progressbar=False):
+                 valid_func: Callable = None, device=None, progressbar=True):
 
         # CPU vs GPU
         if not device:
@@ -247,3 +247,4 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         LOGGER.info("Creating unet-learner with resnet18 backbone.")
         self.learner = unet_learner(data, models.resnet18, metrics=[acc, dice, iou])
+
