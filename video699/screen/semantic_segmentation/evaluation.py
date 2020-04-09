@@ -97,12 +97,7 @@ def legend_without_duplicate_labels(ax):
     ax.legend(*zip(*unique))
 
 
-def single_frame_visualization(frame, actual_detector, pred_detector):
-    actual_screens = sorted(actual_detector.detect(frame),
-                            key=lambda screen: screen.coordinates.top_left[0])
-    pred_screens = sorted(pred_detector.detect(frame),
-                          key=lambda screen: screen.coordinates.top_left[0])
-
+def single_frame_visualization(frame, actual_screens, pred_screens):
     fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(20, 4), sharex='row', sharey='row')
     fig.tight_layout()
     for screen in actual_screens:
@@ -123,8 +118,3 @@ def single_frame_visualization(frame, actual_detector, pred_detector):
     axes[3].set_title("Original")
     axes[3].imshow(frame.image)
     plt.show()
-
-
-def all_frames_visualization(frames, actual_detector, pred_detector):
-    for frame in frames:
-        single_frame_visualization(frame, actual_detector, pred_detector)
