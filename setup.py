@@ -22,7 +22,7 @@ setup(
         ],
         'video699.event': [
             'siamese/pretrained/classification_model.h5',
-            'siamese/pretrained/training_moments.npz',
+            'siamese/pretrained/training_moments.pkl',
             'siamese/pretrained/training_history.pkl',
             'siamese/pretrained/format_version',
         ],
