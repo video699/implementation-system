@@ -90,6 +90,8 @@ class VideoFile(VideoABC, Iterator):
         The pathname of a video file.
     datetime : aware datetime
         The date, and time at which the video was captured.
+    verbose : bool, optional
+        Whether a progress bar will be shown during the reading of the video. False if unspecified.
 
     Attributes
     ----------
@@ -111,13 +113,10 @@ class VideoFile(VideoABC, Iterator):
         If the video file cannot be opened by OpenCV.
     """
 
-    def __init__(self, pathname, datetime):
+    def __init__(self, pathname, datetime, verbose=False):
         self._cap = cv.VideoCapture(pathname)
-        if not self._cap.isOpened():
-            raise OSError('Unable to open video file "{}"'.format(pathname))
-        self._is_finished = False
+        self._iterable = self._read_video(pathname, verbose)
         self._fps = self._cap.get(cv.CAP_PROP_FPS)
-        self._frame_number = 0
         self._width = int(self._cap.get(cv.CAP_PROP_FRAME_WIDTH))
         self._height = int(self._cap.get(cv.CAP_PROP_FRAME_HEIGHT))
         self._datetime = datetime
@@ -146,18 +145,27 @@ class VideoFile(VideoABC, Iterator):
     def __iter__(self):
         return self
 
+    def _read_video(self, pathname, verbose):
+        if not self._cap.isOpened():
+            raise OSError('Unable to open video file "{}"'.format(pathname))
+        frame_number = 0
+        while True:
+            duration = timedelta(milliseconds=self._cap.get(cv.CAP_PROP_POS_MSEC))
+            frame_number += 1
+            retval, bgr_frame_image = self._cap.read()
+            if not retval:
+                self._cap.release()
+                if verbose:
+                    print()
+                break
+            rgba_frame_image = cv.cvtColor(bgr_frame_image, cv.COLOR_BGR2RGBA)
+            yield VideoFileFrame(self, frame_number, duration, rgba_frame_image)
+            if verbose:
+                status = '\rReading {}: frame {}, time {}'.format(pathname, frame_number, timedelta)
+                print(status, end='')
+
     def __next__(self):
-        if self._is_finished:
-            raise StopIteration
-        duration = timedelta(milliseconds=self._cap.get(cv.CAP_PROP_POS_MSEC))
-        retval, bgr_frame_image = self._cap.read()
-        if not retval:
-            self._is_finished = True
-            self._cap.release()
-            raise StopIteration
-        rgba_frame_image = cv.cvtColor(bgr_frame_image, cv.COLOR_BGR2RGBA)
-        self._frame_number += 1
-        return VideoFileFrame(self, self._frame_number, duration, rgba_frame_image)
+        return next(self._iterable)
 
     def __del__(self):
         self._cap.release()
