@@ -1,4 +1,4 @@
 bootstrapped~=0.0.2
-flake8~=3.5.0
+flake8~=3.7.9
 Sphinx~=1.7.7
 sphinx-rtd-theme~=0.4.2
