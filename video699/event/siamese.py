@@ -679,7 +679,7 @@ class KerasSiamesePageDetector(PageDetectorABC):
         return detected_pages
 
 
-class RTreeDequeKerasSiamesePageDetector(ScreenEventDetectorABC):
+class RTreeDequeKerasSiameseEventDetector(ScreenEventDetectorABC):
     r"""A screen event detector that wraps :class:`KerasSiamesePageDetector` and serves as a facade.
 
     A :class:`ScreenEventDetector` is instantiated with the
