@@ -161,7 +161,7 @@ class VideoFile(VideoABC, Iterator):
             rgba_frame_image = cv.cvtColor(bgr_frame_image, cv.COLOR_BGR2RGBA)
             yield VideoFileFrame(self, frame_number, duration, rgba_frame_image)
             if verbose:
-                status = '\rReading {}: frame {}, time {}'.format(pathname, frame_number, timedelta)
+                status = '\rReading {}: frame {}, time {}'.format(pathname, frame_number, duration)
                 print(status, end='')
 
     def __next__(self):
