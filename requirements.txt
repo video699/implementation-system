@@ -10,6 +10,6 @@ pyxdg~=0.26
 Rtree~=0.8.3
 scipy~=1.1.0
 Shapely~=1.6.4.post2
-tensorflow~=1.13.0
+tensorflow~=1.15.0
 fastai~=1.0.60
 scikit-learn~=0.22.2.post1
