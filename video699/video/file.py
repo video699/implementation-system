@@ -166,7 +166,7 @@ class VideoFile(VideoABC, Iterator):
                 conversion_duration = last_frame_time - first_frame_time
                 try:
                     conversion_speed = (
-                        video_duration.total_seconds() / \
+                        video_duration.total_seconds() /
                         conversion_duration.total_seconds()
                     )
                 except ZeroDivisionError:

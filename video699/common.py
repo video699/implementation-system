@@ -4,8 +4,10 @@
 
 """
 
+import datetime
 from itertools import islice
 from math import ceil, floor, sqrt
+import re
 
 import numpy as np
 from scipy.stats import norm
@@ -179,7 +181,7 @@ def timedelta_as_xsd_duration(timedelta):
 
     Returns
     -------
-    duration : duration
+    duration : str
         A string that satisfies the XML Schema duration datatype.
     """
 
@@ -189,6 +191,29 @@ def timedelta_as_xsd_duration(timedelta):
         microseconds=timedelta.microseconds,
     )
     return duration
+
+
+def xsd_duration_as_timedelta(duration):
+    """Deerializes a timedelta object as a string that satisfies the XML Schema duration datatype.
+
+    Parameters
+    ----------
+    duration : str
+        A string that satisfies the XML Schema duration datatype.
+
+    Returns
+    -------
+    timedelta : timedelta
+        A timedelta object.
+    """
+
+    days, seconds, microseconds = re.fullmatch(r'P(.*)DT(.*)\.(.*)S', duration).groups()
+    timedelta = datetime.timedelta(
+        days=int(days),
+        seconds=int(seconds),
+        microseconds=int(microseconds),
+    )
+    return timedelta
 
 
 def benjamini_hochberg(p_values):
