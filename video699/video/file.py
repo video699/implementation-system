@@ -5,7 +5,7 @@
 """
 
 from collections.abc import Iterator
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import cv2 as cv
@@ -149,8 +149,9 @@ class VideoFile(VideoABC, Iterator):
         if not self._cap.isOpened():
             raise OSError('Unable to open video file "{}"'.format(pathname))
         frame_number = 0
+        first_frame_time = datetime.now()
         while True:
-            duration = timedelta(milliseconds=self._cap.get(cv.CAP_PROP_POS_MSEC))
+            video_duration = timedelta(milliseconds=self._cap.get(cv.CAP_PROP_POS_MSEC))
             frame_number += 1
             retval, bgr_frame_image = self._cap.read()
             if not retval:
@@ -159,9 +160,23 @@ class VideoFile(VideoABC, Iterator):
                     print()
                 break
             rgba_frame_image = cv.cvtColor(bgr_frame_image, cv.COLOR_BGR2RGBA)
-            yield VideoFileFrame(self, frame_number, duration, rgba_frame_image)
+            yield VideoFileFrame(self, frame_number, video_duration, rgba_frame_image)
             if verbose:
-                status = '\rReading {}: frame {}, time {}'.format(pathname, frame_number, duration)
+                last_frame_time = datetime.now()
+                conversion_duration = last_frame_time - first_frame_time
+                try:
+                    conversion_speed = (
+                        video_duration.total_seconds() / \
+                        conversion_duration.total_seconds()
+                    )
+                except ZeroDivisionError:
+                    conversion_speed = 0
+                status = '\rReading {}: frame {}, time {}, speed {:.2f}x'.format(
+                    pathname,
+                    frame_number,
+                    video_duration,
+                    conversion_speed,
+                )
                 print(status, end='')
 
     def __next__(self):
