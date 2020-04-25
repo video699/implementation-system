@@ -50,11 +50,13 @@ setup(
     },
     install_requires=[
         'annoy~=1.13.0',
+        'ImageHash~=4.0',
         'Keras~=2.2.4',
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
         'numpy~=1.16.0',
         'opencv-python~=3.4.2',
+        'Pillow~=7.0.0',
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',
         'pyxdg~=0.26',
