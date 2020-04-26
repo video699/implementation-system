@@ -11,6 +11,7 @@ setup(
         'video699',
         'video699.document',
         'video699.event',
+        'video699.page',
         'video699.frame',
         'video699.quadrangle',
         'video699.screen',
@@ -20,7 +21,7 @@ setup(
         'video699': [
             'configuration/default.ini',
         ],
-        'video699.event': [
+        'video699.page': [
             'siamese/pretrained/classification_model.h5',
             'siamese/pretrained/training_moments.pkl',
             'siamese/pretrained/training_history.pkl',
@@ -51,7 +52,7 @@ setup(
     install_requires=[
         'annoy~=1.13.0',
         'ImageHash~=4.0',
-        'Keras~=2.2.4',
+        'Keras~=2.3.1',
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
         'numpy~=1.16.0',
@@ -61,9 +62,9 @@ setup(
         'python-dateutil~=2.7.3',
         'pyxdg~=0.26',
         'Rtree~=0.8.3',
-        'scipy~=1.1.0',
+        'scipy~=1.4.1',
         'Shapely~=1.6.4.post2',
-        'tensorflow~=1.15.0',
+        'tensorflow~=2.1.0',
     ],
     long_description=long_description,
     classifiers=[
