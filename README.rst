@@ -69,18 +69,11 @@ you may need to perform extra steps. Consult the documentation of the
 Installing
 ~~~~~~~~~~
 
-To install the development version of the package, first clone the Git
-repository, and the Git submodules inside it:
+To install the development version of the package, use Pip:
 
 ::
 
-   $ git clone --recurse-submodules https://github.com/video699/implementation-system.git
-
-Next, install the package using Pip:
-
-::
-
-   $ pip install .
+   $ pip install git+https://github.com/video699/implementation-system.git@master
 
 If you wish to use the GPU to accelerate tensor operations in the
 ``video699.event.siamese`` module, consult the documentation of the

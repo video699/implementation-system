@@ -913,7 +913,8 @@ class PageDetectorABC(ABC):
 
     """
 
-    def detect(self, appeared_screens, existing_screens, disappeared_screens):
+    @abstractmethod
+    def detect(self, frame, appeared_screens, existing_screens, disappeared_screens):
         """Detects document pages in projection screens from a current video frame.
 
         Parameters
@@ -937,6 +938,7 @@ class PageDetectorABC(ABC):
             page detected in a projection screen. If no page was detected in a screen, then the
             screen maps to ``None``.
         """
+        pass
 
     def __repr__(self):
         return '<{classname}>'.format(
