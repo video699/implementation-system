@@ -75,12 +75,13 @@ class FastAIScreenDetectorVideoScreen(ScreenABC):
 class FastAIScreenDetector(ScreenDetectorABC):
     def __init__(self, model_path=DEFAULT_MODEL_PATH, labels_path=DEFAULT_LABELS_PATH,
                  videos_path=DEFAULT_VIDEO_PATH, methods=None, train_params=None, filtered_by: Callable = None,
-                 valid_func: Callable = None, device=None, progressbar=True):
+                 valid_func: Callable = None, device=None, progressbar=True, train_by_default=False):
 
         # CPU vs GPU
         if not device:
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
         defaults.device = torch.device(device)
+
         self.progressbar = progressbar
         self.model_path = model_path
         self.labels_path = labels_path
@@ -98,6 +99,13 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         self.learner = None
         self.is_fitted = False
+        if train_by_default:
+            try:
+                self.load(self.model_path)
+            except Exception:
+                LOGGER.info(f"Cannot lode model from {self.model_path}")
+            if self.is_fitted:
+                self.train()
 
     def init_params(self):
         if not self.methods:
