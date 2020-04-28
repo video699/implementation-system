@@ -103,3 +103,6 @@ tags
 
 # Website links
 docs/notebooks/*.url
+
+# IDE PyCharm
+.idea/
