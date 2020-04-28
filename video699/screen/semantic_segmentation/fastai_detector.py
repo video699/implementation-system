@@ -104,7 +104,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
                 self.load(self.model_path)
             except Exception:
                 LOGGER.info(f"Cannot lode model from {self.model_path}")
-            if self.is_fitted:
+            if not self.is_fitted:
                 self.train()
 
     def init_params(self):
