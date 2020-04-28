@@ -99,6 +99,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         self.learner = None
         self.is_fitted = False
+        create_labels(videos=ALL_VIDEOS, labels_path=self.labels_path)
+        self.init_model()
         if train_by_default:
             try:
                 self.load(self.model_path)
@@ -125,8 +127,6 @@ class FastAIScreenDetector(ScreenDetectorABC):
             self.train_params.update(extra_params)
 
     def train(self):
-        create_labels(videos=ALL_VIDEOS, labels_path=self.labels_path)
-        self.init_model()
         frozen_epochs = self.train_params['frozen_epochs']
         unfrozen_epochs = self.train_params['unfrozen_epochs']
         frozen_lr = self.train_params['frozen_lr']
