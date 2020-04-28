@@ -230,8 +230,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
     def init_model(self):
         size = self.src_shape // self.train_params['resize_factor']
-        tfms = get_transforms(do_flip=True, flip_vert=True, max_rotate=10.0,
-                              max_zoom=1.3, max_lighting=0.4, max_warp=1,
+        tfms = get_transforms(do_flip=True, flip_vert=False, max_rotate=10.0,
+                              max_zoom=1.0, max_lighting=0.4, max_warp=1,
                               p_affine=0, p_lighting=0.75)
 
         get_label = partial(get_label_from_image_name, self.labels_path)
