@@ -67,6 +67,7 @@ def _video(args):
 
     uri = args.video
     from .video.file import VideoFile
+    from .video.scene import FrameImageDistanceSceneDetector
     date = args.date
     if date is None:
         raise ValueError('Video requires capture date')
@@ -75,6 +76,7 @@ def _video(args):
         datetime=parse(date),
         verbose=True,
     )
+    video = FrameImageDistanceSceneDetector(video)
     assert isinstance(video, VideoABC)
     return video
 
