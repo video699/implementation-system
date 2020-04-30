@@ -30,8 +30,8 @@ def tensor_to_cv_binary_image(tensor):
     return np.squeeze(np.transpose(tensor[1].numpy(), (1, 2, 0))).astype('uint8')
 
 
-def resize_pred(pred, new_size):
-    predicted_resized = cv2.resize(pred, dsize=new_size)
+def resize_pred(pred, width, height):
+    predicted_resized = cv2.resize(pred, dsize=(width, height))
     return predicted_resized
 
 

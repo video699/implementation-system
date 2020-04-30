@@ -161,7 +161,8 @@ class FastAIScreenDetector(ScreenDetectorABC):
         tensor = cv_image_to_tensor(frame.image)
         tensor = self.learner.predict(tensor)
         pred = tensor_to_cv_binary_image(tensor)
-        resized = resize_pred(pred, tuple(self.src_shape))
+        height, width = tuple(self.src_shape)
+        resized = resize_pred(pred, width, height)
         return resized
 
     def post_processing(self, pred, frame, methods):
