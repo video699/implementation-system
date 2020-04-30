@@ -95,7 +95,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         self.init_params()
 
         self.src_shape = np.array(
-            [CONFIGURATION.getint('image_width'), CONFIGURATION.getint('image_height')])
+            [CONFIGURATION.getint('image_height'), CONFIGURATION.getint('image_width')])
 
         self.learner = None
         self.is_fitted = False
