@@ -18,7 +18,7 @@ from .event.screen import ScreenEventDetectorABC
 
 QUADRANGLE_TRACKER_NAMES = ['rtree_deque']
 SCREEN_DETECTOR_NAMES = ['fastai', 'annotated']
-PAGE_DETECTOR_NAMES = ['pearson', 'siamese', 'feature', 'imagehash', 'nasnet', 'annotated']
+PAGE_DETECTOR_NAMES = ['pearson', 'siamese', 'feature', 'imagehash', 'vgg16', 'annotated']
 
 
 def _documents(args):
@@ -195,9 +195,9 @@ def _page_detector(args):
     elif name == 'imagehash':
         from video699.page.imagehash import ImageHashPageDetector
         page_detector = ImageHashPageDetector(_documents(args))
-    elif name == 'nasnet':
-        from video699.page.nasnet import KerasNASNetPageDetector
-        page_detector = KerasNASNetPageDetector(_documents(args))
+    elif name == 'vgg16':
+        from video699.page.vgg16 import KerasVGG16PageDetector
+        page_detector = KerasVGG16PageDetector(_documents(args))
     elif name == 'annotated':  # FIXME
         page_detector = AnnotatedPageDetector(_documents(args))
     assert isinstance(page_detector, PageDetectorABC)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-r"""This module implements a screen event detector that matches last hidden NASNet layer activations
-for document page image data with last hidden NASNet layer activations for projection screen image
+r"""This module implements a screen event detector that matches last hidden VGG16 layer activations
+for document page image data with last hidden VGG16 layer activations for projection screen image
 data. Related classes and functions are also implemented.
 
 """
@@ -12,7 +12,7 @@ from logging import getLogger
 
 from annoy import AnnoyIndex
 import cv2 as cv
-from keras.applications.nasnet import NASNetLarge, preprocess_input
+from keras.applications.vgg16 import VGG16, preprocess_input
 import numpy as np
 
 from ..common import get_batches
@@ -21,20 +21,20 @@ from ..interface import PageDetectorABC
 
 
 LOGGER = getLogger(__name__)
-CONFIGURATION = get_configuration()['NASNetPageDetector']
-NASNET_INPUT_SIZE = 331
-NASNET_OUTPUT_SIZE = 4032
-NASNET_MODEL = NASNetLarge(
+CONFIGURATION = get_configuration()['VGG16PageDetector']
+VGG16_INPUT_SIZE = 224
+VGG16_OUTPUT_SIZE = 25088
+VGG16_MODEL = VGG16(
     include_top=False,
     weights='imagenet',
     input_tensor=None,
-    input_shape=(NASNET_INPUT_SIZE, NASNET_INPUT_SIZE, 3),
-    pooling='max',
+    input_shape=(VGG16_INPUT_SIZE, VGG16_INPUT_SIZE, 3),
+    pooling=None,
 )
 
 
 def _last_hidden_vgg16_layer(images):
-    r"""Produces the last hidden NASNet layer activations for images.
+    r"""Produces the last hidden VGG16 layer activations for images.
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def _last_hidden_vgg16_layer(images):
     Returns
     -------
     activations : iterable of array_like
-        The last hidden NASNet layer activations for the images.
+        The last hidden VGG16 layer activations for the images.
     """
 
     batch_size = CONFIGURATION.getint('batch_size')
@@ -53,25 +53,24 @@ def _last_hidden_vgg16_layer(images):
         image_batch_rgb = preprocess_input(
             np.array([
                 cv.cvtColor(
-                    image.render(NASNET_INPUT_SIZE, NASNET_INPUT_SIZE),
+                    image.render(VGG16_INPUT_SIZE, VGG16_INPUT_SIZE),
                     cv.COLOR_BGRA2RGB,
                 )
                 for image in image_batch
             ], dtype=np.float32)
         )
-        activation_batch = NASNET_MODEL.predict([image_batch_rgb]).reshape(-1, NASNET_OUTPUT_SIZE)
+        activation_batch = VGG16_MODEL.predict([image_batch_rgb]).reshape(-1, VGG16_OUTPUT_SIZE)
         for activations in activation_batch:
             yield activations
 
 
-class KerasNASNetPageDetector(PageDetectorABC):
-    r"""A page detector using approximate nearest neighbor search of last NASNet layer activations.
+class KerasVGG16PageDetector(PageDetectorABC):
+    r"""A page detector using approximate nearest neighbor search of last VGG16 layer activations.
 
-    The NASNet model is based on the paper by Zoph et al. [Zoph18]_.
+    The VGG16 model is based on the paper by Simonyan and Zisserman [Simoyan15]_.
 
-    .. [Zoph18]. Zoph, Barret and Vasudevan, Vijay and Shlens, Jonathon and Le, Quoc V. "Learning
-    Transferable Architectures for Scalable Image Recognition." *arXiv*. 2018.
-    `URL <https://arxiv.org/abs/1707.07012>`_
+    .. [Simoyan15]. Simoyan, Karen and Zisserman, Andrew. "Very Deep Convolutional Networks for
+    Large-Scale Image Recognition." *arXiv*. 2015. `URL <https://arxiv.org/abs/1409.1556>`_
 
     Parameters
     ----------
@@ -83,7 +82,7 @@ class KerasNASNetPageDetector(PageDetectorABC):
         annoy_n_trees = CONFIGURATION.getint('annoy_n_trees')
         annoy_distance_metric = CONFIGURATION['distance_metric']
         LOGGER.debug('Building an ANNOY index with {} trees'.format(annoy_n_trees))
-        annoy_index = AnnoyIndex(NASNET_OUTPUT_SIZE, metric=annoy_distance_metric)
+        annoy_index = AnnoyIndex(VGG16_OUTPUT_SIZE, metric=annoy_distance_metric)
         pages = dict()
         for page_index, (page, page_activations) in enumerate(
                     zip(
