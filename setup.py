@@ -11,6 +11,7 @@ setup(
         'video699',
         'video699.document',
         'video699.event',
+        'video699.page',
         'video699.frame',
         'video699.quadrangle',
         'video699.screen',
@@ -22,7 +23,7 @@ setup(
         'video699': [
             'configuration/default.ini',
         ],
-        'video699.event': [
+        'video699.page': [
             'siamese/pretrained/classification_model.h5',
             'siamese/pretrained/training_moments.pkl',
             'siamese/pretrained/training_history.pkl',
@@ -63,9 +64,9 @@ setup(
         'python-dateutil~=2.7.3',
         'pyxdg~=0.26',
         'Rtree~=0.8.3',
-        'scipy~=1.1.0',
+        'scipy~=1.4.1',
         'Shapely~=1.6.4.post2',
-        'tensorflow~=1.15.0',
+        'tensorflow~=2.1.0',
         'fastai~=1.0.60',
         'scikit-learn~=0.22.2.post1',
     ],

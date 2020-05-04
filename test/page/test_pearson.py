@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from video699.event.pearson import RollingPearsonR
+from video699.page.pearson import RollingPearsonR
 
 
 class TestRollingPearsonR(unittest.TestCase):

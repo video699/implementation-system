@@ -18,8 +18,6 @@ from scipy.special import stdtr
 from ..common import COLOR_RGBA_TRANSPARENT, benjamini_hochberg
 from ..configuration import get_configuration
 from ..interface import PageDetectorABC
-from .screen import ScreenEventDetector, ScreenEventDetectorABC
-from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
 CONFIGURATION = get_configuration()['RollingPearsonPageDetector']
@@ -439,45 +437,3 @@ class RollingPearsonPageDetector(PageDetectorABC):
             detected_pages[screen] = detected_page
 
         return detected_pages
-
-
-class RTreeDequeRollingPearsonEventDetector(ScreenEventDetectorABC):
-    r"""A screen event detector that wraps :class:`ScreenEventDetector` and serves as a facade.
-
-    A :class:`ScreenEventDetector` is instantiated with the
-    :class:`RTreeDequeConvexQuadrangleTracker` convex quadrangle tracker and the
-    :class:`RollingPearsonPageDetector` page detector. The window size for the page detector is
-    taken from the configuration.
-
-    Parameters
-    ----------
-    video : VideoABC
-        The video in which the events are detected.
-    screen_detector : ScreenDetectorABC
-        A screen detector that will be used to detect lit projection screens in video frames.
-    documents : set of DocumentABC
-        Documents whose pages are matched against detected lit projection screens.
-
-    Attributes
-    ----------
-    video : VideoABC
-        The video in which the events are detected.
-    """
-
-    def __init__(self, video, screen_detector, documents):
-        quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(2)
-        window_size = CONFIGURATION.getint('window_size')
-        page_detector = RollingPearsonPageDetector(documents, window_size)
-        self._event_detector = ScreenEventDetector(
-            video,
-            quadrangle_tracker,
-            screen_detector,
-            page_detector,
-        )
-
-    @property
-    def video(self):
-        return self._event_detector.video
-
-    def __iter__(self):
-        return iter(self._event_detector)

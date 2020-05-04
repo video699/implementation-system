@@ -29,8 +29,6 @@ from npstreams.stats import _ivar
 from ..common import get_batches
 from ..configuration import get_configuration
 from ..interface import PageDetectorABC
-from .screen import ScreenEventDetector, ScreenEventDetectorABC
-from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 from ..video.annotated import get_videos, AnnotatedSampledVideoScreenDetector
 
 
@@ -677,49 +675,3 @@ class KerasSiamesePageDetector(PageDetectorABC):
             detected_pages[screen] = closest_matching_page
 
         return detected_pages
-
-
-class RTreeDequeKerasSiameseEventDetector(ScreenEventDetectorABC):
-    r"""A screen event detector that wraps :class:`KerasSiamesePageDetector` and serves as a facade.
-
-    A :class:`ScreenEventDetector` is instantiated with the
-    :class:`RTreeDequeConvexQuadrangleTracker` convex quadrangle tracker and the
-    :class:`KerasSiamesePageDetector` page detector.
-
-    Parameters
-    ----------
-    video : VideoABC
-        The video in which the events are detected.
-    screen_detector : ScreenDetectorABC
-        A screen detector that will be used to detect lit projection screens in video frames.
-    documents : set of DocumentABC
-        Documents whose pages are matched against detected lit projection screens.
-    training_videos : set of AnnotatedSampledVideo or None, optional
-        The human-annotated videos that will be used to train the :class:`KerasSiamesePageDetector`
-        page detector. When ``None`` or unspecified, all human-annotated videos will be used.
-
-    Attributes
-    ----------
-    video : VideoABC
-        The video in which the events are detected.
-    """
-
-    def __init__(self, video, screen_detector, documents, training_videos=None):
-        if training_videos is None:
-            training_videos = ALL_VIDEOS
-
-        quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(2)
-        page_detector = KerasSiamesePageDetector(documents, training_videos)
-        self._event_detector = ScreenEventDetector(
-            video,
-            quadrangle_tracker,
-            screen_detector,
-            page_detector,
-        )
-
-    @property
-    def video(self):
-        return self._event_detector.video
-
-    def __iter__(self):
-        return iter(self._event_detector)
