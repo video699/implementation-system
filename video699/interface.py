@@ -538,7 +538,6 @@ class ConvexQuadrangleIndexABC(MutableSet):
         return len(self.quadrangles)
 
 
-@total_ordering
 class MovingConvexQuadrangleABC(ABC, Iterable):
     """An abstract convex quadrangle that moves in time.
 
@@ -591,19 +590,6 @@ class MovingConvexQuadrangleABC(ABC, Iterable):
             earliest time frame.
         """
         pass
-
-    def __hash__(self):
-        return hash(self.current_quadrangle)
-
-    def __eq__(self, other):
-        if isinstance(other, MovingConvexQuadrangleABC):
-            return self.current_quadrangle == other.current_quadrangle
-        return NotImplemented
-
-    def __lt__(self, other):
-        if isinstance(other, MovingConvexQuadrangleABC):
-            return self.current_quadrangle < other.current_quadrangle
-        return NotImplemented
 
     def __repr__(self):
         return '<{classname}, {current_quadrangle}>'.format(
@@ -893,12 +879,12 @@ class PageABC(ImageABC):
 
     def __eq__(self, other):
         if isinstance(other, PageABC):
-            return (self.document, self.number) == (self.document, other.number)
+            return (self.document, self.number) == (other.document, other.number)
         return NotImplemented
 
     def __lt__(self, other):
         if isinstance(other, PageABC):
-            return (self.document, self.number) < (self.document, other.number)
+            return (self.document, self.number) < (other.document, other.number)
         return NotImplemented
 
     def __repr__(self):

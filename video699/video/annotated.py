@@ -31,6 +31,7 @@ from ..interface import (
     DocumentABC,
     FrameABC,
     PageABC,
+    PageDetectorABC,
     ScreenABC,
     ScreenDetectorABC,
     VideoABC,
@@ -848,6 +849,25 @@ class AnnotatedSampledVideoScreen(ScreenABC):
         return full_matches, incremental_matches, closest_matches
 
 
+class AnnotatedSampledVideoPageDetector(PageDetectorABC):
+    """A page detector that maps video screen to closest matching page using XML human annotations.
+    """
+
+    def __init__(self):
+        pass
+
+    def detect(self, frame, appeared_screens, existing_screens, disappeared_screens):
+        detected_pages = {}
+        for screen, _ in chain(appeared_screens, existing_screens):
+            full_matches, incremental_matches, closest_matches = screen.matching_pages()
+            try:
+                detected_page = next(iter(closest_matches))
+            except StopIteration:
+                detected_page = None
+            detected_pages[screen] = detected_page
+        return detected_pages
+
+
 class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
     """A screen detector that maps an annotated video frame to screens using XML human annotations.
 
@@ -875,18 +895,6 @@ class AnnotatedSampledVideoScreenDetector(ScreenDetectorABC):
         self._beyond_bounds = beyond_bounds
 
     def detect(self, frame):
-        """Converts an annotated frame to screens using human annotations.
-
-        Parameters
-        ----------
-        frame : FrameABC
-            A frame of a video.
-
-        Returns
-        -------
-        screens : iterable of AnnotatedSampledVideoScreen
-            An iterable of detected lit projection screens.
-        """
         if isinstance(frame, AnnotatedSampledVideoFrame):
             conditions = self._conditions
             beyond_bounds = self._beyond_bounds
@@ -903,16 +911,16 @@ def evaluate_event_detector(annotated_video, event_detector):
     A video file is processed using a screen event detector. When an annotated video frame is
     encountered, a trial takes place.  A trial is successful if and only if:
 
-    1. the set of pages detected by the screen event detector is a superset of the set of pages that
-       match the pristine screens the closest according to the human annotations and
+    1. the intersection of detected pages and the pages that match a pristine screen is non-empty
+       for all pristine screens with matching pages, and
     2. the number of additional detected pages is less than or equal to the number of pages that
        match the non-pristine screens the closest according to the human annotations.
 
     Parameters
     ----------
-    AnnotatedSampledVideo
+    annotated_video : AnnotatedSampledVideo
         An annotated video file.
-    ScreenEventDetectorABC
+    event_detector : ScreenEventDetectorABC
         The screen event detector.
 
     Returns
@@ -947,13 +955,16 @@ def evaluate_event_detector(annotated_video, event_detector):
             pristine_screens = pristine_screen_detector.detect(frame)
             nonpristine_screens = nonpristine_screen_detector.detect(frame)
             pristine_matching_pages = set()
+            detected_pages_match_every_screen = True
             for screen in pristine_screens:
                 full_matches, incremental_matches, closest_matches = screen.matching_pages()
-                pristine_matching_pages |= set(closest_matches)
-            pristine_matching_pages_were_detected = not (pristine_matching_pages - detected_pages)
+                closest_matches = set(closest_matches)
+                if closest_matches and not (detected_pages & closest_matches):
+                    detected_pages_match_every_screen = False
+                pristine_matching_pages |= closest_matches
             detected_nonmatching_pages = detected_pages - pristine_matching_pages
 
-            if pristine_matching_pages_were_detected \
+            if detected_pages_match_every_screen \
                     and len(detected_nonmatching_pages) <= len(nonpristine_screens):
                 LOGGER.info('Successful trial of {} at {}, detected pages: {}'.format(
                     event_detector,
