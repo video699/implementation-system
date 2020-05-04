@@ -6,7 +6,7 @@ from video699.screen.semantic_segmentation.common import create_labels
 
 from video699.interface import ScreenDetectorABC
 from video699.screen.semantic_segmentation.fastai_detector import FastAIScreenDetector, ALL_VIDEOS, \
-    DEFAULT_LABELS_PATH
+    DEFAULT_LABELS_PATH, VIDEOS_ROOT
 import numpy as np
 
 
@@ -23,8 +23,10 @@ class TestFastAIScreenDetector(unittest.TestCase):
         self.detector = FastAIScreenDetector(
             filtered_by=lambda name: 'frame002000' in str(name),
             train_params={'unfrozen_epochs': 1, 'frozen_epochs': 1, 'resize_factor': 8},
-            progressbar=False
-            )
+            progressbar=False,
+            train_by_default=False,
+            model_path=VIDEOS_ROOT.parent / 'test' / 'screen' / 'test_model' / 'model.plk',
+        )
         self.test_frame = list(ALL_VIDEOS.pop())[0]
 
     def test_init(self):
@@ -32,7 +34,6 @@ class TestFastAIScreenDetector(unittest.TestCase):
         self.assertIsInstance(self.detector.model_path, Path)
         self.assertIsInstance(self.detector.labels_path, Path)
         self.assertIsInstance(self.detector.videos_path, Path)
-        self.assertTrue(self.detector.model_path.parent.exists())
         self.assertTrue(self.detector.labels_path.exists())
         self.assertTrue(self.detector.videos_path.exists())
 
@@ -50,7 +51,7 @@ class TestFastAIScreenDetector(unittest.TestCase):
         self.assertSetEqual(set(self.detector.train_params.keys()), all_train_params)
 
     def test_init_params_custom(self):
-        self.detector = FastAIScreenDetector(train_params={'batch_size': 4}, progressbar=False)
+        self.detector = FastAIScreenDetector(train_params={'batch_size': 4}, progressbar=False, train_by_default=False)
         all_params = {'base', 'base_lower_bound', 'base_upper_bound', 'base_factors', 'erode_dilate',
                       'erode_dilate_lower_bound', 'erode_dilate_upper_bound', 'erode_dilate_factors',
                       'erode_dilate_iterations', 'ratio_split', 'ratio_split_lower_bound', 'ratio_split_upper_bound'}
@@ -67,6 +68,7 @@ class TestFastAIScreenDetector(unittest.TestCase):
         before_save = self.detector.semantic_segmentation(self.test_frame)
         self.detector.save()
         self.detector.load()
+        self.detector.delete()
         after_save = self.detector.semantic_segmentation(self.test_frame)
         self.assertTrue(np.allclose(before_save, after_save, rtol=1e-05, atol=1e-08))
 

@@ -54,7 +54,7 @@ setup(
     install_requires=[
         'annoy~=1.13.0',
         'ImageHash~=4.0',
-        'Keras~=2.2.4',
+        'Keras~=2.3.1',
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
         'numpy~=1.18.2',
@@ -68,7 +68,6 @@ setup(
         'Shapely~=1.6.4.post2',
         'tensorflow~=2.1.0',
         'fastai~=1.0.60',
-        'scikit-learn~=0.22.2.post1',
     ],
     extras_require={
         'tests': [

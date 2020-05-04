@@ -75,7 +75,7 @@ class FastAIScreenDetectorVideoScreen(ScreenABC):
 class FastAIScreenDetector(ScreenDetectorABC):
     def __init__(self, model_path=DEFAULT_MODEL_PATH, labels_path=DEFAULT_LABELS_PATH,
                  videos_path=DEFAULT_VIDEO_PATH, methods=None, train_params=None, filtered_by: Callable = None,
-                 valid_func: Callable = None, device=None, progressbar=True, train_by_default=False):
+                 valid_func: Callable = None, device=None, progressbar=True, train_by_default=True):
 
         # CPU vs GPU
         if not device:
@@ -104,10 +104,11 @@ class FastAIScreenDetector(ScreenDetectorABC):
         if train_by_default:
             try:
                 self.load(self.model_path)
-            except Exception:
-                LOGGER.info(f"Cannot lode model from {self.model_path}")
+            except TypeError as ex:
+                LOGGER.info(f"Cannot load model from {self.model_path}. Training a new one.")
             if not self.is_fitted:
                 self.train()
+                self.save()
 
     def init_params(self):
         if not self.methods:
@@ -257,3 +258,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         LOGGER.info("Creating unet-learner with resnet18 backbone.")
         self.learner = unet_learner(data, models.resnet18, metrics=[acc, dice, iou])
+
+    def delete(self):
+        for file in os.listdir(self.model_path.parent):
+            os.remove(os.path.join(self.model_path.parent, file))

@@ -13,7 +13,7 @@ class TestPostprocessing(unittest.TestCase):
 
     def setUp(self) -> None:
         self.frame = list(list(ALL_VIDEOS)[0])[0]
-        self.detector = FastAIScreenDetector()
+        self.detector = FastAIScreenDetector(train_by_default=False)
         self.blank_image = np.zeros((576, 720))
         self.left_rectangle = np.array([[50, 50], [350, 50], [350, 300], [50, 300]])
         self.right_rectangle = np.array([[[360, 50], [700, 50], [700, 300], [360, 300]]])
