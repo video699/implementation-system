@@ -21,7 +21,7 @@ from ..interface import PageDetectorABC
 
 
 LOGGER = getLogger(__name__)
-CONFIGURATION = get_configuration()['VGG16PageDetector']
+CONFIGURATION = get_configuration()['KerasVGG16PageDetector']
 VGG16_INPUT_SIZE = 224
 VGG16_OUTPUT_SIZE = 25088
 VGG16_MODEL = VGG16(
@@ -100,8 +100,7 @@ class KerasVGG16PageDetector(PageDetectorABC):
     def detect(self, frame, appeared_screens, existing_screens, disappeared_screens):
         annoy_search_k = CONFIGURATION.getint('annoy_search_k')
         num_nearest_pages = CONFIGURATION.getint('num_nearest_pages')
-        # max_distance = CONFIGURATION.getfloat('max_distance')
-        max_distance = float('inf')
+        max_distance = CONFIGURATION.getfloat('max_distance')
 
         annoy_index = self._annoy_index
         pages = self._pages
