@@ -334,12 +334,10 @@ class RollingPearsonPageDetector(PageDetectorABC):
     ----------
     documents : set of DocumentABC
         Documents whose pages are matched against detected lit projection screens.
-    window_size : int
-        The maximum number of previous video frames that contribute to the random samples from
-        :math:`X`, and :math:`Y`.
     """
 
-    def __init__(self, documents, window_size):
+    def __init__(self, documents):
+        window_size = CONFIGURATION.getint('window_size')
         pages = list(chain(*documents))
         self._pages = pages
         self._window_size = window_size
@@ -362,8 +360,8 @@ class RollingPearsonPageDetector(PageDetectorABC):
         previous_frame = self._previous_frame
 
         if previous_frame is not None and frame.number != previous_frame.number + 1:
-            for rolling_pearson in rolling_pearsons:
-                rolling_pearson.clean()
+            for rolling_pearson in rolling_pearsons.values():
+                rolling_pearson.clear()
         previous_frame = frame
         self._previous_frame = previous_frame
 

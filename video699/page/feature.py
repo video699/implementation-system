@@ -158,13 +158,12 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
     ----------
     documents : set of DocumentABC
         The provided document pages.
-    window_size : int
-        The maximum number of previous video frames that participate in the voting.
     """
 
-    def __init__(self, documents, window_size):
+    def __init__(self, documents):
         annoy_n_trees = CONFIGURATION.getint('annoy_n_trees')
         distance_metric = CONFIGURATION['distance_metric']
+        window_size = CONFIGURATION.getint('window_size')
         min_page_vote_percentage = CONFIGURATION.getfloat('min_page_vote_percentage')
         num_features = CONFIGURATION.getint('num_features')
         num_nearest_features = CONFIGURATION.getint('num_nearest_features')
@@ -217,8 +216,8 @@ class LocalFeatureKNNPageDetector(PageDetectorABC):
         previous_frame = self._previous_frame
 
         if previous_frame is not None and frame.number != previous_frame.number + 1:
-            for rolling_mean in rolling_means:
-                rolling_mean.clean()
+            for rolling_mean in rolling_means.values():
+                rolling_mean.clear()
         previous_frame = frame
         self._previous_frame = previous_frame
 
