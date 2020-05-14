@@ -2,6 +2,7 @@ import unittest
 
 import cv2
 import numpy as np
+from matplotlib import pyplot as plt
 
 from video699.screen.semantic_segmentation.fastai_detector import ALL_VIDEOS, FastAIScreenDetector
 
@@ -11,26 +12,38 @@ class TestPostprocessing(unittest.TestCase):
     Tests the ability of the AnnotatedScreenVideo class to detect its dimensions and produce frames.
     """
 
+    @staticmethod
+    def visualize_np_array(array):
+        """
+        Use in PyCharm IDE or any IDE, that plt.show() by default. Use for debugging test that does not pass. While
+        inside breakpoint use evaluate expression and use `self.visualize_np_array(self.crossed_quadrangle)`
+        """
+        blank_image = np.zeros((576, 720))
+        image = cv2.fillConvexPoly(blank_image, array, color=1)
+        plt.imshow(image)
+        plt.show()
+
     def setUp(self) -> None:
         self.frame = list(list(ALL_VIDEOS)[0])[0]
         self.detector = FastAIScreenDetector(train_by_default=False)
         self.blank_image = np.zeros((576, 720))
+
         self.left_rectangle = np.array([[50, 50], [350, 50], [350, 300], [50, 300]])
         self.right_rectangle = np.array([[[360, 50], [700, 50], [700, 300], [360, 300]]])
         self.ratio_split_rectangle = np.array([[[50, 50], [700, 50], [700, 300], [50, 300]]])
         self.erode_dilate_connection = np.array([[[350, 180], [360, 180], [360, 200], [350, 200]]])
+        self.concave_quadrangle = np.array([[[50, 50], [300, 50], [150, 150], [50, 400]]])
+        self.crossed_quadrangle = np.array([[[50, 50], [500, 50], [50, 500], [500, 500]]])
         self.baseline_methods = {'base': True, 'erode_dilate': False, 'ratio_split': False,
-                                 'base_lower_bound': 7, 'base_upper_bound': 50,
-                                 'base_factors': [0.01, 0.1, 0.5, 1.0, 1.5]}
+                                 'base_lower_bound': 7, 'base_factors': [0.001, 0.01, 0.02, 0.05, 0.1, 0.5]}
 
         self.erode_dilate_methods = {'base': False, 'erode_dilate': True, 'ratio_split': False,
-                                     'erode_dilate_lower_bound': 7, 'erode_dilate_upper_bound': 50,
-                                     'erode_dilate_factors': [0.1, 0.01], 'erode_dilate_iterations': 40}
+                                     'erode_dilate_lower_bound': 7, 'erode_dilate_factors': [0.1, 0.01],
+                                     'erode_dilate_kernel_size': 40}
 
         self.ratio_split_methods = {'base': True, 'erode_dilate': False, 'ratio_split': True,
-                                    'base_lower_bound': 7, 'base_upper_bound': 50,
-                                    'base_factors': [0.01, 0.1, 0.5, 1.0, 1.5],
-                                    'ratio_split_lower_bound': 0.7, 'ratio_split_upper_bound': 1.5}
+                                    'base_lower_bound': 7, 'base_factors': [0.01, 0.1, 0.5, 1.0, 1.5],
+                                    'ratio_split_lower_bound': 0.7}
 
     def test_baseline_rectangles(self):
         screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, self.baseline_methods)
@@ -91,6 +104,18 @@ class TestPostprocessing(unittest.TestCase):
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
                                                 self.frame, self.ratio_split_methods)
         self.assertEqual(len(screens), 2)
+
+    def test_retrieved_quadrangle_contour_convexity(self):
+        cv2.fillConvexPoly(self.blank_image, self.concave_quadrangle, color=1)
+        screens = self.detector.post_processing(self.blank_image.astype('uint8'),
+                                                self.frame, self.baseline_methods)
+        self.assertEqual(len(screens), 0)
+
+    def test_crossed_quadrangle(self):
+        cv2.fillConvexPoly(self.blank_image, self.crossed_quadrangle, color=1)
+        screens = self.detector.post_processing(self.blank_image.astype('uint8'),
+                                                self.frame, self.baseline_methods)
+        self.assertEqual(len(screens), 0)
 
 
 if __name__ == '__main__':

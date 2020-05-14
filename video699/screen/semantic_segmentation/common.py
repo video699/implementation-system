@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+
+"""
+This module serves as common utility function storage for postprocessing and fastai_detector.
+"""
 import os
 from logging import getLogger
 from shutil import copyfile
@@ -9,14 +14,12 @@ import torch
 from fastai.metrics import dice
 from fastai.vision import Image
 
-from video699.quadrangle.geos import GEOSConvexQuadrangle
+from video699.configuration import get_configuration
 from video699.video.annotated import AnnotatedSampledVideoScreenDetector
 
 LOGGER = getLogger(__name__)
-
-
-def get_top_left_x(screen: GEOSConvexQuadrangle) -> int:
-    return screen.top_left[0]
+CONFIGURATION = get_configuration()['FastaiVideoScreenDetector']
+image_area = CONFIGURATION.getint('image_width') * CONFIGURATION.getint('image_height')
 
 
 def cv_image_to_tensor(image):
@@ -108,21 +111,18 @@ def parse_methods(config):
     try:
         if base:
             methods.update({'base_lower_bound': config.getint('base_lower_bound'),
-                            'base_upper_bound': config.getint('base_upper_bound'),
                             'base_factors': parse_factors(config['base_factors']),
                             })
 
         if erode_dilate:
             methods.update({'erode_dilate_lower_bound': config.getint('erode_dilate_lower_bound'),
-                            'erode_dilate_upper_bound': config.getint('erode_dilate_upper_bound'),
                             'erode_dilate_factors': parse_factors(config['erode_dilate_factors']),
-                            'erode_dilate_iterations': config.getint('erode_dilate_iterations'),
+                            'erode_dilate_kernel_size': config.getint('erode_dilate_kernel_size'),
                             })
 
         if ratio_split:
             methods.update(
                 {'ratio_split_lower_bound': config.getfloat('ratio_split_lower_bound'),
-                 'ratio_split_upper_bound': config.getfloat('ratio_split_upper_bound'),
                  })
 
     except KeyError as ex:
@@ -141,10 +141,43 @@ def acc(pred, actual):
     return (pred.argmax(dim=1) == actual).float().mean()
 
 
-def iou(pred, actual):
+def iou_sem_seg(pred, actual):
     return dice(pred, actual, iou=True)
 
 
 def get_label_from_image_name(labels_output_path, fname):
-    # TODO Try to do it through pathlib.Path (maybe all pathing should be created with it.
     return os.path.join(labels_output_path, os.path.join(*str(fname).split('/')[-2:]))
+
+
+def midpoint(pointA, pointB):
+    return (pointA[0] + pointB[0]) / 2, (pointA[1] + pointB[1]) / 2
+
+
+def get_coordinates(quadrangle):
+    squeezed = quadrangle.squeeze()
+    x = squeezed[:, 0]
+    y = squeezed[:, 1]
+    top_left = (x + y).argmin()
+    top_right = (max(y) - y + x).argmax()
+    bottom_left = (max(x) - x + y).argmax()
+    bottom_right = (x + y).argmax()
+    return {'top_left': squeezed[top_left],
+            'top_right': squeezed[top_right],
+            'bottom_right': squeezed[bottom_right],
+            'bottom_left': squeezed[bottom_left]}
+
+
+def draw_polygon(polygon, image):
+    copy = image.copy()
+    return cv2.fillConvexPoly(copy, polygon, 100)
+
+
+def iou(screenA, screenB):
+    intersection = screenA.coordinates.intersection_area(screenB.coordinates)
+    union = screenA.coordinates.union_area(screenB.coordinates)
+    return intersection / union
+
+
+def is_bigger_than_boundary(contour_area, lower_area_percentage):
+    contour_percentage = contour_area * 100 / image_area
+    return lower_area_percentage < contour_percentage

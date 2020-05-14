@@ -40,9 +40,9 @@ class TestFastAIScreenDetector(unittest.TestCase):
     def test_init_params(self):
         self.assertIsNotNone(self.detector.methods)
         self.assertIsInstance(self.detector.methods, dict)
-        all_params = {'base', 'base_lower_bound', 'base_upper_bound', 'base_factors', 'erode_dilate',
-                      'erode_dilate_lower_bound', 'erode_dilate_upper_bound', 'erode_dilate_factors',
-                      'erode_dilate_iterations', 'ratio_split', 'ratio_split_lower_bound', 'ratio_split_upper_bound'}
+        all_params = {'base', 'base_lower_bound', 'base_factors', 'erode_dilate',
+                      'erode_dilate_lower_bound', 'erode_dilate_factors',
+                      'erode_dilate_kernel_size', 'ratio_split', 'ratio_split_lower_bound'}
 
         self.assertSetEqual(set(self.detector.methods.keys()), all_params)
 
@@ -52,9 +52,9 @@ class TestFastAIScreenDetector(unittest.TestCase):
 
     def test_init_params_custom(self):
         self.detector = FastAIScreenDetector(train_params={'batch_size': 4}, progressbar=False, train_by_default=False)
-        all_params = {'base', 'base_lower_bound', 'base_upper_bound', 'base_factors', 'erode_dilate',
-                      'erode_dilate_lower_bound', 'erode_dilate_upper_bound', 'erode_dilate_factors',
-                      'erode_dilate_iterations', 'ratio_split', 'ratio_split_lower_bound', 'ratio_split_upper_bound'}
+        all_params = {'base', 'base_lower_bound', 'base_factors', 'erode_dilate',
+                      'erode_dilate_lower_bound', 'erode_dilate_factors',
+                      'erode_dilate_kernel_size', 'ratio_split', 'ratio_split_lower_bound'}
 
         self.assertSetEqual(set(self.detector.methods.keys()), all_params)
 

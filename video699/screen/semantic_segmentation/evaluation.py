@@ -1,7 +1,8 @@
 from tqdm import tqdm
-from video699.screen.semantic_segmentation.postprocessing import iou
 import numpy as np
 from matplotlib import pyplot as plt
+
+from video699.screen.semantic_segmentation.common import iou
 
 
 def all_video_statistics(videos, actual_detector):
