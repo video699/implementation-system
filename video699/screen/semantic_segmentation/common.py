@@ -18,7 +18,7 @@ from video699.configuration import get_configuration
 from video699.video.annotated import AnnotatedSampledVideoScreenDetector
 
 LOGGER = getLogger(__name__)
-CONFIGURATION = get_configuration()['FastaiVideoScreenDetector']
+CONFIGURATION = get_configuration()['FastAIScreenDetector']
 image_area = CONFIGURATION.getint('image_width') * CONFIGURATION.getint('image_height')
 
 
@@ -99,36 +99,45 @@ def parse_lr(lr_string):
     return lr
 
 
-def parse_methods(config):
+def parse_train_params(config):
+    train_params = {}
+    for param in ['batch_size', 'resize_factor', 'frozen_epochs',
+                  'unfrozen_epochs', 'frozen_lr', 'unfrozen_lr']:
+        train_params[param] = parse_lr(config[param]) if '_lr' in param else config.getint(param)
+    return train_params
+
+
+def parse_post_processing_params(config):
     base = config.getboolean('base')
-    erode_dilate = config.getboolean('erode_dilate')
+    erosion_dilation = config.getboolean('erosion_dilation')
     ratio_split = config.getboolean('ratio_split')
 
-    if not (base or erode_dilate or ratio_split):
+    if not (base or erosion_dilation or ratio_split):
         LOGGER.error("No valid arguments provided in default.ini")
 
-    methods = {'base': base, 'erode_dilate': erode_dilate, 'ratio_split': ratio_split}
+    post_processing_params = {'base': base, 'erosion_dilation': erosion_dilation, 'ratio_split': ratio_split}
     try:
         if base:
-            methods.update({'base_lower_bound': config.getint('base_lower_bound'),
-                            'base_factors': parse_factors(config['base_factors']),
-                            })
+            post_processing_params.update({'base_lower_bound': config.getint('base_lower_bound'),
+                                           'base_factors': parse_factors(config['base_factors']),
+                                           })
 
-        if erode_dilate:
-            methods.update({'erode_dilate_lower_bound': config.getint('erode_dilate_lower_bound'),
-                            'erode_dilate_factors': parse_factors(config['erode_dilate_factors']),
-                            'erode_dilate_kernel_size': config.getint('erode_dilate_kernel_size'),
-                            })
+        if erosion_dilation:
+            post_processing_params.update(
+                {'erosion_dilation_lower_bound': config.getint('erosion_dilation_lower_bound'),
+                 'erosion_dilation_factors': parse_factors(config['erosion_dilation_factors']),
+                 'erosion_dilation_kernel_size': config.getint('erosion_dilation_kernel_size'),
+                 })
 
         if ratio_split:
-            methods.update(
+            post_processing_params.update(
                 {'ratio_split_lower_bound': config.getfloat('ratio_split_lower_bound'),
                  })
 
     except KeyError as ex:
         LOGGER.error(f"{ex.__traceback__}")
         LOGGER.error(f"Required parameter does not exists in default.ini")
-    return methods
+    return post_processing_params
 
 
 class NotFittedException(Exception):

@@ -6,6 +6,10 @@ from matplotlib import pyplot as plt
 
 from video699.screen.semantic_segmentation.fastai_detector import ALL_VIDEOS, FastAIScreenDetector
 
+import warnings
+
+warnings.filterwarnings('ignore')
+
 
 class TestPostprocessing(unittest.TestCase):
     """
@@ -25,96 +29,96 @@ class TestPostprocessing(unittest.TestCase):
 
     def setUp(self) -> None:
         self.frame = list(list(ALL_VIDEOS)[0])[0]
-        self.detector = FastAIScreenDetector(train_by_default=False)
+        self.detector = FastAIScreenDetector(train=False)
         self.blank_image = np.zeros((576, 720))
 
         self.left_rectangle = np.array([[50, 50], [350, 50], [350, 300], [50, 300]])
         self.right_rectangle = np.array([[[360, 50], [700, 50], [700, 300], [360, 300]]])
         self.ratio_split_rectangle = np.array([[[50, 50], [700, 50], [700, 300], [50, 300]]])
-        self.erode_dilate_connection = np.array([[[350, 180], [360, 180], [360, 200], [350, 200]]])
+        self.erosion_dilation_connection = np.array([[[350, 180], [360, 180], [360, 200], [350, 200]]])
         self.concave_quadrangle = np.array([[[50, 50], [300, 50], [150, 150], [50, 400]]])
         self.crossed_quadrangle = np.array([[[50, 50], [500, 50], [50, 500], [500, 500]]])
-        self.baseline_methods = {'base': True, 'erode_dilate': False, 'ratio_split': False,
+        self.baseline_methods = {'base': True, 'erosion_dilation': False, 'ratio_split': False,
                                  'base_lower_bound': 7, 'base_factors': [0.001, 0.01, 0.02, 0.05, 0.1, 0.5]}
 
-        self.erode_dilate_methods = {'base': False, 'erode_dilate': True, 'ratio_split': False,
-                                     'erode_dilate_lower_bound': 7, 'erode_dilate_factors': [0.1, 0.01],
-                                     'erode_dilate_kernel_size': 40}
+        self.erosion_dilation_methods = {'base': False, 'erosion_dilation': True, 'ratio_split': False,
+                                         'erosion_dilation_lower_bound': 7, 'erosion_dilation_factors': [0.1, 0.01],
+                                         'erosion_dilation_kernel_size': 40}
 
-        self.ratio_split_methods = {'base': True, 'erode_dilate': False, 'ratio_split': True,
+        self.ratio_split_methods = {'base': True, 'erosion_dilation': False, 'ratio_split': True,
                                     'base_lower_bound': 7, 'base_factors': [0.01, 0.1, 0.5, 1.0, 1.5],
                                     'ratio_split_lower_bound': 0.7}
 
     def test_baseline_rectangles(self):
-        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, self.baseline_methods)
+        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, **self.baseline_methods)
         self.assertEqual(len(screens), 0)
 
         # Add left rectangle
         cv2.fillConvexPoly(self.blank_image, self.left_rectangle, color=1)
-        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, self.baseline_methods)
+        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, **self.baseline_methods)
         self.assertEqual(len(screens), 1)
 
         # Add right rectangle
         cv2.fillConvexPoly(self.blank_image, self.right_rectangle, color=1)
-        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, self.baseline_methods)
+        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, **self.baseline_methods)
         self.assertEqual(len(screens), 2)
 
     def test_baseline_rectangles_connected(self):
         cv2.fillConvexPoly(self.blank_image, self.left_rectangle, color=1)
         cv2.fillConvexPoly(self.blank_image, self.right_rectangle, color=1)
-        cv2.fillConvexPoly(self.blank_image, self.erode_dilate_connection, color=1)
+        cv2.fillConvexPoly(self.blank_image, self.erosion_dilation_connection, color=1)
 
-        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, self.baseline_methods)
+        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, **self.baseline_methods)
         self.assertEqual(len(screens), 1)
 
-    def test_erode_dilate_rectangles(self):
-        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, self.baseline_methods)
+    def test_erosion_dilation_rectangles(self):
+        screens = self.detector.post_processing(self.blank_image.astype('uint8'), self.frame, **self.baseline_methods)
         self.assertEqual(len(screens), 0)
 
         # Add left rectangle
         cv2.fillConvexPoly(self.blank_image, self.left_rectangle, color=1)
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
-                                                self.frame, self.erode_dilate_methods)
+                                                self.frame, **self.erosion_dilation_methods)
         self.assertEqual(len(screens), 1)
 
         # Add right rectangle
         cv2.fillConvexPoly(self.blank_image, self.right_rectangle, color=1)
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
-                                                self.frame, self.erode_dilate_methods)
+                                                self.frame, **self.erosion_dilation_methods)
         self.assertEqual(len(screens), 2)
 
-    def test_erode_dilate_rectangles_connected(self):
+    def test_erosion_dilation_rectangles_connected(self):
         cv2.fillConvexPoly(self.blank_image, self.left_rectangle, color=1)
         cv2.fillConvexPoly(self.blank_image, self.right_rectangle, color=1)
-        cv2.fillConvexPoly(self.blank_image, self.erode_dilate_connection, color=1)
+        cv2.fillConvexPoly(self.blank_image, self.erosion_dilation_connection, color=1)
 
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
-                                                self.frame, self.erode_dilate_methods)
+                                                self.frame, **self.erosion_dilation_methods)
         self.assertEqual(len(screens), 2)
 
     def test_ratio_split_rectangles_invalid_methods(self):
         self.ratio_split_methods['base'] = False
         cv2.fillConvexPoly(self.blank_image, self.ratio_split_rectangle, color=1)
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
-                                                self.frame, self.ratio_split_methods)
+                                                self.frame, **self.ratio_split_methods)
         self.assertEqual(len(screens), 0)
 
     def test_ratio_split_rectangles(self):
         cv2.fillConvexPoly(self.blank_image, self.ratio_split_rectangle, color=1)
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
-                                                self.frame, self.ratio_split_methods)
+                                                self.frame, **self.ratio_split_methods)
         self.assertEqual(len(screens), 2)
 
     def test_retrieved_quadrangle_contour_convexity(self):
         cv2.fillConvexPoly(self.blank_image, self.concave_quadrangle, color=1)
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
-                                                self.frame, self.baseline_methods)
+                                                self.frame, **self.baseline_methods)
         self.assertEqual(len(screens), 0)
 
     def test_crossed_quadrangle(self):
         cv2.fillConvexPoly(self.blank_image, self.crossed_quadrangle, color=1)
         screens = self.detector.post_processing(self.blank_image.astype('uint8'),
-                                                self.frame, self.baseline_methods)
+                                                self.frame, **self.baseline_methods)
         self.assertEqual(len(screens), 0)
 
 

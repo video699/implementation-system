@@ -11,13 +11,13 @@ from functools import partial
 from logging import getLogger
 from os import PathLike
 from pathlib import Path
-from typing import Callable, List, Dict
+from typing import Callable, List
 
 import numpy as np
 import torch
 from fastai.metrics import dice
 from fastai.utils.mod_display import progress_disabled_ctx
-from fastai.vision import load_learner, defaults, SegmentationLabelList, open_mask, \
+from fastai.vision import load_learner, SegmentationLabelList, open_mask, \
     SegmentationItemList, get_transforms, imagenet_stats, unet_learner, models
 
 from video699.configuration import get_configuration
@@ -26,20 +26,24 @@ from video699.interface import (
     ScreenDetectorABC, FrameABC
 )
 from video699.screen.semantic_segmentation.common import NotFittedException, acc, get_label_from_image_name, \
-    parse_methods, cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, create_labels, \
-    parse_lr, iou_sem_seg
+    parse_post_processing_params, cv_image_to_tensor, tensor_to_cv_binary_image, resize_pred, create_labels, \
+    iou_sem_seg, parse_train_params
 from video699.screen.semantic_segmentation.postprocessing import approximate
 from video699.video.annotated import get_videos
+import warnings
+
+warnings.filterwarnings('ignore')
 
 # logging.basicConfig(filename='example.log', level=logging.WARNING)
 LOGGER = getLogger(__name__)
 
 ALL_VIDEOS = set(get_videos().values())
-CONFIGURATION = get_configuration()['FastaiVideoScreenDetector']
+CONFIGURATION = get_configuration()['FastAIScreenDetector']
 VIDEOS_ROOT = Path(list(ALL_VIDEOS)[0].pathname).parents[2]
 DEFAULT_VIDEO_PATH = VIDEOS_ROOT / 'video' / 'annotated'
 DEFAULT_LABELS_PATH = VIDEOS_ROOT / 'screen' / 'labels'
 DEFAULT_MODEL_PATH = VIDEOS_ROOT / 'screen' / 'model' / 'model.pkl'
+DEFAULT_DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class SegLabelListCustom(SegmentationLabelList):
@@ -100,27 +104,12 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
     Parameters
     ----------
-    model_path : Path
-        A path to the model to load and save.
-    labels_path : Path
-        A path to the labels to generate and load.
-    videos_path : Path
-        A path to the dataset videos.
-    methods : dict
-        A methods used for post_processing.
-    train_params : dict
-        A params used for training a model.
     filtered_by : function
         A function used for filtering frames inside training videos.
     valid_func : function
         A function used for splitting frames into validation and training dataset.
-    device : string
-        A device used for training : 'cpu' or 'cuda'
     progressbar : bool
         A flag to turn on fastai training progressbar.
-    train_by_default : bool
-        A flag to try the load and later train the network by default where it is initialized. When off, initialization
-        does not train or load a model.
 
     Attributes
     ----------
@@ -130,7 +119,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         A path to the labels to generate and load.
     videos_path : Path
         A path to the dataset videos.
-    methods : dict
+    post_processing_params : dict
         A methods used for post_processing.
     train_params : dict
         A params used for training a model.
@@ -142,9 +131,9 @@ class FastAIScreenDetector(ScreenDetectorABC):
         A device used for training : 'cpu' or 'cuda'
     progressbar : bool
         A flag to turn on fastai training progressbar.
-    train_by_default : bool
-        A flag to try the load and later train the network by default where it is initialized. When off, initialization
-        does not train or load a model.
+    train : bool
+        A flag to try the train the network if cannot be loaded by default where it is initialized. When off,
+        initialization does not train but only load a model.
     src_shape : tuple
         A tuple consisting of height and width respectively.
     is_fitted : bool
@@ -154,65 +143,75 @@ class FastAIScreenDetector(ScreenDetectorABC):
     """
 
     # noinspection PyTypeChecker
-    def __init__(self, model_path: PathLike = DEFAULT_MODEL_PATH, labels_path: PathLike = DEFAULT_LABELS_PATH,
-                 videos_path: PathLike = DEFAULT_VIDEO_PATH, methods: Dict = None, train_params: Dict = None,
-                 filtered_by: Callable = None, valid_func: Callable = None, device: str = None,
-                 progressbar: bool = True, train_by_default: bool = True):
+    def __init__(self, filtered_by: Callable = lambda fname: 'frame' in str(fname), valid_func: Callable = None,
+                 progressbar: bool = True, train=True):
 
-        if not device:
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        defaults.device = torch.device(device)
-
+        self.post_processing_params = parse_post_processing_params(CONFIGURATION)
+        self.train_params = parse_train_params(CONFIGURATION)
         self.progressbar = progressbar
-        self.model_path = model_path
-        self.labels_path = labels_path
-        self.videos_path = videos_path
-
-        self.train_params = train_params
-        self.methods = methods
-        self.filtered_by = filtered_by
-        self.valid_func = valid_func
-
-        self.init_params()
-
+        self.model_path = DEFAULT_MODEL_PATH
+        self.labels_path = DEFAULT_LABELS_PATH
+        self.videos_path = DEFAULT_VIDEO_PATH
+        self.device = DEFAULT_DEVICE
         self.src_shape = np.array(
             [CONFIGURATION.getint('image_height'), CONFIGURATION.getint('image_width')])
+        self.image_area = CONFIGURATION.getint('image_width') * CONFIGURATION.getint('image_height')
 
+        self.filtered_by = filtered_by
+        self.valid_func = valid_func
         self.learner = None
         self.is_fitted = False
         create_labels(videos=ALL_VIDEOS, labels_path=self.labels_path)
         self.init_model()
-        if train_by_default:
-            try:
-                self.load(self.model_path)
-            except TypeError:
-                LOGGER.info(f"Cannot load model from {self.model_path}. Training a new one.")
-            if not self.is_fitted:
+        try:
+            self.load(self.model_path)
+        except TypeError:
+            LOGGER.info(f"Cannot load model from {self.model_path}. Training a new one.")
+            if train:
                 self.train()
                 self.save()
 
-    def init_params(self):
-        """ For parameters that do not have specified value in constructor, load the default values. """
-        if not self.methods:
-            self.methods = parse_methods(CONFIGURATION)
+    def init_model(self):
+        """
+        Initialize learner with parameters set in constructor.
+        """
 
-        if not self.filtered_by:
-            self.filtered_by = lambda name: 'frame' in str(name)
+        size = self.src_shape // self.train_params['resize_factor']
+        tfms = get_transforms(do_flip=True, flip_vert=False, max_lighting=0.8,
+                              p_affine=0, p_lighting=0.5)
 
-        train_params_keywords = ['batch_size', 'resize_factor', 'frozen_epochs', 'unfrozen_epochs', 'frozen_lr',
-                                 'unfrozen_lr']
-        extra_params = self.train_params
-        self.train_params = {}
-        for param in train_params_keywords:
-            self.train_params[param] = parse_lr(CONFIGURATION[param]) if '_lr' in param else CONFIGURATION.getint(param)
+        tfms = (tfms[0][1:], tfms[1])
 
-        if extra_params:
-            self.train_params.update(extra_params)
+        get_label = partial(get_label_from_image_name, self.labels_path)
 
-    def train(self):
+        if self.valid_func:
+            src = (SegItemListCustom.from_folder(self.videos_path, ignore_empty=True, recurse=True)
+                   .filter_by_func(self.filtered_by)
+                   .split_by_valid_func(self.valid_func)
+                   .label_from_func(get_label, classes=np.array(['non-screen', 'screen'])))
+
+        else:
+            src = (SegItemListCustom.from_folder(self.videos_path, ignore_empty=True, recurse=True)
+                   .filter_by_func(self.filtered_by)
+                   .split_none()
+                   .label_from_func(get_label, classes=np.array(['non-screen', 'screen'])))
+
+        LOGGER.info("Creating databunch with transformations")
+        data = (src.transform(tfms, size=size, tfm_y=True)
+                .databunch(bs=self.train_params['batch_size'])
+                .normalize(imagenet_stats))
+
+        LOGGER.info("Creating unet-learner with resnet18 backbone.")
+        self.learner = unet_learner(data, models.resnet18, metrics=[acc, dice, iou_sem_seg])
+
+    def train(self, **kwargs):
         """
         Train self.learner model.
         """
+        self.train_params.update({pair: kwargs[pair] for pair in kwargs if pair in self.train_params.keys()})
+
+        self.init_model()
+
         frozen_epochs = self.train_params['frozen_epochs']
         unfrozen_epochs = self.train_params['unfrozen_epochs']
         frozen_lr = self.train_params['frozen_lr']
@@ -220,30 +219,26 @@ class FastAIScreenDetector(ScreenDetectorABC):
 
         if self.progressbar:
             self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
-
-            LOGGER.info("Unfreeze backbone part of the network.")
             self.learner.unfreeze()
             self.learner.fit_one_cycle(unfrozen_epochs, unfrozen_lr)
+
         else:
             with progress_disabled_ctx(self.learner) as self.learner:
                 self.learner.fit_one_cycle(frozen_epochs, frozen_lr)
-
-                LOGGER.info("Unfreeze backbone part of the network.")
                 self.learner.unfreeze()
                 self.learner.fit_one_cycle(unfrozen_epochs, unfrozen_lr)
 
         self.is_fitted = True
 
-    def detect(self, frame: FrameABC, methods: Dict = None):
+    def detect(self, frame: FrameABC, **kwargs):
         """
         A screen detection: semantic segmentation and post-processing parts of algorithm merged in one function.
         Parameters
         ----------
         frame : FrameABC
             A frame from a video.
-        methods : dict
-            A dictionary of different post-processing method. Not specified methods use default value. Optional
-
+        kwargs : dict
+            keyword parameters to rewrite default post-processing parameters.
         Returns
         -------
         screens: array-like
@@ -251,9 +246,10 @@ class FastAIScreenDetector(ScreenDetectorABC):
         """
         if not self.is_fitted:
             raise NotFittedException()
-
+        params_to_update = {pair: kwargs[pair] for pair in kwargs if pair in self.post_processing_params.keys()}
+        self.post_processing_params.update(params_to_update)
         pred = self.semantic_segmentation(frame)
-        screens = self.post_processing(pred, frame, methods)
+        screens = self.post_processing(pred, frame)
         return screens
 
     def semantic_segmentation(self, frame: FrameABC):
@@ -269,6 +265,9 @@ class FastAIScreenDetector(ScreenDetectorABC):
         pred: np.array
             A prediction from semantic segmentation for single frame.
         """
+        if not self.is_fitted:
+            raise NotFittedException
+
         tensor = cv_image_to_tensor(frame.image)
         tensor = self.learner.predict(tensor)
         pred = tensor_to_cv_binary_image(tensor)
@@ -276,7 +275,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         resized = resize_pred(pred, width, height)
         return resized
 
-    def post_processing(self, pred, frame: FrameABC, methods: Dict):
+    def post_processing(self, pred, frame: FrameABC, **kwargs):
         """
         A post-processing part of screen detection algorithm.
         Parameters
@@ -285,17 +284,21 @@ class FastAIScreenDetector(ScreenDetectorABC):
             A prediction from semantic segmentation.
         frame : FrameABC
             A frame from a video.
-        methods : dict
-            A dictionary of different post-processing method. Not specified methods use default value. Optional
+        kwargs : dict
+            Keyword arguments of different post-processing method. Not specified methods use default value. Optional
 
         Returns
         -------
         screens : array_like[FastAIScreenDetectorVideoScreen]
             The detecteed screens in left-sorted order for single frame.
         """
-        if methods is None:
-            methods = self.methods
-        geos_quadrangles = approximate(pred, methods=methods)
+        if not self.is_fitted:
+            raise NotFittedException
+
+        params_to_update = {pair: kwargs[pair] for pair in kwargs if pair in self.post_processing_params.keys()}
+        self.post_processing_params.update(params_to_update)
+
+        geos_quadrangles = approximate(pred, post_processing_params=self.post_processing_params)
         sorted_by_top_left_corner = sorted(geos_quadrangles, key=lambda screen: screen.top_left[0])
         return [FastAIScreenDetectorVideoScreen(frame, screen_index, quadrangle) for
                 screen_index, quadrangle in
@@ -370,7 +373,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         """
         return [self.semantic_segmentation(frame) for frame in frames]
 
-    def post_processing_batch(self, preds, frames: List[FrameABC], methods: Dict = None):
+    def post_processing_batch(self, preds, frames: List[FrameABC], **kwargs):
         """
         A post-processing part of screen detection algorithm for multiple predictions.
         Parameters
@@ -379,19 +382,17 @@ class FastAIScreenDetector(ScreenDetectorABC):
             The predictions from semantic segmentation for multiple frames.
         frames : np.array
             The frames from a video.
-        methods : dict
-            A dictionary of different post-processing method. Not specified methods use default value. Optional
 
         Returns
         -------
         screens : array_like
             The detected screens in left-sorted order for single frame for multiple predictions.
         """
-        if methods is None:
-            methods = self.methods
-        return [self.post_processing(preds, frames, methods) for preds, frames in zip(preds, frames)]
+        params_to_update = {pair: kwargs[pair] for pair in kwargs if pair in self.post_processing_params.keys()}
+        self.post_processing_params.update(params_to_update)
+        return [self.post_processing(preds, frames) for preds, frames in zip(preds, frames)]
 
-    def detect_batch(self, frames: List[FrameABC], methods: Dict = None):
+    def detect_batch(self, frames: List[FrameABC], **kwargs):
         """
         A screen detection: semantic segmentation and post-processing parts of algorithm merged in one function for
         multiple frames.
@@ -410,42 +411,11 @@ class FastAIScreenDetector(ScreenDetectorABC):
         """
         if not self.is_fitted:
             raise NotFittedException()
-
+        params_to_update = {pair: kwargs[pair] for pair in kwargs if pair in self.post_processing_params.keys()}
+        self.post_processing_params.update(params_to_update)
         preds = self.semantic_segmentation_batch(frames)
-        screens = self.post_processing_batch(preds, frames, methods)
+        screens = self.post_processing_batch(preds, frames)
         return screens
-
-    def init_model(self):
-        """
-        Initialize learner with parameters set in constructor.
-        """
-        size = self.src_shape // self.train_params['resize_factor']
-        tfms = get_transforms(do_flip=True, flip_vert=False, max_lighting=0.8,
-                              p_affine=0, p_lighting=0.5)
-
-        tfms = (tfms[0][1:], tfms[1])
-
-        get_label = partial(get_label_from_image_name, self.labels_path)
-
-        if self.valid_func:
-            src = (SegItemListCustom.from_folder(self.videos_path, ignore_empty=True, recurse=True)
-                   .filter_by_func(self.filtered_by)
-                   .split_by_valid_func(self.valid_func)
-                   .label_from_func(get_label, classes=np.array(['non-screen', 'screen'])))
-
-        else:
-            src = (SegItemListCustom.from_folder(self.videos_path, ignore_empty=True, recurse=True)
-                   .filter_by_func(self.filtered_by)
-                   .split_none()
-                   .label_from_func(get_label, classes=np.array(['non-screen', 'screen'])))
-
-        LOGGER.info("Creating databunch with transformations")
-        data = (src.transform(tfms, size=size, tfm_y=True)
-                .databunch(bs=self.train_params['batch_size'])
-                .normalize(imagenet_stats))
-
-        LOGGER.info("Creating unet-learner with resnet18 backbone.")
-        self.learner = unet_learner(data, models.resnet18, metrics=[acc, dice, iou_sem_seg])
 
     def delete(self):
         """

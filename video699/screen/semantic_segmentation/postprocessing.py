@@ -6,6 +6,9 @@ from shapely.ops import split
 from video699.quadrangle.geos import GEOSConvexQuadrangle
 from video699.screen.semantic_segmentation.common import is_bigger_than_boundary, get_coordinates, draw_polygon, \
     midpoint
+import warnings
+
+warnings.filterwarnings('ignore')
 
 
 def contour_approximation(contour, lower_bound, factors):
@@ -60,14 +63,14 @@ def contours_approximation(contours, lower_bound, factors):
     return quadrangles
 
 
-def approximate(pred, methods):
+def approximate(pred, post_processing_params):
     """
-    Approximate predictions into quadrangles using methods parametrized by methods dictionary.
+    Approximate predictions into quadrangles using methods parametrized by post_processing_params.
     Parameters
     ----------
     pred : np.array
         A semantic segmentation prediction: binary image in open-cv.
-    methods : dict
+    post_processing_params : dict
         A dictionary of post-processing methods with parameters.
     Returns
     -------
@@ -75,16 +78,17 @@ def approximate(pred, methods):
         The quadrangles estimated by post-processing methods.
     """
     quadrangles = []
-    if methods['base']:
-        quadrangles = approximate_baseline(pred, **methods)
+    if post_processing_params['base']:
+        quadrangles = approximate_baseline(pred, **post_processing_params)
 
-    if methods['erode_dilate']:
-        erode_dilate_quadrangles = approximate_erose_dilate(pred, **methods)
-        quadrangles = erode_dilate_quadrangles if len(erode_dilate_quadrangles) > len(
+    if post_processing_params['erosion_dilation']:
+        erosion_dilation_quadrangles = approximate_erosion_dilation(pred, **post_processing_params)
+        quadrangles = erosion_dilation_quadrangles if len(erosion_dilation_quadrangles) > len(
             quadrangles) else quadrangles
 
-    if methods['ratio_split'] and (methods['base'] or methods['erode_dilate']):
-        quadrangles = approximate_ratio_split(quadrangles, **methods)
+    if post_processing_params['ratio_split'] and (
+            post_processing_params['base'] or post_processing_params['erosion_dilation']):
+        quadrangles = approximate_ratio_split(quadrangles, **post_processing_params)
         return quadrangles
 
     quadrangles = [GEOSConvexQuadrangle(**get_coordinates(quadrangle)) for quadrangle in
@@ -117,18 +121,20 @@ def approximate_baseline(pred, base_lower_bound, base_factors, **params):
     return quadrangles
 
 
-def approximate_erose_dilate(pred, erode_dilate_lower_bound, erode_dilate_kernel_size, erode_dilate_factors, **params):
+def approximate_erosion_dilation(pred, erosion_dilation_lower_bound, erosion_dilation_kernel_size,
+                                 erosion_dilation_factors,
+                                 **params):
     """
     Approximate predictions into quadrangles using morphological operators eroding and dilating.
     Parameters
     ----------
     pred : np.array
         A semantic segmentation prediction: binary image in open-cv.
-    erode_dilate_lower_bound : int
+    erosion_dilation_lower_bound : int
         A lower percentage of whole image area, under which a contours are discarded.
-    erode_dilate_kernel_size : int
+    erosion_dilation_kernel_size : int
         A size of the structuring element in which we perform morphological operator.
-    erode_dilate_factors : array-like
+    erosion_dilation_factors : array-like
         A list of multipliers specifying the maximum Hausdorff distance between new approximated polygon and original
             contour.
     params : dict
@@ -139,10 +145,10 @@ def approximate_erose_dilate(pred, erode_dilate_lower_bound, erode_dilate_kernel
     quadrangles : array-like
         The quadrangle contours estimated by post-processing methods.
     """
-    kernel = np.ones((erode_dilate_kernel_size, erode_dilate_kernel_size), np.uint8)
+    kernel = np.ones((erosion_dilation_kernel_size, erosion_dilation_kernel_size), np.uint8)
     erosed = cv2.erode(pred, kernel=kernel)
     contours, _ = cv2.findContours(erosed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    quadrangles = contours_approximation(contours, erode_dilate_lower_bound, erode_dilate_factors)
+    quadrangles = contours_approximation(contours, erosion_dilation_lower_bound, erosion_dilation_factors)
     erosed_dilated_quadrangles = []
     for quadrangle in quadrangles:
         zeros = np.zeros(pred.shape, dtype='uint8')
@@ -151,7 +157,7 @@ def approximate_erose_dilate(pred, erode_dilate_lower_bound, erode_dilate_kernel
         contours, _ = cv2.findContours(dilated_quadrangle, cv2.RETR_TREE,
                                        cv2.CHAIN_APPROX_SIMPLE)
         erosed_dilated_quadrangles.extend(
-            contours_approximation(contours, erode_dilate_lower_bound, erode_dilate_factors))
+            contours_approximation(contours, erosion_dilation_lower_bound, erosion_dilation_factors))
     return erosed_dilated_quadrangles
 
 
