@@ -1,6 +1,6 @@
-,batch_size,resize_factor,frozen_epochs,unfrozen_epochs,frozen_lr,unfrozen_lr,base,erode_dilate,ratio_split,base_lower_bound,base_upper_bound,base_factors,erode_dilate_lower_bound,erode_dilate_upper_bound,erode_dilate_factors,erode_dilate_iterations,ratio_split_lower_bound,ratio_split_upper_bound,iou,wrong_count
-0,8,2,9,10,0.001,"slice(0.0001, 0.0002, None)",True,True,True,10,70,"[0.1, 0.01]",5,40,"[0.1, 0.01]",100,0.9,1.5,0.9527409915458335,0
-1,8,2,9,10,0.001,"slice(0.0001, 0.0002, None)",True,True,True,10,70,"[0.1, 0.01]",5,40,"[0.1, 0.01]",100,0.9,1.5,0.9702361735543834,0
-2,8,2,9,10,0.001,"slice(0.0001, 0.0002, None)",True,True,True,10,70,"[0.1, 0.01]",5,40,"[0.1, 0.01]",100,0.9,1.5,0.9425713346221861,1
-3,8,2,9,10,0.001,"slice(0.0001, 0.0002, None)",True,True,True,10,70,"[0.1, 0.01]",5,40,"[0.1, 0.01]",100,0.9,1.5,0.9293287277401875,0
-4,8,2,9,10,0.001,"slice(0.0001, 0.0002, None)",True,True,True,10,70,"[0.1, 0.01]",5,40,"[0.1, 0.01]",100,0.9,1.5,0.9603104082524289,0
+resize_factor,frozen_epochs,unfrozen_epochs,base_lower_bound,erosion_dilation_kernel_size,ratio_split_lower_bound,iou,wrong_count
+8.0,0.0,0.0,50.0,80.0,0.7,0.15818225796698313,64.0
+8.0,0.0,0.0,5.0,80.0,0.7,,81.0
+8.0,0.0,0.0,5.0,80.0,0.7,0.19362806787975198,51.0
+8.0,0.0,0.0,5.0,80.0,0.7,,82.0
+8.0,0.0,0.0,5.0,80.0,0.7,,81.0

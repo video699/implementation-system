@@ -67,8 +67,8 @@ setup(
         'scipy~=1.4.1',
         'Shapely~=1.6.4.post2',
         'tensorflow~=2.1.0',
-        'fastai~=1.0.60',
         'torch~=1.5.0',
+        'fastai~=1.0.60',
     ],
     extras_require={
         'tests': [

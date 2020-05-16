@@ -5,16 +5,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from video699.screen.semantic_segmentation.fastai_detector import ALL_VIDEOS, FastAIScreenDetector
-
 import warnings
-
-warnings.filterwarnings('ignore')
 
 
 class TestPostprocessing(unittest.TestCase):
     """
     Tests the ability of the AnnotatedScreenVideo class to detect its dimensions and produce frames.
     """
+    warnings.simplefilter("ignore")
 
     @staticmethod
     def visualize_np_array(array):

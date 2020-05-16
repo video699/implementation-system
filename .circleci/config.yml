@@ -41,7 +41,7 @@ jobs:
           sudo make install
           sudo ldconfig
     - save_cache:
-        key: implementation-setup-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml" }}
+        key: implementation-setup-{{ .Branch }}-{{ checksum "setup.py" }}-{{ checksum ".circleci/config.yml" }}
         paths:
           - spatialindex
           - venv

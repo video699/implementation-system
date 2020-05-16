@@ -2,15 +2,12 @@ import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from video699.screen.semantic_segmentation.common import create_labels
+import numpy as np
 
 from video699.interface import ScreenDetectorABC
+from video699.screen.semantic_segmentation.common import create_labels
 from video699.screen.semantic_segmentation.fastai_detector import FastAIScreenDetector, ALL_VIDEOS, \
     DEFAULT_LABELS_PATH, VIDEOS_ROOT
-import numpy as np
-import warnings
-
-warnings.filterwarnings('ignore')
 
 
 class TestFastAIScreenDetector(unittest.TestCase):

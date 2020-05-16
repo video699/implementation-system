@@ -6,9 +6,6 @@ from shapely.ops import split
 from video699.quadrangle.geos import GEOSConvexQuadrangle
 from video699.screen.semantic_segmentation.common import is_bigger_than_boundary, get_coordinates, draw_polygon, \
     midpoint
-import warnings
-
-warnings.filterwarnings('ignore')
 
 
 def contour_approximation(contour, lower_bound, factors):

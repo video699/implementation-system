@@ -6,6 +6,7 @@ semantic segmentation U-Net architecture implemented with FastAI library and pos
 ConvexQuadrangles
 """
 import io
+import logging
 import os
 from functools import partial
 from logging import getLogger
@@ -30,9 +31,8 @@ from video699.screen.semantic_segmentation.common import NotFittedException, acc
     iou_sem_seg, parse_train_params
 from video699.screen.semantic_segmentation.postprocessing import approximate
 from video699.video.annotated import get_videos
-import warnings
 
-warnings.filterwarnings('ignore')
+logging.captureWarnings(True)
 
 # logging.basicConfig(filename='example.log', level=logging.WARNING)
 LOGGER = getLogger(__name__)
@@ -204,12 +204,16 @@ class FastAIScreenDetector(ScreenDetectorABC):
         LOGGER.info("Creating unet-learner with resnet18 backbone.")
         self.learner = unet_learner(data, models.resnet18, metrics=[acc, dice, iou_sem_seg])
 
+    def update_params(self, **kwargs):
+        self.train_params.update({pair: kwargs[pair] for pair in kwargs if pair in self.train_params.keys()})
+        self.post_processing_params.update(
+            {pair: kwargs[pair] for pair in kwargs if pair in self.post_processing_params.keys()})
+
     def train(self, **kwargs):
         """
         Train self.learner model.
         """
-        self.train_params.update({pair: kwargs[pair] for pair in kwargs if pair in self.train_params.keys()})
-
+        self.update_params(**kwargs)
         self.init_model()
 
         frozen_epochs = self.train_params['frozen_epochs']
