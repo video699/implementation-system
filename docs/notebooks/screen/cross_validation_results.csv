@@ -1,6 +1,0 @@
-resize_factor,frozen_epochs,unfrozen_epochs,base_lower_bound,erosion_dilation_kernel_size,ratio_split_lower_bound,iou,wrong_count
-8.0,0.0,0.0,50.0,80.0,0.7,0.15818225796698313,64.0
-8.0,0.0,0.0,5.0,80.0,0.7,,81.0
-8.0,0.0,0.0,5.0,80.0,0.7,0.19362806787975198,51.0
-8.0,0.0,0.0,5.0,80.0,0.7,,82.0
-8.0,0.0,0.0,5.0,80.0,0.7,,81.0
