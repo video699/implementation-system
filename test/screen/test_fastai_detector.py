@@ -23,7 +23,7 @@ class TestFastAIScreenDetector(unittest.TestCase):
         self.detector = FastAIScreenDetector(
             filtered_by=lambda name: 'frame002000' in str(name),
             progressbar=False,
-            train=False
+            train=False,
         )
         self.detector.train_params.update({'resize_factor': 8, 'unfrozen_epochs': 1, 'frozen_epochs': 1})
         self.detector.model_path = VIDEOS_ROOT.parent / 'test' / 'screen' / 'test_model' / 'model.plk'

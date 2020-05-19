@@ -16,6 +16,7 @@ from typing import Callable, List
 
 import numpy as np
 import torch
+from fastai.core import defaults
 from fastai.metrics import dice
 from fastai.utils.mod_display import progress_disabled_ctx
 from fastai.vision import load_learner, SegmentationLabelList, open_mask, \
@@ -175,7 +176,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         """
         Initialize learner with parameters set in constructor.
         """
-
+        defaults.device = torch.device(self.device)
         size = self.src_shape // self.train_params['resize_factor']
         tfms = get_transforms(do_flip=True, flip_vert=False, max_lighting=0.8,
                               p_affine=0, p_lighting=0.5)
@@ -250,6 +251,7 @@ class FastAIScreenDetector(ScreenDetectorABC):
         """
         if not self.is_fitted:
             raise NotFittedException()
+        defaults.device = torch.device(self.device)
         params_to_update = {pair: kwargs[pair] for pair in kwargs if pair in self.post_processing_params.keys()}
         self.post_processing_params.update(params_to_update)
         pred = self.semantic_segmentation(frame)
