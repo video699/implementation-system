@@ -18,6 +18,7 @@ from .event.screen import ScreenEventDetectorABC
 
 QUADRANGLE_TRACKER_NAMES = ['rtree_deque']
 SCREEN_DETECTOR_NAMES = ['fastai', 'annotated']
+SCENE_DETECTOR_NAMES = ['distance', 'none']
 PAGE_DETECTOR_NAMES = ['pearson', 'siamese', 'feature', 'imagehash', 'vgg16', 'annotated']
 
 
@@ -67,7 +68,6 @@ def _video(args):
 
     uri = args.video
     from .video.file import VideoFile
-    from .video.scene import FrameImageDistanceSceneDetector
     date = args.date
     if date is None:
         raise ValueError('Video requires capture date')
@@ -76,9 +76,36 @@ def _video(args):
         datetime=parse(date),
         verbose=True,
     )
-    video = FrameImageDistanceSceneDetector(video)
     assert isinstance(video, VideoABC)
     return video
+
+
+def _scene_detector(video, args):
+    """Produces a scene event detector from the arguments of the main script.
+
+    Parameters
+    ----------
+    video : VideoABC
+        A video in which the scene detector will detect important frames.
+    args : argparse.Namespace
+        The arguments received by the main script.
+
+    Returns
+    -------
+    scene_event_detector : VideoABC
+        The scene event detector from the arguments of the main script.
+    """
+
+    assert isinstance(video, VideoABC)
+    name = args.scene_detector
+    assert name in SCENE_DETECTOR_NAMES
+    if name == 'distance':
+        from .video.scene import FrameImageDistanceSceneDetector
+        scene_detector = FrameImageDistanceSceneDetector(video)
+    elif name == 'none':
+        scene_detector = video
+    assert isinstance(scene_detector, VideoABC)
+    return scene_detector
 
 
 def _screen_event_detector(args):
@@ -98,7 +125,7 @@ def _screen_event_detector(args):
     convex_quadrangle_tracker = _convex_quadrangle_tracker(args)
     screen_detector = _screen_detector(args)
     page_detector = _page_detector(args)
-    video = _video(args)
+    video = _scene_detector(_video(args), args)
 
     from .event.screen import ScreenEventDetector
     screen_event_detector = ScreenEventDetector(
@@ -377,7 +404,10 @@ class AnnotatedPageDetector(PageDetectorABC):  # FIXME
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Aligns lecture recording with study materials.')
+    parser = argparse.ArgumentParser(
+        description='Aligns lecture recording with study materials.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         '-c',
         '--convex-quadrangle-tracker',
@@ -397,6 +427,15 @@ if __name__ == '__main__':
             ' in the video'
         ),
         choices=SCREEN_DETECTOR_NAMES,
+    )
+    parser.add_argument(
+        '-S',
+        '--scene-detector',
+        default='distance',
+        help=(
+            'the scene detector that will be used to detect important frames in the video'
+        ),
+        choices=SCENE_DETECTOR_NAMES,
     )
     parser.add_argument(
         '-p',
