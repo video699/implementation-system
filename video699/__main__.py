@@ -425,7 +425,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-S',
         '--scene-detector',
-        default='distance',
+        default='none',
         help=(
             'the scene detector that will be used to detect important frames in the video'
         ),
