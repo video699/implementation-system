@@ -19,7 +19,7 @@ from .event.screen import ScreenEventDetectorABC
 QUADRANGLE_TRACKER_NAMES = ['rtree_deque']
 SCREEN_DETECTOR_NAMES = ['fastai', 'annotated']
 SCENE_DETECTOR_NAMES = ['distance', 'none']
-PAGE_DETECTOR_NAMES = ['pearson', 'siamese', 'feature', 'imagehash', 'vgg16', 'annotated']
+PAGE_DETECTOR_NAMES = ['siamese', 'imagehash', 'vgg16', 'annotated']
 
 
 def _documents(args):
@@ -212,15 +212,9 @@ def _page_detector(args):
 
     name = args.page_detector
     assert name in PAGE_DETECTOR_NAMES
-    if name == 'pearson':
-        from .page.pearson import RollingPearsonPageDetector
-        page_detector = RollingPearsonPageDetector(_documents(args))
-    elif name == 'siamese':
+    if name == 'siamese':
         from .page.siamese import KerasSiamesePageDetector
         page_detector = KerasSiamesePageDetector(_documents(args))
-    elif name == 'feature':
-        from video699.page.feature import LocalFeatureKNNPageDetector
-        page_detector = LocalFeatureKNNPageDetector(_documents(args))
     elif name == 'imagehash':
         from video699.page.imagehash import ImageHashPageDetector
         page_detector = ImageHashPageDetector(_documents(args))
