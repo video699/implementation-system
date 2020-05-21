@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-r"""This module implements a screen event detector that matches last hidden VGG16 layer activations
-for document page image data with last hidden VGG16 layer activations for projection screen image
-data. Related classes and functions are also implemented.
+r"""This module implements a page detector that matches last hidden VGG16 layer activations for
+document page image data with last hidden VGG16 layer activations for projection screen image data.
+Related classes and functions are also implemented.
 
 """
 

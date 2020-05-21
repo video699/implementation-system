@@ -18,7 +18,8 @@ from .event.screen import ScreenEventDetectorABC
 
 QUADRANGLE_TRACKER_NAMES = ['rtree_deque']
 SCREEN_DETECTOR_NAMES = ['fastai', 'annotated']
-PAGE_DETECTOR_NAMES = ['pearson', 'siamese', 'feature', 'imagehash', 'vgg16', 'annotated']
+SCENE_DETECTOR_NAMES = ['distance', 'none']
+PAGE_DETECTOR_NAMES = ['siamese', 'imagehash', 'vgg16', 'annotated']
 
 
 def _documents(args):
@@ -67,7 +68,6 @@ def _video(args):
 
     uri = args.video
     from .video.file import VideoFile
-    from .video.scene import FrameImageDistanceSceneDetector
     date = args.date
     if date is None:
         raise ValueError('Video requires capture date')
@@ -76,9 +76,36 @@ def _video(args):
         datetime=parse(date),
         verbose=True,
     )
-    video = FrameImageDistanceSceneDetector(video)
     assert isinstance(video, VideoABC)
     return video
+
+
+def _scene_detector(video, args):
+    """Produces a scene event detector from the arguments of the main script.
+
+    Parameters
+    ----------
+    video : VideoABC
+        A video in which the scene detector will detect important frames.
+    args : argparse.Namespace
+        The arguments received by the main script.
+
+    Returns
+    -------
+    scene_event_detector : VideoABC
+        The scene event detector from the arguments of the main script.
+    """
+
+    assert isinstance(video, VideoABC)
+    name = args.scene_detector
+    assert name in SCENE_DETECTOR_NAMES
+    if name == 'distance':
+        from .video.scene import FrameImageDistanceSceneDetector
+        scene_detector = FrameImageDistanceSceneDetector(video)
+    elif name == 'none':
+        scene_detector = video
+    assert isinstance(scene_detector, VideoABC)
+    return scene_detector
 
 
 def _screen_event_detector(args):
@@ -98,7 +125,7 @@ def _screen_event_detector(args):
     convex_quadrangle_tracker = _convex_quadrangle_tracker(args)
     screen_detector = _screen_detector(args)
     page_detector = _page_detector(args)
-    video = _video(args)
+    video = _scene_detector(_video(args), args)
 
     from .event.screen import ScreenEventDetector
     screen_event_detector = ScreenEventDetector(
@@ -185,15 +212,9 @@ def _page_detector(args):
 
     name = args.page_detector
     assert name in PAGE_DETECTOR_NAMES
-    if name == 'pearson':
-        from .page.pearson import RollingPearsonPageDetector
-        page_detector = RollingPearsonPageDetector(_documents(args))
-    elif name == 'siamese':
+    if name == 'siamese':
         from .page.siamese import KerasSiamesePageDetector
         page_detector = KerasSiamesePageDetector(_documents(args))
-    elif name == 'feature':
-        from video699.page.feature import LocalFeatureKNNPageDetector
-        page_detector = LocalFeatureKNNPageDetector(_documents(args))
     elif name == 'imagehash':
         from video699.page.imagehash import ImageHashPageDetector
         page_detector = ImageHashPageDetector(_documents(args))
@@ -377,7 +398,10 @@ class AnnotatedPageDetector(PageDetectorABC):  # FIXME
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Aligns lecture recording with study materials.')
+    parser = argparse.ArgumentParser(
+        description='Aligns lecture recording with study materials.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         '-c',
         '--convex-quadrangle-tracker',
@@ -397,6 +421,15 @@ if __name__ == '__main__':
             ' in the video'
         ),
         choices=SCREEN_DETECTOR_NAMES,
+    )
+    parser.add_argument(
+        '-S',
+        '--scene-detector',
+        default='none',
+        help=(
+            'the scene detector that will be used to detect important frames in the video'
+        ),
+        choices=SCENE_DETECTOR_NAMES,
     )
     parser.add_argument(
         '-p',

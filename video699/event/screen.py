@@ -581,9 +581,9 @@ class ScreenEventDetector(ScreenEventDetectorABC):
                 quadrangle_tracker.update(detected_quadrangles)
 
             for moving_quadrangle in disappeared_quadrangles:
+                quadrangle = moving_quadrangle.current_quadrangle
+                screen = previous_detected_screens[quadrangle]
                 if moving_quadrangle in matched_quadrangles:
-                    quadrangle = moving_quadrangle.current_quadrangle
-                    screen = previous_detected_screens[quadrangle]
                     screen_id = screen_ids[moving_quadrangle]
                     previous_page = matched_pages[moving_quadrangle]
                     del screen_ids[moving_quadrangle]

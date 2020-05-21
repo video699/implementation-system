@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-r"""This module implements a screen event detector that matches image hashes extracted from document
-page image data with image hashes extracted from projection screen image data. Related classes and
+r"""This module implements a page detector that matches image hashes extracted from document page
+image data with image hashes extracted from projection screen image data. Related classes and
 functions are also implemented.
 
 """

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-r"""This module implements a screen event detector that matches feature vectors extracted from
-document page image data with feature vectors extracted from projection screen image data using
-a Siamese deep convolutional neural network. Related classes and functions are also implemented.
+r"""This module implements a page detector that matches feature vectors extracted from document page
+image data with feature vectors extracted from projection screen image data using a Siamese deep
+convolutional neural network. Related classes and functions are also implemented.
 
 """
 
