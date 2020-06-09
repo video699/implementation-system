@@ -1,12 +1,12 @@
 video699 – Aligns lecture recordings with study materials
 =========================================================
 
-.. image:: https://circleci.com/gh/xbankov/implementation-system/tree/master.svg?style=shield
-      :target: https://circleci.com/gh/xbankov/implementation-system/tree/master
+.. image:: https://circleci.com/gh/video699/implementation-system/tree/master.svg?style=shield
+      :target: https://circleci.com/gh/video699/implementation-system/tree/master
       :alt: Continuous Integration Status
 .. image:: https://api.codacy.com/project/badge/Grade/9f68a717ab764173a60a2f7b916a25f0
       :alt: Codacy Badge
-      :target: https://app.codacy.com/manual/xbankov/implementation-system?utm_source=github.com&utm_medium=referral&utm_content=xbankov/implementation-system&utm_campaign=Badge_Grade_Dashboard
+      :target: https://app.codacy.com/manual/video699/implementation-system?utm_source=github.com&utm_medium=referral&utm_content=video699/implementation-system&utm_campaign=Badge_Grade_Dashboard
 .. image:: https://readthedocs.org/projects/implementation-system/badge/?version=latest
       :target: https://implementation-system.readthedocs.io/en/latest/?badge=latest
       :alt: Documentation Status
@@ -19,8 +19,8 @@ video699 – Aligns lecture recordings with study materials
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
       :target: https://img.shields.io/badge/License-GPLv3-blue.svg
       :alt: License
-.. image:: https://codecov.io/gh/xbankov/implementation-system/branch/master/graph/badge.svg
-      :target: https://codecov.io/gh/xbankov/implementation-system
+.. image:: https://codecov.io/gh/video699/implementation-system/branch/master/graph/badge.svg
+      :target: https://codecov.io/gh/video699/implementation-system
       :alt: Code Coverage
 
 One Paragraph of project description goes here
@@ -169,6 +169,7 @@ Authors
 -------
 
 -  **Vít Novotný** - *Initial work* – `witiko <https://github.com/witiko>`__
+-  **Mikuláš Bankovič** - *The OpenAI screen detector* – `xbankov <https://github.com/xbankov>`__
 
 See also the list of `contributors
 <https://github.com/video699/implementation-system/contributors>`__ who
