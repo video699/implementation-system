@@ -16,7 +16,6 @@ setup(
         'video699.quadrangle',
         'video699.screen',
         'video699.video',
-        # TODO Is this really right approach? Seems a little bit weird.
         'video699.screen.semantic_segmentation'
     ],
     package_data={
@@ -42,7 +41,7 @@ setup(
             'annotated/*/*.pdf',
         ],
     },
-    version='1.0.0a1+2018.4',
+    version='1.0.0b1+2020.6',
     description='System for lecture slide page retrieval based on lecture recordings',
     author='Vit Novotny',
     author_email='witiko@mail.muni.cz',
@@ -77,7 +76,7 @@ setup(
     },
     long_description=long_description,
     classifiers=[
-        'Development Status :: 4 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Information Technology',
