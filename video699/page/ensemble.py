@@ -4,7 +4,6 @@ r"""This module implements an ensemble page detector that lets other page detect
 
 
 from ..interface import PageDetectorABC
-from ..configuration import get_configuration
 
 
 class EnsemblePageDetector(PageDetectorABC):
