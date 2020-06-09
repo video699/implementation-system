@@ -7,9 +7,6 @@ from ..interface import PageDetectorABC
 from ..configuration import get_configuration
 
 
-CONFIGURATION = get_configuration()['EnsemblePageDetector']
-
-
 class EnsemblePageDetector(PageDetectorABC):
     r"""A page detector that uses a voting ensemble of page detectors.
 
