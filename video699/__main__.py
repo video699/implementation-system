@@ -74,7 +74,7 @@ def _video(args):
     video = VideoFile(
         pathname=uri,
         datetime=parse(date),
-        verbose=True,
+        verbose=not args.quiet,
     )
     assert isinstance(video, VideoABC)
     return video
@@ -478,6 +478,12 @@ if __name__ == '__main__':
         '--video',
         help='the video in which the screen detector will detect lit projection screens',
         required=True,
+    )
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        default=True,
+        help='whether the program should cease to log to the standard error output',
     )
     parser.add_argument(
         '-o',
