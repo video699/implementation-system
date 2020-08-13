@@ -8,7 +8,6 @@ related classes.
 from itertools import chain
 import os
 
-from video699.interface import FrameABC
 from video699.event.screen import (
     ScreenEventDetectorABC,
     ScreenAppearedEvent,
@@ -98,6 +97,7 @@ ANNOTATIONS = {
     65925: None,
 }
 
+
 def evaluate_event_detector(event_detector):
     """Processes a video using a screen event detector and counts successful trials.
 
@@ -125,7 +125,6 @@ def evaluate_event_detector(event_detector):
     assert isinstance(event_detector, ScreenEventDetectorABC)
 
     remaining_annotated_frame_numbers = sorted(ANNOTATIONS, reverse=True)
-    peeked_remaining_annotated_frames = ()
     num_successes = 0
     num_trials = len(ANNOTATIONS)
 
