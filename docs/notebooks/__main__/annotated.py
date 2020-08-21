@@ -143,7 +143,7 @@ def evaluate_event_detector(event_detector):
                     num_successes += 1
             else:
                 detected_page_numbers = set(page.number for page in detected_page_dict.values())
-                if len(detected_page_dict) <= 2 and detected_page_numbers == set([page_number]):
+                if detected_page_numbers == set([page_number]):
                     num_successes += 1
 
         if isinstance(event, (ScreenAppearedEvent, ScreenChangedContentEvent)):
