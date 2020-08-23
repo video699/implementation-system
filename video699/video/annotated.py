@@ -943,7 +943,7 @@ def evaluate_event_detector(annotated_video, event_detector):
     num_successes = 0
     num_trials = len(annotated_video)
 
-    detected_page_dict = {}
+    detected_page_dict = dict()
     for event in chain(event_detector, (None,)):
         # The None event processes all the remaining annotated frames at the end of a video
         for frame in chain(peeked_remaining_annotated_frames, remaining_annotated_frames):
