@@ -19,7 +19,7 @@ from .event.screen import ScreenEventDetectorABC
 QUADRANGLE_TRACKER_NAMES = ['rtree_deque']
 SCREEN_DETECTOR_NAMES = ['fastai', 'annotated']
 SCENE_DETECTOR_NAMES = ['distance', 'none']
-PAGE_DETECTOR_NAMES = ['siamese', 'imagehash', 'vgg16', 'annotated']
+PAGE_DETECTOR_NAMES = ['siamese', 'imagehash', 'vgg16', 'resnet50', 'annotated']
 
 
 def _documents(args):
@@ -99,6 +99,7 @@ def _scene_detector(video, args):
     assert isinstance(video, VideoABC)
     name = args.scene_detector
     assert name in SCENE_DETECTOR_NAMES
+    scene_detector = None
     if name == 'distance':
         from .video.scene import MeanSquaredErrorSceneDetector
         scene_detector = MeanSquaredErrorSceneDetector(video)
@@ -154,6 +155,7 @@ def _convex_quadrangle_tracker(args):
 
     name = args.convex_quadrangle_tracker
     assert name in QUADRANGLE_TRACKER_NAMES
+    convex_quadrangle_tracker = None
     if name == 'rtree_deque':
         from .quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
         convex_quadrangle_tracker = RTreeDequeConvexQuadrangleTracker(2)
@@ -177,6 +179,7 @@ def _screen_detector(args):
 
     name = args.screen_detector
     assert name in SCREEN_DETECTOR_NAMES
+    screen_detector = None
     if name == 'fastai':
         from .screen.semantic_segmentation.fastai_detector import FastAIScreenDetector
         screen_detector = FastAIScreenDetector()
@@ -212,6 +215,7 @@ def _page_detector(args):
 
     name = args.page_detector
     assert name in PAGE_DETECTOR_NAMES
+    page_detector = None
     if name == 'siamese':
         from .page.siamese import KerasSiamesePageDetector
         page_detector = KerasSiamesePageDetector(_documents(args))
@@ -221,6 +225,9 @@ def _page_detector(args):
     elif name == 'vgg16':
         from video699.page.vgg16 import KerasVGG16PageDetector
         page_detector = KerasVGG16PageDetector(_documents(args))
+    elif name == 'resnet50':
+        from video699.page.resnet50 import KerasResNet50PageDetector
+        page_detector = KerasResNet50PageDetector(_documents(args))
     elif name == 'annotated':  # FIXME
         page_detector = AnnotatedPageDetector(_documents(args))
     assert isinstance(page_detector, PageDetectorABC)
