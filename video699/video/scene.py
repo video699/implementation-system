@@ -6,16 +6,17 @@
 
 from collections.abc import Iterator
 
+import cv2 as cv
 import numpy as np
 
 from ..configuration import get_configuration
 from ..interface import VideoABC
 
 
-CONFIGURATION = get_configuration()['FrameImageDistanceSceneDetector']
+CONFIGURATION = get_configuration()['MeanSquaredErrorSceneDetector']
 
 
-class FrameImageDistanceSceneDetector(VideoABC, Iterator):
+class MeanSquaredErrorSceneDetector(VideoABC, Iterator):
     def __init__(self, video):
         self._video = video
         self._iterable = self._read_video()
@@ -44,20 +45,23 @@ class FrameImageDistanceSceneDetector(VideoABC, Iterator):
         return self
 
     def _read_video(self):
-        max_mean_distance = CONFIGURATION.getfloat('max_mean_distance')
-        previous_frame = None
+        max_mse = CONFIGURATION.getfloat('max_mse')
+        image_width = CONFIGURATION.getint('image_width')
+        image_height = CONFIGURATION.getint('image_height')
+        norm = 1.0 / 255
+        previous_frame_image = None
         for current_frame in self._video:
-            if previous_frame is None:
-                previous_frame = current_frame
+            current_frame_image = current_frame.render(image_width, image_height)
+            current_frame_image = cv.cvtColor(current_frame_image[:, :, :3], cv.COLOR_BGR2LAB)
+            if previous_frame_image is None:
+                previous_frame_image = current_frame_image
                 yield current_frame
             else:
-                mean_distance = np.mean(
-                    np.ravel(
-                        np.abs((current_frame.image - previous_frame.image) / 255.0)
-                    )
+                mse = np.mean(
+                    ((current_frame_image - previous_frame_image) * norm)**2.0
                 )
-                if mean_distance > max_mean_distance:
-                    previous_frame = current_frame
+                if mse > max_mse:
+                    previous_frame_image = current_frame_image
                     yield current_frame
 
     def __next__(self):

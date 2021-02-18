@@ -74,7 +74,7 @@ def _video(args):
     video = VideoFile(
         pathname=uri,
         datetime=parse(date),
-        verbose=True,
+        verbose=not args.quiet,
     )
     assert isinstance(video, VideoABC)
     return video
@@ -100,8 +100,8 @@ def _scene_detector(video, args):
     name = args.scene_detector
     assert name in SCENE_DETECTOR_NAMES
     if name == 'distance':
-        from .video.scene import FrameImageDistanceSceneDetector
-        scene_detector = FrameImageDistanceSceneDetector(video)
+        from .video.scene import MeanSquaredErrorSceneDetector
+        scene_detector = MeanSquaredErrorSceneDetector(video)
     elif name == 'none':
         scene_detector = video
     assert isinstance(scene_detector, VideoABC)
@@ -478,6 +478,12 @@ if __name__ == '__main__':
         '--video',
         help='the video in which the screen detector will detect lit projection screens',
         required=True,
+    )
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        default=True,
+        help='whether the program should cease to log to the standard error output',
     )
     parser.add_argument(
         '-o',
