@@ -6,7 +6,7 @@
 
 import cv2 as cv
 
-from ..interface import DocumentABC, PageABC
+from video699.interface import DocumentABC, PageABC
 
 
 class ImageFileDocumentPage(PageABC):

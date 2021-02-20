@@ -4,7 +4,7 @@
 
 """
 
-from ..interface import FrameABC
+from video699.interface import FrameABC
 
 
 class ImageFrame(FrameABC):

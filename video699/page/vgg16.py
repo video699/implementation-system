@@ -15,9 +15,9 @@ import cv2 as cv
 from keras.applications.vgg16 import VGG16, preprocess_input
 import numpy as np
 
-from ..common import get_batches
-from ..configuration import get_configuration
-from ..interface import PageDetectorABC
+from video699.common import get_batches
+from video699.configuration import get_configuration
+from video699.interface import PageDetectorABC
 
 
 LOGGER = getLogger(__name__)

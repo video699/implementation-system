@@ -11,9 +11,8 @@ from itertools import chain  # FIXME
 from dateutil.parser import parse
 from lxml.etree import xmlfile
 
-from .interface import DocumentABC, VideoABC, ConvexQuadrangleTrackerABC, ScreenDetectorABC, \
-    PageDetectorABC
-from .event.screen import ScreenEventDetectorABC
+from video699.interface import DocumentABC, VideoABC, ConvexQuadrangleTrackerABC, ScreenDetectorABC, PageDetectorABC
+from video699.event.screen import ScreenEventDetectorABC
 
 
 QUADRANGLE_TRACKER_NAMES = ['rtree_deque']

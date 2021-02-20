@@ -2,8 +2,7 @@ r"""This module implements an ensemble page detector that lets other page detect
 
 """
 
-
-from ..interface import PageDetectorABC
+from video699.interface import PageDetectorABC
 
 
 class EnsemblePageDetector(PageDetectorABC):

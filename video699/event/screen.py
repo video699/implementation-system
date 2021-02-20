@@ -13,10 +13,10 @@ from lxml.etree import Element
 
 import numpy as np
 
-from ..common import timedelta_as_xsd_duration
-from ..interface import EventDetectorABC, VideoABC, ScreenABC, ScreenDetectorABC, PageDetectorABC
-from .frame import FrameEventABC
-from ..frame.image import ImageFrame
+from video699.common import timedelta_as_xsd_duration
+from video699.interface import EventDetectorABC, VideoABC, ScreenABC, ScreenDetectorABC, PageDetectorABC
+from video699.event.frame import FrameEventABC
+from video699.frame.image import ImageFrame
 
 
 LOGGER = getLogger(__name__)

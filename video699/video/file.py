@@ -10,8 +10,8 @@ from pathlib import Path
 
 import cv2 as cv
 
-from ..interface import VideoABC, FrameABC
-from ..frame.image import ImageFrame
+from video699.interface import VideoABC, FrameABC
+from video699.frame.image import ImageFrame
 
 
 class VideoFileFrame(FrameABC):

@@ -8,7 +8,7 @@ frame.
 from abc import abstractmethod
 from functools import total_ordering
 
-from ..interface import EventABC
+from video699.interface import EventABC
 
 
 @total_ordering

@@ -9,8 +9,8 @@ from collections.abc import Iterator
 import cv2 as cv
 import numpy as np
 
-from ..configuration import get_configuration
-from ..interface import VideoABC
+from video699.configuration import get_configuration
+from video699.interface import VideoABC
 
 
 CONFIGURATION = get_configuration()['MeanSquaredErrorSceneDetector']

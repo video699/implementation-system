@@ -26,10 +26,10 @@ import numpy as np
 from npstreams.iter_utils import last
 from npstreams.stats import _ivar
 
-from ..common import get_batches
-from ..configuration import get_configuration
-from ..interface import PageDetectorABC
-from ..video.annotated import get_videos, AnnotatedSampledVideoScreenDetector
+from video699.common import get_batches
+from video699.configuration import get_configuration
+from video699.interface import PageDetectorABC
+from video699.video.annotated import get_videos, AnnotatedSampledVideoScreenDetector
 
 
 LOGGER = getLogger(__name__)

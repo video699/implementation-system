@@ -15,9 +15,9 @@ from dateutil.parser import parse as datetime_parse
 from lxml import etree
 import numpy as np
 
-from ..quadrangle.geos import GEOSConvexQuadrangle
-from ..frame.image import ImageFrame
-from ..interface import ScreenABC, ScreenDetectorABC, VideoABC
+from video699.quadrangle.geos import GEOSConvexQuadrangle
+from video699.frame.image import ImageFrame
+from video699.interface import ScreenABC, ScreenDetectorABC, VideoABC
 
 
 LOGGER = getLogger(__name__)

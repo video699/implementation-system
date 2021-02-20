@@ -9,8 +9,8 @@ is also implemented.
 
 import rtree
 
-from ..interface import ConvexQuadrangleIndexABC, ConvexQuadrangleTrackerABC
-from .deque import DequeMovingConvexQuadrangle
+from video699.interface import ConvexQuadrangleIndexABC, ConvexQuadrangleTrackerABC
+from video699.quadrangle.deque import DequeMovingConvexQuadrangle
 
 
 class RTreeConvexQuadrangleIndex(ConvexQuadrangleIndexABC):

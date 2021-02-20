@@ -19,24 +19,12 @@ from dateutil.parser import parse as datetime_parse
 from lxml import etree
 import numpy as np
 
-from ..document.image_file import ImageFileDocumentPage
-from ..event.screen import (
-    ScreenEventDetectorABC,
-    ScreenAppearedEvent,
-    ScreenChangedContentEvent,
-    ScreenDisappearedEvent,
-)
-from ..frame.image import ImageFrame
-from ..interface import (
-    DocumentABC,
-    FrameABC,
-    PageABC,
-    PageDetectorABC,
-    ScreenABC,
-    ScreenDetectorABC,
-    VideoABC,
-)
-from ..quadrangle.geos import GEOSConvexQuadrangle
+from video699.document.image_file import ImageFileDocumentPage
+from video699.event.screen import ScreenEventDetectorABC, ScreenAppearedEvent, ScreenChangedContentEvent, \
+    ScreenDisappearedEvent
+from video699.frame.image import ImageFrame
+from video699.interface import DocumentABC, FrameABC, PageABC, PageDetectorABC, ScreenABC, ScreenDetectorABC, VideoABC
+from video699.quadrangle.geos import GEOSConvexQuadrangle
 
 LOGGER = getLogger(__name__)
 RESOURCES_PATHNAME = os.path.join(os.path.dirname(__file__), 'annotated')

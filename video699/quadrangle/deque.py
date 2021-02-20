@@ -6,7 +6,7 @@
 
 from collections import deque
 
-from ..interface import MovingConvexQuadrangleABC
+from video699.interface import MovingConvexQuadrangleABC
 
 
 class DequeMovingConvexQuadrangle(MovingConvexQuadrangleABC):

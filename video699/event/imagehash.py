@@ -15,10 +15,10 @@ import cv2 as cv
 import imagehash
 from PIL import Image
 
-from ..configuration import get_configuration
-from ..interface import PageDetectorABC
-from .screen import ScreenEventDetector, ScreenEventDetectorABC
-from ..quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
+from video699.configuration import get_configuration
+from video699.interface import PageDetectorABC
+from video699.event.screen import ScreenEventDetector, ScreenEventDetectorABC
+from video699.quadrangle.rtree import RTreeDequeConvexQuadrangleTracker
 
 
 LOGGER = getLogger(__name__)

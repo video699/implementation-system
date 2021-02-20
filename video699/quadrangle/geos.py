@@ -10,9 +10,9 @@ import cv2 as cv
 import numpy as np
 from shapely.geometry import Point, Polygon
 
-from ..common import change_aspect_ratio_by_upscaling, COLOR_RGBA_TRANSPARENT
-from ..configuration import get_configuration
-from ..interface import ConvexQuadrangleABC
+from video699.common import change_aspect_ratio_by_upscaling, COLOR_RGBA_TRANSPARENT
+from video699.configuration import get_configuration
+from video699.interface import ConvexQuadrangleABC
 
 CONFIGURATION = get_configuration()['GEOSConvexQuadrangle']
 

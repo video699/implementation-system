@@ -16,8 +16,8 @@ from functools import lru_cache, total_ordering
 
 import cv2 as cv
 
-from .common import rescale_and_keep_aspect_ratio, COLOR_RGBA_TRANSPARENT
-from .configuration import get_configuration
+from video699.common import rescale_and_keep_aspect_ratio, COLOR_RGBA_TRANSPARENT
+from video699.configuration import get_configuration
 
 
 SCREENABC_CONFIGURATION = get_configuration()['ScreenABC']

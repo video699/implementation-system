@@ -12,9 +12,9 @@ import cv2 as cv
 import fitz
 import numpy as np
 
-from ..common import COLOR_RGBA_TRANSPARENT, rescale_and_keep_aspect_ratio
-from ..configuration import get_configuration
-from ..interface import DocumentABC, PageABC
+from video699.common import COLOR_RGBA_TRANSPARENT, rescale_and_keep_aspect_ratio
+from video699.configuration import get_configuration
+from video699.interface import DocumentABC, PageABC
 
 
 LOGGER = getLogger(__name__)
