@@ -58,7 +58,7 @@ setup(
         'npstreams~=1.5.1',
         'numpy~=1.18.2',
         'opencv-python~=4.1.2',
-        'Pillow~=7.1.0',
+        'Pillow>=8.1.1',
         'PyMuPDF~=1.13.18',
         'python-dateutil~=2.7.3',
         'pyxdg~=0.26',
