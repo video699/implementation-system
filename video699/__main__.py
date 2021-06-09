@@ -14,11 +14,10 @@ from lxml.etree import xmlfile
 from video699.interface import DocumentABC, VideoABC, ConvexQuadrangleTrackerABC, ScreenDetectorABC, PageDetectorABC
 from video699.event.screen import ScreenEventDetectorABC
 
-
 QUADRANGLE_TRACKER_NAMES = ['rtree_deque']
 SCREEN_DETECTOR_NAMES = ['fastai', 'annotated']
 SCENE_DETECTOR_NAMES = ['distance', 'none']
-PAGE_DETECTOR_NAMES = ['siamese', 'imagehash', 'vgg16', 'resnet50', 'annotated']
+PAGE_DETECTOR_NAMES = ['siamese', 'imagehash', 'vgg16', 'vgg16pytorch', 'annotated']
 
 
 def _documents(args):
@@ -224,9 +223,9 @@ def _page_detector(args):
     elif name == 'vgg16':
         from video699.page.vgg16 import KerasVGG16PageDetector
         page_detector = KerasVGG16PageDetector(_documents(args))
-    elif name == 'resnet50':
-        from video699.page.resnet50 import KerasResNet50PageDetector
-        page_detector = KerasResNet50PageDetector(_documents(args))
+    elif name == 'vgg16pytorch':
+        from video699.page.pytorch_vgg16 import PyTorchVGG16PageDetector
+        page_detector = PyTorchVGG16PageDetector(_documents(args))
     elif name == 'annotated':  # FIXME
         page_detector = AnnotatedPageDetector(_documents(args))
     assert isinstance(page_detector, PageDetectorABC)

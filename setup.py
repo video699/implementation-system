@@ -53,7 +53,7 @@ setup(
     install_requires=[
         'annoy~=1.13.0',
         'ImageHash~=4.0',
-        'Keras~=2.3.1',
+        'Keras~=2.3.1', # FIXME
         'lxml~=4.2.4',
         'npstreams~=1.5.1',
         'numpy~=1.18.2',
@@ -66,7 +66,9 @@ setup(
         'scipy~=1.4.1',
         'Shapely~=1.6.4.post2',
         'tensorflow~=2.1.0',
-        'fastai~=1.0.60'
+        'torch~=1.7.1',
+        'torchvision~=0.8.2',
+        'fastai~=2.2.5'
     ],
     extras_require={
         'tests': [

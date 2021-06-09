@@ -8,13 +8,14 @@ related classes.
 from itertools import chain
 import os
 
+from tqdm.auto import tqdm
+
 from video699.event.screen import (
     ScreenEventDetectorABC,
     ScreenAppearedEvent,
     ScreenChangedContentEvent,
     ScreenDisappearedEvent,
 )
-
 
 VIDEO_FILENAME = os.path.join(os.path.dirname(__file__), 'IA067-D2-20191112.mp4')
 DOCUMENT_FILENAME = os.path.join(os.path.dirname(__file__), 'Blockchain-FI-MUNI.pdf')
@@ -143,7 +144,7 @@ def evaluate_event_detector(event_detector):
                     num_successes += 1
             else:
                 detected_page_numbers = set(page.number for page in detected_page_dict.values())
-                if detected_page_numbers == set([page_number]):
+                if detected_page_numbers == {page_number}:
                     num_successes += 1
 
         if isinstance(event, (ScreenAppearedEvent, ScreenChangedContentEvent)):

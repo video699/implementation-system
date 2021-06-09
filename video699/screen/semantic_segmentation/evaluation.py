@@ -2,7 +2,11 @@ from tqdm import tqdm
 import numpy as np
 from matplotlib import pyplot as plt
 
-from video699.screen.semantic_segmentation.common import iou
+
+def iou(screenA, screenB):
+    intersection = screenA.coordinates.intersection_area(screenB.coordinates)
+    union = screenA.coordinates.union_area(screenB.coordinates)
+    return intersection / union
 
 
 def all_video_statistics(videos, actual_detector):

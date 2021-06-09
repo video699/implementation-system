@@ -12,7 +12,6 @@ import numpy as np
 from video699.configuration import get_configuration
 from video699.interface import VideoABC
 
-
 CONFIGURATION = get_configuration()['MeanSquaredErrorSceneDetector']
 
 
@@ -58,7 +57,7 @@ class MeanSquaredErrorSceneDetector(VideoABC, Iterator):
                 yield current_frame
             else:
                 mse = np.mean(
-                    ((current_frame_image - previous_frame_image) * norm)**2.0
+                    ((current_frame_image - previous_frame_image) * norm) ** 2.0
                 )
                 if mse > max_mse:
                     previous_frame_image = current_frame_image

@@ -12,7 +12,6 @@ import re
 import numpy as np
 from scipy.stats import norm
 
-
 COLOR_RGBA_TRANSPARENT = (0, 0, 0, 0)
 
 
@@ -299,7 +298,7 @@ def binomial_confidence_interval(num_successes, num_trials, significance_level):
         raise ValueError('The number of successes is greater than the number of trials')
 
     z = norm.ppf(1 - significance_level / 2)
-    z2 = z**2
+    z2 = z ** 2
     n = num_trials + z2
     p = (num_successes + z2 / 2) / n
     radius = z * sqrt(p * (1 - p) / n)
