@@ -107,3 +107,4 @@ docs/notebooks/*.url
 # IDE PyCharm
 .idea/
 /video699/page/restoration/
+/video699/screen/labels/
