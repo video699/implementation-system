@@ -1,0 +1,55 @@
+name: Test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+env:
+  DEBIAN_FRONTEND: noninteractive
+jobs:
+  style-check:
+    name: Style check
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.7
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install Python dependencies
+        run: pip install -U pip setuptools
+      - name: Run metadata checks
+        run: python setup.py check
+      - name: Run style checks
+        run: |
+          set -ex
+          pip install flake8
+          flake8 docs test video699
+  unit-test:
+    name: Unit test
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.7
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install Python dependencies
+        run: pip install -U pip setuptools
+      - name: Install libspatialindex
+        run: |
+          set -ex
+          apt-get -qy update
+          apt-get install -qy libspatialindex6
+      - name: Install libgl
+        run: |
+          set -ex
+          apt-get -qy update
+          apt-get install -qy libgl1-mesa-glx
+      - name: Run unit tests
+        run: |
+          set -ex
+          pip install .
+          pip install pytest
+          python -m pytest

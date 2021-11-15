@@ -1,12 +1,9 @@
 video699 – Aligns lecture recordings with study materials
 =========================================================
 
-.. image:: https://circleci.com/gh/video699/implementation-system/tree/master.svg?style=shield
-      :target: https://circleci.com/gh/video699/implementation-system/tree/master
-      :alt: Continuous Integration Status
-.. image:: https://api.codacy.com/project/badge/Grade/9f68a717ab764173a60a2f7b916a25f0
-      :alt: Codacy Badge
-      :target: https://app.codacy.com/manual/video699/implementation-system?utm_source=github.com&utm_medium=referral&utm_content=video699/implementation-system&utm_campaign=Badge_Grade_Dashboard
+.. image:: https://github.com/video699/implementation-system/actions/workflows/test.yml/badge.svg
+      :target: https://github.com/video699/implementation-system/actions/workflows/test.yml
+      :alt: Continuous Integration
 .. image:: https://readthedocs.org/projects/implementation-system/badge/?version=latest
       :target: https://implementation-system.readthedocs.io/en/latest/?badge=latest
       :alt: Documentation Status
@@ -19,11 +16,8 @@ video699 – Aligns lecture recordings with study materials
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
       :target: https://img.shields.io/badge/License-GPLv3-blue.svg
       :alt: License
-.. image:: https://codecov.io/gh/video699/implementation-system/branch/master/graph/badge.svg
-      :target: https://codecov.io/gh/video699/implementation-system
-      :alt: Code Coverage
 
-One Paragraph of project description goes here
+.. One Paragraph of project description goes here
 
 Getting Started
 ---------------
@@ -38,7 +32,7 @@ Prerequisites
 You need the following tools for the installation:
 
 - Git >= 1.5.3
-- Python >= 3.5
+- Python >= 3.7
 
 You also need at least the following Python packages:
 

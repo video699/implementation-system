@@ -136,7 +136,7 @@ def parse_post_processing_params(config):
 
     except KeyError as ex:
         LOGGER.error(f"{ex.__traceback__}")
-        LOGGER.error(f"Required parameter does not exists in default.ini")
+        LOGGER.error("Required parameter does not exists in default.ini")
     return post_processing_params
 
 

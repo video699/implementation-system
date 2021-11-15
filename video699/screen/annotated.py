@@ -114,15 +114,15 @@ def _assert_key_exists(institution_id, room_id, camera_id):
     """
 
     assert institution_id in SCREEN_ANNOTATIONS, \
-        'Institution "{1}" not found in the projection screen dataset'.format(institution_id)
+        'Institution "{0}" not found in the projection screen dataset'.format(institution_id)
     assert room_id in SCREEN_ANNOTATIONS[institution_id], \
-        'Room "{2}" not found in the projection screen dataset for institution "{1}"'.format(
+        'Room "{1}" not found in the projection screen dataset for institution "{0}"'.format(
             institution_id,
             room_id,
         )
     assert camera_id in CAMERA_ANNOTATIONS[institution_id][room_id], \
-        'Camera "{3}" not found in the projection screen dataset for institution "{1}", ' \
-        'room "{2}"'.format(
+        'Camera "{2}" not found in the projection screen dataset for institution "{0}", ' \
+        'room "{1}"'.format(
             institution_id,
             room_id,
             camera_id,
